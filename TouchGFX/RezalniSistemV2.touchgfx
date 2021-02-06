@@ -10,7 +10,7 @@
       }
     ],
     "CustomContainerDefinitions": [],
-    "Name": "STM32F746G_DISCO",
+    "Name": "CuttingSystemV2",
     "Resolution": {
       "Width": 480,
       "Height": 272
@@ -46,7 +46,7 @@
     },
     "GenerateAssetsCommand": "make -f simulator/gcc/Makefile assets -j8",
     "PostGenerateCommand": "touchgfx update_project --project-file=simulator/msvs/Application.vcxproj",
-    "PostGenerateTargetCommand": "touchgfx update_project --project-file=../STM32F746G_DISCO.ioc --platform=m7",
+    "PostGenerateTargetCommand": "touchgfx update_project --project-file=../CuttingSystemV2.ioc --platform=m7",
     "CompileSimulatorCommand": "make -f simulator/gcc/Makefile -j8",
     "RunSimulatorCommand": "build\\bin\\simulator.exe",
     "CompileTargetCommand": "make -f ../gcc/Makefile -j8",
