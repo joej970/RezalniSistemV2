@@ -52,37 +52,37 @@ endif
 
 -include ../makefile.defs
 
-BUILD_ARTIFACT_NAME := STM32F746G_DISCO
+BUILD_ARTIFACT_NAME := CuttingSystemV2
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX := 
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME).$(BUILD_ARTIFACT_EXTENSION)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-STM32F746G_DISCO.elf \
+CuttingSystemV2.elf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-STM32F746G_DISCO.list \
+CuttingSystemV2.list \
 
 OBJCOPY_HEX += \
-STM32F746G_DISCO.hex \
+CuttingSystemV2.hex \
 
 OBJCOPY_BIN += \
-STM32F746G_DISCO.bin \
+CuttingSystemV2.bin \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: STM32F746G_DISCO.elf secondary-outputs
+main-build: CuttingSystemV2.elf secondary-outputs
 
 # Tool invocations
-STM32F746G_DISCO.elf: $(OBJS) $(USER_OBJS) D:\RezalniSistemV2\Software\RezalniSistemV2\STM32CubeIDE\STM32F746NGHX_FLASH.ld
-	arm-none-eabi-g++ -o "STM32F746G_DISCO.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"D:\RezalniSistemV2\Software\RezalniSistemV2\STM32CubeIDE\STM32F746NGHX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32F746G_DISCO.map" -Wl,--gc-sections -static -LC:/Dev/STM32F746G-DISCO/test_update/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc -LC:/Dev/STM32F746G-DISCO/test_update/STM32F746G_DISCO/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc -LC:/Dev/STM32F746G-DISCO/stm32f746g_disco/STM32F746G_DISCO/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc -LD:/RezalniSistemV2/Software/RezalniSistemV2/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+CuttingSystemV2.elf: $(OBJS) $(USER_OBJS) D:\RezalniSistemV2\Software\RezalniSistemV2\STM32CubeIDE\STM32F746NGHX_FLASH.ld
+	arm-none-eabi-g++ -o "CuttingSystemV2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"D:\RezalniSistemV2\Software\RezalniSistemV2\STM32CubeIDE\STM32F746NGHX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CuttingSystemV2.map" -Wl,--gc-sections -static -LC:/Dev/STM32F746G-DISCO/test_update/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc -LC:/Dev/STM32F746G-DISCO/test_update/CuttingSystemV2/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc -LC:/Dev/STM32F746G-DISCO/CuttingSystemV2/CuttingSystemV2/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc -LD:/RezalniSistemV2/Software/RezalniSistemV2/Middlewares/ST/touchgfx/lib/core/cortex_m7/gcc --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -91,18 +91,18 @@ default.size.stdout: $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-STM32F746G_DISCO.list: $(EXECUTABLES)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "STM32F746G_DISCO.list"
+CuttingSystemV2.list: $(EXECUTABLES)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "CuttingSystemV2.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-STM32F746G_DISCO.hex: $(EXECUTABLES)
-	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "STM32F746G_DISCO.hex"
+CuttingSystemV2.hex: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "CuttingSystemV2.hex"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-STM32F746G_DISCO.bin: $(EXECUTABLES)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "STM32F746G_DISCO.bin"
+CuttingSystemV2.bin: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "CuttingSystemV2.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 

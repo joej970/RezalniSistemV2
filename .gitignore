@@ -31,3 +31,10 @@
 *.out
 *.app
 *.bin
+*.elf
+*.hex
+*.list
+*.map
+STM32CubeIDE/Debug/Application/
+TouchGFX/generated/
+TouchGFX/simulator/
