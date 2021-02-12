@@ -27,6 +27,30 @@ public:
 
     virtual ~Screen1MainCuttingPresenter() {};
 
+
+    uint32_t fetchRelay1duration(){
+    	return model->getRelay1duration();
+    }
+    uint32_t fetchRelay1delay(){
+    	return model->getRelay1delay();
+    }
+
+    uint32_t fetchRelay2duration(){
+    	return model->getRelay2duration();
+    }
+    uint32_t fetchRelay2delay(){
+    	return model->getRelay2delay();
+    }
+
+    uint32_t fetchRelay3duration(){
+    	return model->getRelay3duration();
+    }
+    uint32_t fetchRelay3delay(){
+    	return model->getRelay3delay();
+    }
+
+
+
 private:
     Screen1MainCuttingPresenter();
 

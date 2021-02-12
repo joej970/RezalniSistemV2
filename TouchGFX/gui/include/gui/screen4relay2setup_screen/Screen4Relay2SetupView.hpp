@@ -11,6 +11,8 @@ public:
     virtual ~Screen4Relay2SetupView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
+
+    void saveData();
 protected:
 };
 

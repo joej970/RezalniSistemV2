@@ -41,7 +41,7 @@ public:
     	item.setNumber(itemIndex);
     }
 
-    virtual void setToCurrentValue(uint32_t currentValue){
+    virtual void setCurrentValue(uint32_t currentValue){
     	scrollWheelDigitE_0.animateToItem(currentValue/1 %10, 0);
     	scrollWheelDigitE_1.animateToItem(currentValue/10 %10, 0);
     	scrollWheelDigitE_2.animateToItem(currentValue/100 %10, 0);
@@ -49,6 +49,16 @@ public:
     	scrollWheelDigitE_4.animateToItem(currentValue/10000 %10, 0);
     	scrollWheelDigitE_5.animateToItem(currentValue/100000 %10, 0);
 
+    }
+
+    virtual uint32_t getCurrentValue(){
+    	uint32_t currentValue = scrollWheelDigitE_0.getSelectedItem();
+    	currentValue += 10*scrollWheelDigitE_1.getSelectedItem();
+    	currentValue += 100*scrollWheelDigitE_2.getSelectedItem();
+    	currentValue += 1000*scrollWheelDigitE_3.getSelectedItem();
+    	currentValue += 10000*scrollWheelDigitE_4.getSelectedItem();
+    	currentValue += 100000*scrollWheelDigitE_5.getSelectedItem();
+    	return currentValue;
     }
 protected:
 };

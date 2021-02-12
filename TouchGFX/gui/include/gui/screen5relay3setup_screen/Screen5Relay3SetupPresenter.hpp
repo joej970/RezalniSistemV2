@@ -1,17 +1,17 @@
-#ifndef SCREEN4RELAY2SETUPPRESENTER_HPP
-#define SCREEN4RELAY2SETUPPRESENTER_HPP
+#ifndef SCREEN5RELAY3SETUPPRESENTER_HPP
+#define SCREEN5RELAY3SETUPPRESENTER_HPP
 
 #include <gui/model/ModelListener.hpp>
 #include <mvp/Presenter.hpp>
 
 using namespace touchgfx;
 
-class Screen4Relay2SetupView;
+class Screen5Relay3SetupView;
 
-class Screen4Relay2SetupPresenter : public touchgfx::Presenter, public ModelListener
+class Screen5Relay3SetupPresenter : public touchgfx::Presenter, public ModelListener
 {
 public:
-    Screen4Relay2SetupPresenter(Screen4Relay2SetupView& v);
+    Screen5Relay3SetupPresenter(Screen5Relay3SetupView& v);
 
     /**
      * The activate function is called automatically when this screen is "switched in"
@@ -25,27 +25,26 @@ public:
      */
     virtual void deactivate();
 
-    virtual ~Screen4Relay2SetupPresenter() {};
-
+    virtual ~Screen5Relay3SetupPresenter() {};
 
     void forwardRelayDuration(uint32_t duration){
-    	model->setRelay2duration(duration);
+    	model->setRelay3duration(duration);
     }
     void forwardRelayDelay(uint32_t delay){
-    	model->setRelay2delay(delay);
+    	model->setRelay3delay(delay);
     }
 
     uint32_t fetchRelayDuration(){
-    	return model->getRelay2duration();
+    	return model->getRelay3duration();
     }
     uint32_t fetchRelayDelay(){
-    	return model->getRelay2delay();
+    	return model->getRelay3delay();
     }
 
 private:
-    Screen4Relay2SetupPresenter();
+    Screen5Relay3SetupPresenter();
 
-    Screen4Relay2SetupView& view;
+    Screen5Relay3SetupView& view;
 };
 
-#endif // SCREEN4RELAY2SETUPPRESENTER_HPP
+#endif // SCREEN5RELAY3SETUPPRESENTER_HPP

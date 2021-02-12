@@ -1,25 +1,25 @@
-#include <gui/screen4relay2setup_screen/Screen4Relay2SetupView.hpp>
+#include <gui/screen5relay3setup_screen/Screen5Relay3SetupView.hpp>
 
-Screen4Relay2SetupView::Screen4Relay2SetupView()
+Screen5Relay3SetupView::Screen5Relay3SetupView()
 {
 
 }
 
-void Screen4Relay2SetupView::setupScreen()
+void Screen5Relay3SetupView::setupScreen()
 {
 	uint32_t duration = presenter->fetchRelayDuration();
 	uint32_t delay = presenter->fetchRelayDelay();
 	digitSelectorDuration.setCurrentValue(duration);
 	digitSelectorDelay.setCurrentValue(delay);
-    Screen4Relay2SetupViewBase::setupScreen();
+    Screen5Relay3SetupViewBase::setupScreen();
 }
 
-void Screen4Relay2SetupView::tearDownScreen()
+void Screen5Relay3SetupView::tearDownScreen()
 {
-    Screen4Relay2SetupViewBase::tearDownScreen();
+    Screen5Relay3SetupViewBase::tearDownScreen();
 }
 
-void Screen4Relay2SetupView::saveData()
+void Screen5Relay3SetupView::saveData()
 {
 	uint32_t duration = digitSelectorDuration.getCurrentValue();
 	uint32_t delay = digitSelectorDelay.getCurrentValue();

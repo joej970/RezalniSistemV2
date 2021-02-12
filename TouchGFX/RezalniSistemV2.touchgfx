@@ -242,6 +242,35 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "Type": "FlexButton",
+            "Alpha": 255,
+            "ButtonTrigger": {
+              "Type": "TouchButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "ImageButtonStyle",
+                "X": 0,
+                "Y": 0,
+                "LockFlexButtonToImageSize": false,
+                "Style": "Style7",
+                "ImageReleased": "__designer\\Blue_Buttons_Round_medium.png",
+                "ImagePressed": "__designer\\Blue_Buttons_Round_medium_pressed.png"
+              }
+            ],
+            "Name": "flexButtonAmount",
+            "X": 170,
+            "Y": 32,
+            "Width": 252,
+            "Height": 63,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": true,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -298,7 +327,7 @@
               "Type": "ActionGotoScreen",
               "ScreenTransitionType": "ScreenTransitionSlide",
               "ScreenTransitionDirection": "South",
-              "ActionComponent": "Screen4Relay3Setup"
+              "ActionComponent": "Screen5Relay3Setup"
             }
           }
         ],
@@ -396,13 +425,15 @@
             "Moveable": false
           },
           {
-            "CustomContainerDefinitionName": "DigitSelector",
-            "Type": "CustomContainerInstance",
-            "Name": "digitSelectorDuration",
-            "X": 169,
-            "Y": 96,
-            "Width": 186,
-            "Height": 80,
+            "Type": "Button",
+            "Pressed": "arrow-return_60x60.png",
+            "Released": "arrow-return_60x60.png",
+            "Alpha": 255,
+            "Name": "goBack",
+            "X": 19,
+            "Y": 18,
+            "Width": 60,
+            "Height": 60,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -423,8 +454,8 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textRelay1Setup",
-            "X": 138,
-            "Y": 18,
+            "X": 158,
+            "Y": 11,
             "Width": 164,
             "Height": 37,
             "Visible": true,
@@ -435,15 +466,124 @@
             "Moveable": false
           },
           {
-            "Type": "Button",
-            "Pressed": "arrow-return_60x60.png",
-            "Released": "arrow-return_60x60.png",
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorDelay",
+            "X": 189,
+            "Y": 78,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorDuration",
+            "X": 189,
+            "Y": 171,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId17",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
             "Alpha": 255,
-            "Name": "goBack",
-            "X": 19,
-            "Y": 18,
-            "Width": 60,
-            "Height": 60,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDelay",
+            "X": 118,
+            "Y": 99,
+            "Width": 43,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId18",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDuration",
+            "X": 95,
+            "Y": 192,
+            "Width": 66,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId19",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDurationMs",
+            "X": 375,
+            "Y": 99,
+            "Width": 21,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId20",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDelayMs",
+            "X": 375,
+            "Y": 192,
+            "Width": 21,
+            "Height": 25,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -462,7 +602,7 @@
             },
             "Action": {
               "Type": "ActionCustom",
-              "FunctionName": "saveDataRelay1"
+              "FunctionName": "saveData"
             }
           },
           {
@@ -546,11 +686,122 @@
           {
             "CustomContainerDefinitionName": "DigitSelector",
             "Type": "CustomContainerInstance",
-            "Name": "digitSelectorDuration",
-            "X": 169,
-            "Y": 96,
+            "Name": "digitSelectorDelay",
+            "X": 189,
+            "Y": 78,
             "Width": 186,
-            "Height": 80,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorDuration",
+            "X": 189,
+            "Y": 171,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId29",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDelay",
+            "X": 118,
+            "Y": 99,
+            "Width": 43,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId30",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDuration",
+            "X": 95,
+            "Y": 192,
+            "Width": 66,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId31",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDurationMs",
+            "X": 375,
+            "Y": 99,
+            "Width": 21,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId32",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDelayMs",
+            "X": 375,
+            "Y": 192,
+            "Width": 21,
+            "Height": 25,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -569,7 +820,7 @@
             },
             "Action": {
               "Type": "ActionCustom",
-              "FunctionName": "saveDataRelay2"
+              "FunctionName": "saveData"
             }
           },
           {
@@ -653,11 +904,122 @@
           {
             "CustomContainerDefinitionName": "DigitSelector",
             "Type": "CustomContainerInstance",
-            "Name": "digitSelectorDuration",
-            "X": 169,
-            "Y": 96,
+            "Name": "digitSelectorDelay",
+            "X": 189,
+            "Y": 78,
             "Width": 186,
-            "Height": 80,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorDuration",
+            "X": 189,
+            "Y": 171,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId33",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDelay",
+            "X": 118,
+            "Y": 99,
+            "Width": 43,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId34",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDuration",
+            "X": 95,
+            "Y": 192,
+            "Width": 66,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId35",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDurationMs",
+            "X": 375,
+            "Y": 99,
+            "Width": 21,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId36",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDelayMs",
+            "X": 375,
+            "Y": 192,
+            "Width": 21,
+            "Height": 25,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -676,7 +1038,7 @@
             },
             "Action": {
               "Type": "ActionCustom",
-              "FunctionName": "saveDataRelay3"
+              "FunctionName": "saveData"
             }
           },
           {
@@ -694,7 +1056,7 @@
             }
           }
         ],
-        "Name": "Screen4Relay3Setup",
+        "Name": "Screen5Relay3Setup",
         "OverrideDefaultBufferSize": false,
         "CanvasBufferSize": 0
       }
@@ -775,12 +1137,12 @@
             "Wildcard1": {
               "TextId": "SingleUseId8",
               "UseBuffer": true,
-              "BufferSize": 5
+              "BufferSize": 7
             },
             "Name": "textDelayValue",
-            "X": 1,
+            "X": -27,
             "Y": 63,
-            "Width": 110,
+            "Width": 164,
             "Height": 29,
             "Visible": true,
             "LockPosition": false,
@@ -804,12 +1166,12 @@
             "Wildcard1": {
               "TextId": "SingleUseId7",
               "UseBuffer": true,
-              "BufferSize": 5
+              "BufferSize": 7
             },
             "Name": "textDurationValue",
-            "X": 0,
+            "X": -27,
             "Y": 116,
-            "Width": 111,
+            "Width": 164,
             "Height": 25,
             "Visible": true,
             "LockPosition": false,
@@ -896,7 +1258,7 @@
             "DragAcceleration": 1.0,
             "Name": "scrollWheelDigitE_0",
             "X": 155,
-            "Y": 0,
+            "Y": -7,
             "Width": 31,
             "Height": 80,
             "Visible": true,
@@ -926,7 +1288,7 @@
             "DragAcceleration": 1.0,
             "Name": "scrollWheelDigitE_1",
             "X": 124,
-            "Y": 0,
+            "Y": -7,
             "Width": 31,
             "Height": 80,
             "Visible": true,
@@ -956,7 +1318,7 @@
             "DragAcceleration": 1.0,
             "Name": "scrollWheelDigitE_2",
             "X": 93,
-            "Y": 0,
+            "Y": -7,
             "Width": 31,
             "Height": 80,
             "Visible": true,
@@ -986,7 +1348,7 @@
             "DragAcceleration": 1.0,
             "Name": "scrollWheelDigitE_3",
             "X": 62,
-            "Y": 0,
+            "Y": -7,
             "Width": 31,
             "Height": 80,
             "Visible": true,
@@ -1016,7 +1378,7 @@
             "DragAcceleration": 1.0,
             "Name": "scrollWheelDigitE_4",
             "X": 31,
-            "Y": 0,
+            "Y": -7,
             "Width": 31,
             "Height": 80,
             "Visible": true,
@@ -1046,7 +1408,7 @@
             "DragAcceleration": 1.0,
             "Name": "scrollWheelDigitE_5",
             "X": 0,
-            "Y": 0,
+            "Y": -7,
             "Width": 31,
             "Height": 80,
             "Visible": true,
@@ -1060,9 +1422,9 @@
         "Interactions": [],
         "Name": "DigitSelector",
         "X": 147,
-        "Y": 96,
+        "Y": 58,
         "Width": 186,
-        "Height": 80
+        "Height": 67
       },
       {
         "Components": [
@@ -1155,6 +1517,54 @@
       },
       {
         "TextEntryId": "SingleUseId16",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId17",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId18",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId19",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId20",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId29",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId30",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId31",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId32",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId33",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId34",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId35",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId36",
         "IsResource": false
       }
     ],

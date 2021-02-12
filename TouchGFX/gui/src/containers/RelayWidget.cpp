@@ -9,3 +9,4 @@ void RelayWidget::initialize()
 {
     RelayWidgetBase::initialize();
 }
+

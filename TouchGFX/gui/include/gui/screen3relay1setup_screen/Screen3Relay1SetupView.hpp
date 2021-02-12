@@ -11,7 +11,10 @@ public:
     virtual ~Screen3Relay1SetupView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
+
+    void saveData();
 protected:
+
 };
 
 #endif // SCREEN3RELAY1SETUPVIEW_HPP

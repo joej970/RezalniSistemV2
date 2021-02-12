@@ -38,3 +38,4 @@
 STM32CubeIDE/Debug/Application/
 TouchGFX/generated/
 TouchGFX/simulator/
+*.su

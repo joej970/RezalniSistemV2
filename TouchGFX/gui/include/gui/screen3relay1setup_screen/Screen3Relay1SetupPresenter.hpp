@@ -27,6 +27,24 @@ public:
 
     virtual ~Screen3Relay1SetupPresenter() {};
 
+
+    void forwardRelayDuration(uint32_t duration){
+    	model->setRelay1duration(duration);
+    }
+    void forwardRelayDelay(uint32_t delay){
+    	model->setRelay1delay(delay);
+    }
+
+    uint32_t fetchRelayDuration(){
+    	return model->getRelay1duration();
+    }
+    uint32_t fetchRelayDelay(){
+    	return model->getRelay1delay();
+    }
+
+
+
+
 private:
     Screen3Relay1SetupPresenter();
 
