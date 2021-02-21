@@ -31,3 +31,16 @@ void encoderControlTask(void *pvParameters){
 
 
 }
+
+
+void StartTouchGFXTask(void * argument)
+{
+  /* USER CODE BEGIN 5 */
+  MX_TouchGFX_Process();
+  /* Infinite loop */
+  for(;;)
+  {
+	  vTaskDelay(pdMS_TO_TICKS(1));
+  }
+  /* USER CODE END 5 */
+}

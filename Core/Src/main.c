@@ -25,7 +25,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stm32746g_discovery_qspi.h>
-#include "myTasks.h"
 #include "qPackets.h"
 #include "queue.h"
 
@@ -76,9 +75,11 @@ QSPI_HandleTypeDef hqspi;
 
 SDRAM_HandleTypeDef hsdram1;
 
-osThreadId TouchGFXTaskHandle;
+//osThreadId TouchGFXTaskHandle;
 /* USER CODE BEGIN PV */
 static FMC_SDRAM_CommandTypeDef Command;
+QueueHandle_t qhGUItoEncoderControl;
+TaskHandle_t TouchGFXTaskHandle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,9 +92,11 @@ static void MX_FMC_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_LTDC_Init(void);
 static void MX_QUADSPI_Init(void);
-void StartTouchGFXTask(void const * argument);
+//void StartTouchGFXTask(void const * argument);
+
 
 /* USER CODE BEGIN PFP */
+void StartTouchGFXTask(void * argument);
 void TIM8_Init(void);
 /* USER CODE END PFP */
 
@@ -147,6 +150,7 @@ int main(void)
   MX_QUADSPI_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
+  xTaskCreate(StartTouchGFXTask, "TouchGFXTask", 8192, NULL, 0, &TouchGFXTaskHandle);
   TIM8_Init();
 
   /* USER CODE END 2 */
@@ -165,20 +169,26 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
-  QueueHandle_t qhGUItoEncoderControl = xQueueCreate(1, sizeof(qPacket_encoderControl_t));
+
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
   /* definition and creation of TouchGFXTask */
-  osThreadDef(TouchGFXTask, StartTouchGFXTask, osPriorityNormal, 0, 8192);
-  TouchGFXTaskHandle = osThreadCreate(osThread(TouchGFXTask), NULL);
+  //osThreadDef(TouchGFXTask, StartTouchGFXTask, osPriorityNormal, 0, 8192);
+  //TouchGFXTaskHandle = osThreadCreate(osThread(TouchGFXTask), NULL);
+
+
+
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  qhGUItoEncoderControl = xQueueCreate(1, sizeof(qPacket_encoderControl_t));
+  vTaskStartScheduler();
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
+
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -664,17 +674,21 @@ void TIM8_Init(void){
   * @retval None
   */
 /* USER CODE END Header_StartTouchGFXTask */
-void StartTouchGFXTask(void const * argument)
-{
-  /* USER CODE BEGIN 5 */
-  MX_TouchGFX_Process();
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END 5 */
-}
+//void StartTouchGFXTask(void const * argument)
+//{
+//  /* USER CODE BEGIN 5 */
+//  MX_TouchGFX_Process();
+//  /* Infinite loop */
+//  for(;;)
+//  {
+//    osDelay(1);
+//  }
+//  /* USER CODE END 5 */
+//}
+
+
+
+
 
 /* MPU Configuration */
 
