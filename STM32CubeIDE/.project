@@ -379,6 +379,16 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen5relay3setup_screen/Screen5Relay3SetupView.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/gui/Screen6LengthSetupPresenter.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen6lengthsetup_screen/Screen6LengthSetupPresenter.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen6LengthSetupView.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen6lengthsetup_screen/Screen6LengthSetupView.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/ApplicationFontProvider.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/ApplicationFontProvider.cpp</locationURI>
@@ -404,6 +414,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_isocpeur_30_4bpp_0.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/Font_isocpeur_40_4bpp_0.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_isocpeur_40_4bpp_0.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/Font_verdana_10_4bpp_0.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_verdana_10_4bpp_0.cpp</locationURI>
@@ -424,6 +439,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_30_4bpp.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/Kerning_isocpeur_40_4bpp.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_40_4bpp.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/Kerning_verdana_10_4bpp.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_verdana_10_4bpp.cpp</locationURI>
@@ -437,6 +457,11 @@
 			<name>Application/User/generated/Table_isocpeur_30_4bpp.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_isocpeur_30_4bpp.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Table_isocpeur_40_4bpp.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_isocpeur_40_4bpp.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Table_verdana_10_4bpp.cpp</name>
@@ -499,9 +524,24 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen5relay3setup_screen/Screen5Relay3SetupViewBase.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/Screen6LengthSetupViewBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen6lengthsetup_screen/Screen6LengthSetupViewBase.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/BitmapDatabase.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/BitmapDatabase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_ammount-gray-button-pressed.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_ammount-gray-button-pressed.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_ammount-gray-button-released.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_ammount-gray-button-released.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/image_arrow-return_60x60.cpp</name>
@@ -524,9 +564,39 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_background_Screen2.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_button_green_pressed.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_button_green_pressed.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_button_green_released.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_button_green_released.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_button_red_pressed.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_button_red_pressed.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_button_red_released.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_button_red_released.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_configuration.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_configuration.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_curr_set_len_pressed.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_curr_set_len_pressed.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_curr_set_len_released.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_curr_set_len_released.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/image_Down_arrow.cpp</name>
@@ -569,14 +639,9 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Up_arrow_pressed.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/image_Blue_Buttons_Round_medium.cpp</name>
+			<name>Application/User/generated/image_Blue_ProgressIndicators_bg_medium_circle_indicator_bg_full.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Buttons_Round_medium.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Blue_Buttons_Round_medium_pressed.cpp</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Buttons_Round_medium_pressed.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_ProgressIndicators_bg_medium_circle_indicator_bg_full.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/LanguageGb.cpp</name>

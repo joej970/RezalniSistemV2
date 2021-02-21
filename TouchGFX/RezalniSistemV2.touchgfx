@@ -254,21 +254,189 @@
                 "Type": "ImageButtonStyle",
                 "X": 0,
                 "Y": 0,
-                "LockFlexButtonToImageSize": false,
-                "Style": "Style7",
-                "ImageReleased": "__designer\\Blue_Buttons_Round_medium.png",
-                "ImagePressed": "__designer\\Blue_Buttons_Round_medium_pressed.png"
+                "LockFlexButtonToImageSize": true,
+                "ImageReleased": "ammount-gray-button-released.png",
+                "ImagePressed": "ammount-gray-button-pressed.png"
               }
             ],
             "Name": "flexButtonAmount",
-            "X": 170,
-            "Y": 32,
-            "Width": 252,
-            "Height": 63,
+            "X": 34,
+            "Y": 28,
+            "Width": 160,
+            "Height": 55,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
             "Clickable": true,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "FlexButton",
+            "Alpha": 255,
+            "ButtonTrigger": {
+              "Type": "TouchButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "ImageButtonStyle",
+                "X": 0,
+                "Y": 0,
+                "LockFlexButtonToImageSize": true,
+                "ImageReleased": "button_green_released.png",
+                "ImagePressed": "button_green_pressed.png"
+              }
+            ],
+            "Name": "flexButtonStartStop",
+            "X": 208,
+            "Y": 22,
+            "Width": 65,
+            "Height": 75,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": true,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId37",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 0,
+              "Green": 122,
+              "Blue": 163
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "TextId": "SingleUseId38",
+              "UseBuffer": true,
+              "BufferSize": 5
+            },
+            "Name": "textAmmount",
+            "X": 34,
+            "Y": 28,
+            "Width": 160,
+            "Height": 55,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "curr_set_len_pressed.png",
+            "Released": "curr_set_len_released.png",
+            "Alpha": 255,
+            "Name": "buttonSetLen",
+            "X": 286,
+            "Y": 12,
+            "Width": 160,
+            "Height": 95,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId39",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 0,
+              "Green": 122,
+              "Blue": 163
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "TextId": "SingleUseId40",
+              "UseBuffer": true,
+              "BufferSize": 7
+            },
+            "Name": "textCurrLen",
+            "X": 296,
+            "Y": 22,
+            "Width": 140,
+            "Height": 33,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId41",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 0,
+              "Green": 122,
+              "Blue": 163
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "TextId": "SingleUseId42",
+              "UseBuffer": true,
+              "BufferSize": 7
+            },
+            "Name": "textSetLen",
+            "X": 296,
+            "Y": 55,
+            "Width": 140,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "CircleProgress",
+            "Color": {
+              "Red": 60,
+              "Green": 164,
+              "Blue": 222
+            },
+            "CenterX": 52,
+            "CenterY": 52,
+            "Radius": 48,
+            "LineWidth": 0,
+            "StartAngle": 0,
+            "EndAngle": 360,
+            "CapPrecision": "Round",
+            "Alpha": 255,
+            "FileNameBackground": "__designer\\Blue_ProgressIndicators_bg_medium_circle_indicator_bg_full.png",
+            "IndicatorPositionX": 0,
+            "IndicatorPositionY": 0,
+            "IndicatorPositionWidth": 0,
+            "IndicatorPositionHeight": 0,
+            "ProgressRangeMin": 0,
+            "ProgressRangeMax": 360,
+            "ProgressRangeSteps": 0,
+            "ProgressRangeStepsMin": 6,
+            "ProgressInitialValue": 0,
+            "Name": "circleProgress",
+            "X": 189,
+            "Y": 79,
+            "Width": 104,
+            "Height": 104,
+            "Visible": false,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
             "Fadeable": false,
             "Moveable": false
           }
@@ -329,11 +497,25 @@
               "ScreenTransitionDirection": "South",
               "ActionComponent": "Screen5Relay3Setup"
             }
+          },
+          {
+            "InteractionName": "InteractionGoToLength",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonSetLen"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionSlide",
+              "ScreenTransitionDirection": "North",
+              "ActionComponent": "Screen6LengthSetup"
+            }
           }
         ],
         "Name": "Screen1MainCutting",
         "OverrideDefaultBufferSize": false,
-        "CanvasBufferSize": 0
+        "CanvasBufferSize": 7200
       },
       {
         "Components": [
@@ -508,10 +690,10 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textDelay",
-            "X": 118,
-            "Y": 99,
-            "Width": 43,
-            "Height": 25,
+            "X": 109,
+            "Y": 93,
+            "Width": 64,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -532,10 +714,10 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textDuration",
-            "X": 95,
-            "Y": 192,
-            "Width": 66,
-            "Height": 25,
+            "X": 79,
+            "Y": 180,
+            "Width": 99,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -557,9 +739,9 @@
             "LineSpacing": 0,
             "Name": "textDurationMs",
             "X": 375,
-            "Y": 99,
-            "Width": 21,
-            "Height": 25,
+            "Y": 93,
+            "Width": 31,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -581,9 +763,9 @@
             "LineSpacing": 0,
             "Name": "textDelayMs",
             "X": 375,
-            "Y": 192,
-            "Width": 21,
-            "Height": 25,
+            "Y": 186,
+            "Width": 31,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -726,10 +908,10 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textDelay",
-            "X": 118,
-            "Y": 99,
-            "Width": 43,
-            "Height": 25,
+            "X": 106,
+            "Y": 93,
+            "Width": 64,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -750,10 +932,10 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textDuration",
-            "X": 95,
-            "Y": 192,
-            "Width": 66,
-            "Height": 25,
+            "X": 79,
+            "Y": 186,
+            "Width": 99,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -775,9 +957,9 @@
             "LineSpacing": 0,
             "Name": "textDurationMs",
             "X": 375,
-            "Y": 99,
-            "Width": 21,
-            "Height": 25,
+            "Y": 93,
+            "Width": 31,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -799,9 +981,9 @@
             "LineSpacing": 0,
             "Name": "textDelayMs",
             "X": 375,
-            "Y": 192,
-            "Width": 21,
-            "Height": 25,
+            "Y": 186,
+            "Width": 31,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -944,10 +1126,10 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textDelay",
-            "X": 118,
-            "Y": 99,
-            "Width": 43,
-            "Height": 25,
+            "X": 106,
+            "Y": 93,
+            "Width": 64,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -968,10 +1150,10 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textDuration",
-            "X": 95,
-            "Y": 192,
-            "Width": 66,
-            "Height": 25,
+            "X": 79,
+            "Y": 186,
+            "Width": 99,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -993,9 +1175,9 @@
             "LineSpacing": 0,
             "Name": "textDurationMs",
             "X": 375,
-            "Y": 99,
-            "Width": 21,
-            "Height": 25,
+            "Y": 93,
+            "Width": 31,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -1017,9 +1199,9 @@
             "LineSpacing": 0,
             "Name": "textDelayMs",
             "X": 375,
-            "Y": 192,
-            "Width": 21,
-            "Height": 25,
+            "Y": 186,
+            "Width": 31,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -1057,6 +1239,125 @@
           }
         ],
         "Name": "Screen5Relay3Setup",
+        "OverrideDefaultBufferSize": false,
+        "CanvasBufferSize": 0
+      },
+      {
+        "Components": [
+          {
+            "Type": "Image",
+            "RelativeFilename": "background_Screen2.png",
+            "Alpha": 255,
+            "Name": "BCKG6",
+            "X": 0,
+            "Y": 0,
+            "Width": 480,
+            "Height": 272,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorLength",
+            "X": 147,
+            "Y": 103,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId43",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textLengthSetup",
+            "X": 168,
+            "Y": 16,
+            "Width": 157,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId44",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textLengthMM",
+            "X": 340,
+            "Y": 118,
+            "Width": 35,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "arrow-return_60x60.png",
+            "Released": "arrow-return_60x60.png",
+            "Alpha": 255,
+            "Name": "goBack",
+            "X": 19,
+            "Y": 18,
+            "Width": 60,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "InteractionGoToMain",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "goBack"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionSlide",
+              "ScreenTransitionDirection": "South",
+              "ActionComponent": "Screen1MainCutting"
+            }
+          }
+        ],
+        "Name": "Screen6LengthSetup",
         "OverrideDefaultBufferSize": false,
         "CanvasBufferSize": 0
       }
@@ -1565,6 +1866,38 @@
       },
       {
         "TextEntryId": "SingleUseId36",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId37",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId38",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId39",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId40",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId41",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId42",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId43",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId44",
         "IsResource": false
       }
     ],

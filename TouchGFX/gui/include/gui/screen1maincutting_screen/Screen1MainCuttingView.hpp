@@ -12,6 +12,7 @@ public:
     virtual ~Screen1MainCuttingView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
+    virtual void handleTickEvent();
 
     void flexButtonTouchedHandler(const ImageButtonStyle< touchgfx::TouchButtonTrigger >& button, const ClickEvent& evt);
 protected:
@@ -20,9 +21,11 @@ private:
     touchgfx::Callback<Screen1MainCuttingView, int16_t> swipeCallback;
     Callback<Screen1MainCuttingView, const ImageButtonStyle< touchgfx::TouchButtonTrigger >&, const ClickEvent& > flexButtonTouchedCallback;
 
+
     void swipeCallbackHandler(int16_t);
 
-    uint32_t releaseValidAfter;
+    uint32_t amountButtonPressedTime;
+    uint32_t startStopButtonPressedTime;
 };
 
 #endif // SCREEN1MAINCUTTINGVIEW_HPP

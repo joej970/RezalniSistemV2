@@ -49,6 +49,34 @@ public:
     	return model->getRelay3delay();
     }
 
+    uint32_t fetchAmmount(){
+    	return model->getAmmount();
+    }
+
+    uint32_t fetchSetLength(){
+    	return model->getSetLength();
+    }
+
+    uint32_t fetchCurrLength(){
+    	return model->getCurrLength();
+    }
+
+    bool isCutting(){
+    	return model -> getCutting();
+    }
+
+	void enableCutting(bool enable){
+		model -> enableCutting(enable);
+	}
+
+    void resetAmmount(){
+    	model->resetAmmount();
+    }
+
+    void initiateImmCut(){
+    	model->immCut();
+    }
+
 
 
 private:

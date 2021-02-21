@@ -24,6 +24,10 @@ public:
     void setRelay2delay(uint32_t delay);
     void setRelay3duration(uint32_t duration);
     void setRelay3delay(uint32_t delay);
+    void resetAmmount(void);
+    void enableCutting(bool enable);
+    void immCut();
+	void updateSetLength(uint32_t newLength);
 
     uint32_t getRelay1duration();
     uint32_t getRelay1delay();
@@ -31,7 +35,10 @@ public:
     uint32_t getRelay2delay();
     uint32_t getRelay3duration();
     uint32_t getRelay3delay();
-
+    uint32_t getAmmount();
+    bool getCutting();
+	uint32_t getSetLength();
+	uint32_t getCurrLength();
 
 
 protected:
@@ -42,6 +49,10 @@ protected:
     uint32_t relay2delay;
     uint32_t relay3duration;
     uint32_t relay3delay;
+    uint32_t ammount;
+    uint32_t setLength;
+    uint32_t currLength;
+    bool cuttingActive;
 };
 
 #endif // MODEL_HPP

@@ -8,7 +8,8 @@ Model::Model() :
 	relay2duration(0),
 	relay2delay(0),
 	relay3duration(0),
-	relay3delay(0)
+	relay3delay(0),
+	ammount(0)
 {
 
 }
@@ -40,14 +41,27 @@ void Model::setRelay3delay(uint32_t delay){
 	relay3delay = delay;
 }
 
+void Model::resetAmmount(void){
+	ammount = 0;
+}
+void Model::enableCutting(bool enable){
+	cuttingActive = enable;
+}
+
+void Model::immCut(){
+
+}
+
+void Model::updateSetLength(uint32_t newLength){
+	setLength = newLength;
+}
+
 
 uint32_t Model::getRelay1duration(){
 	return relay1duration;
-	//return (uint32_t) 32;
 }
 uint32_t Model::getRelay1delay(){
-	return relay1delay; //causes program to go into hard fault handler, compiles normally
-	//return (uint32_t) 15; // works ok
+	return relay1delay;
 }
 uint32_t Model::getRelay2duration(){
 	return relay2duration;
@@ -61,3 +75,30 @@ uint32_t Model::getRelay3duration(){
 uint32_t Model::getRelay3delay(){
 	return relay3delay;
 }
+uint32_t Model::getAmmount(){
+	return ammount;
+}
+bool Model::getCutting(){
+	return cuttingActive;
+}
+uint32_t Model::getSetLength(){
+	return setLength;
+}
+uint32_t Model::getCurrLength(){
+	return currLength;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

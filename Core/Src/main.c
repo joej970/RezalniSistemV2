@@ -25,6 +25,11 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stm32746g_discovery_qspi.h>
+#include "myTasks.h"
+#include "qPackets.h"
+#include "queue.h"
+
+#include "../../STM32CubeIDE/Application/User/Core/myTasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,7 +94,7 @@ static void MX_QUADSPI_Init(void);
 void StartTouchGFXTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
-
+void TIM8_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -142,6 +147,7 @@ int main(void)
   MX_QUADSPI_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
+  TIM8_Init();
 
   /* USER CODE END 2 */
 
@@ -159,6 +165,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+  QueueHandle_t qhGUItoEncoderControl = xQueueCreate(1, sizeof(qPacket_encoderControl_t));
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -625,6 +632,28 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/*
+ * Init TIM8 timer to be used as encoder
+ */
+void TIM8_Init(void){
+	// activate clock for peripheral GPIOC
+	RCC->AHB1ENR |= 0b1 << RCC_AHB1ENR_GPIOCEN_Pos;
+	// alternative func for PC7 & PC6: AF3 (refer to datasheet)
+	GPIOC->AFR[0] |= (0b0011 << GPIO_AFRL_AFRL7_Pos) | (0b0011 << GPIO_AFRL_AFRL6_Pos);
+
+	// activate clock for peripheral TIM8
+	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM8EN_Pos;
+	// Master mode selection: Update Event as trigger output (TRGO)
+	TIM8->CR2 = 0b010 << TIM_CR2_MMS_Pos;
+	// Slave mode selection: Encoder mode 2 - Counter counts up/down on TI2FP2 (PC7) edge depending on TI1FP1 (PC6) level.
+	TIM8->SMCR = 0b0010 << TIM_SMCR_SMS_Pos;
+	// Capture/Compare 2 & 1 Selection: CC2 & CC1 channels are configured as input, IC2/IC1 is mapped on TI2/TI1
+	TIM8->CCMR1 = (0b01 << TIM_CCMR1_CC2S_Pos) | (0b01 << TIM_CCMR1_CC1S_Pos);
+	// Capture/Compare 2 output polarity: inverted/falling edge.
+	TIM8->CCER = 0b1 << TIM_CCER_CC2P_Pos;
+
+}
 
 /* USER CODE END 4 */
 
