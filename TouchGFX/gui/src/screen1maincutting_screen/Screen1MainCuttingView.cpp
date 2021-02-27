@@ -20,8 +20,8 @@ void Screen1MainCuttingView::setupScreen() {
 	relayWidget3.setDelay(presenter->fetchRelay3delay());
 	relayWidget3.setDuration(presenter->fetchRelay3duration());
 
-	Unicode::snprintf(textSetLenBuffer, TEXTSETLEN_SIZE, "%d", presenter->fetchSetLength());
-	textSetLen.invalidate();
+//	Unicode::snprintf(textSetLenBuffer, TEXTSETLEN_SIZE, "%d", presenter->fetchSetLength());
+//	textSetLen.invalidate();
 
 	flexButtonAmount.setClickAction(flexButtonTouchedCallback);
 	flexButtonStartStop.setClickAction(flexButtonTouchedCallback);
@@ -35,6 +35,7 @@ void Screen1MainCuttingView::setupScreen() {
 void Screen1MainCuttingView::tearDownScreen() {
 	Screen1MainCuttingViewBase::tearDownScreen();
 }
+
 
 void Screen1MainCuttingView::swipeCallbackHandler(int16_t velocity) {
 	if (velocity < 0) {
@@ -98,6 +99,10 @@ void Screen1MainCuttingView::handleTickEvent(){
 	}
 	Unicode::snprintf(textCurrLenBuffer, TEXTCURRLEN_SIZE, "%d", presenter->fetchCurrLength());
 	textCurrLen.invalidate();
+	Unicode::snprintf(textSetLenBuffer, TEXTSETLEN_SIZE, "%d", presenter->fetchSetLengthActual());
+	textSetLen.invalidate();
+	Unicode::snprintf(textAmmountBuffer, TEXTAMMOUNT_SIZE, "%d", presenter->fetchAmmount());
+	textAmmount.invalidate();
 
 }
 

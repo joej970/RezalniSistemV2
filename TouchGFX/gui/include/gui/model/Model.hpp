@@ -28,6 +28,7 @@ public:
     void enableCutting(bool enable);
     void immCut();
 	void updateSetLength(uint32_t newLength);
+	void reportToEncoderControlTask();
 
     uint32_t getRelay1duration();
     uint32_t getRelay1delay();
@@ -38,6 +39,7 @@ public:
     uint32_t getAmmount();
     bool getCutting();
 	uint32_t getSetLength();
+	uint32_t getSetLengthActual();
 	uint32_t getCurrLength();
 
 
@@ -51,8 +53,13 @@ protected:
     uint32_t relay3delay;
     uint32_t ammount;
     uint32_t setLength;
+    uint32_t setLengthActual;
     uint32_t currLength;
     bool cuttingActive;
+    bool immediateCut;
+
+
+
 };
 
 #endif // MODEL_HPP

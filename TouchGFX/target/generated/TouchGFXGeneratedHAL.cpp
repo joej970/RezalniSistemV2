@@ -4,7 +4,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under Ultimate Liberty license
@@ -25,10 +25,9 @@
 
 using namespace touchgfx;
 
-namespace
-{
-static uint16_t lcd_int_active_line;
-static uint16_t lcd_int_porch_line;
+namespace {
+    static uint16_t lcd_int_active_line;
+    static uint16_t lcd_int_porch_line;
 }
 
 void TouchGFXGeneratedHAL::initialize()
@@ -83,17 +82,37 @@ void TouchGFXGeneratedHAL::setTFTFrameBuffer(uint16_t* adr)
 
 void TouchGFXGeneratedHAL::flushFrameBuffer(const touchgfx::Rect& rect)
 {
-    HAL::flushFrameBuffer(rect);
+  HAL::flushFrameBuffer(rect);
+// If the framebuffer is placed in Write Through cached memory (e.g. SRAM) then we need
+// to flush the Dcache prior to letting DMA2D accessing it. That's done
+// using SCB_CleanInvalidateDCache().
+SCB_CleanInvalidateDCache();
 }
 
 bool TouchGFXGeneratedHAL::blockCopy(void* RESTRICT dest, const void* RESTRICT src, uint32_t numBytes)
 {
-    return HAL::blockCopy(dest, src, numBytes);
+  return HAL::blockCopy(dest, src, numBytes);
+}
+
+void TouchGFXGeneratedHAL::InvalidateCache()
+{
+// If the framebuffer is placed in Write Through cached memory (e.g. SRAM) then we need
+// to flush the Dcache prior to letting DMA2D accessing it. That's done
+// using SCB_CleanInvalidateDCache().
+SCB_CleanInvalidateDCache();
+}
+
+void TouchGFXGeneratedHAL::FlushCache()
+{
+// If the framebuffer is placed in Write Through cached memory (e.g. SRAM) then we need
+// to flush the Dcache prior to letting DMA2D accessing it. That's done
+// using SCB_CleanInvalidateDCache().
+SCB_CleanInvalidateDCache();
 }
 
 extern "C"
 {
-    void HAL_LTDC_LineEventCallback(LTDC_HandleTypeDef* hltdc)
+    void HAL_LTDC_LineEventCallback(LTDC_HandleTypeDef *hltdc)
     {
         if (LTDC->LIPCR == lcd_int_active_line)
         {

@@ -57,6 +57,10 @@ public:
     	return model->getSetLength();
     }
 
+    uint32_t fetchSetLengthActual(){
+    	return model->getSetLengthActual();
+    }
+
     uint32_t fetchCurrLength(){
     	return model->getCurrLength();
     }

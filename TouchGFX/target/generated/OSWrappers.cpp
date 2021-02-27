@@ -4,7 +4,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under Ultimate Liberty license
@@ -91,6 +91,15 @@ void OSWrappers::signalVSync()
 {
     // Release of semaphore inside an interrupt is handled by the CMSIS layer
     osSemaphoreRelease(vsync_sem);
+}
+
+/*
+  * Signal that the rendering of the frame has completed. Used by
+  * some systems to avoid using any previous vsync.
+  */
+void OSWrappers::signalRenderingDone()
+{
+  // Empty implementation for CMSIS V1
 }
 
 /*

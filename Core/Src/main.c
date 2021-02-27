@@ -18,6 +18,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <qPackages.h>
 #include "main.h"
 #include "cmsis_os.h"
 #include "app_touchgfx.h"
@@ -25,10 +26,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stm32746g_discovery_qspi.h>
-#include "qPackets.h"
 #include "queue.h"
 
-#include "../../STM32CubeIDE/Application/User/Core/myTasks.h"
+#include "../../STM32CubeIDE/Application/User/Core/myTasks.h" // maybe try with <>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,11 +75,15 @@ QSPI_HandleTypeDef hqspi;
 
 SDRAM_HandleTypeDef hsdram1;
 
-//osThreadId TouchGFXTaskHandle;
+osThreadId TouchGFXTaskHandle;
 /* USER CODE BEGIN PV */
 static FMC_SDRAM_CommandTypeDef Command;
 QueueHandle_t qhGUItoEncoderControl;
-TaskHandle_t TouchGFXTaskHandle;
+QueueHandle_t qhEncoderControlToReport;
+QueueHandle_t qhReportToTouchGFX;
+
+TaskHandle_t thEncoderControl;
+TaskHandle_t thReport;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,11 +96,9 @@ static void MX_FMC_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_LTDC_Init(void);
 static void MX_QUADSPI_Init(void);
-//void StartTouchGFXTask(void const * argument);
-
+void StartTouchGFXTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
-void StartTouchGFXTask(void * argument);
 void TIM8_Init(void);
 /* USER CODE END PFP */
 
@@ -150,7 +152,6 @@ int main(void)
   MX_QUADSPI_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
-  xTaskCreate(StartTouchGFXTask, "TouchGFXTask", 8192, NULL, 0, &TouchGFXTaskHandle);
   TIM8_Init();
 
   /* USER CODE END 2 */
@@ -169,26 +170,25 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
-
+  qhGUItoEncoderControl = xQueueCreate(1, sizeof(qPackage_encoderControl_t));
+  qhEncoderControlToReport = xQueueCreate(1, sizeof(qPackage_encoderControl_t));
+  qhReportToTouchGFX = xQueueCreate(1 , sizeof(qPackage_report_t));
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
   /* definition and creation of TouchGFXTask */
-  //osThreadDef(TouchGFXTask, StartTouchGFXTask, osPriorityNormal, 0, 8192);
-  //TouchGFXTaskHandle = osThreadCreate(osThread(TouchGFXTask), NULL);
-
-
-
+  osThreadDef(TouchGFXTask, StartTouchGFXTask, osPriorityNormal, 0, 8192);
+  TouchGFXTaskHandle = osThreadCreate(osThread(TouchGFXTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  qhGUItoEncoderControl = xQueueCreate(1, sizeof(qPacket_encoderControl_t));
-  vTaskStartScheduler();
+  xTaskCreate(encoderControlTask,"encoderControlTask",256,NULL,2,&thEncoderControl);
+  xTaskCreate(reportTask, "reportTask",256,NULL,1,&thReport);
+
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
-  //osKernelStart();
-
+  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -639,6 +639,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LCD_DISP_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PC7 PC6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */
@@ -647,10 +655,11 @@ static void MX_GPIO_Init(void)
  * Init TIM8 timer to be used as encoder
  */
 void TIM8_Init(void){
+	// TAKEN CARE OF BY CUBEMX
 	// activate clock for peripheral GPIOC
-	RCC->AHB1ENR |= 0b1 << RCC_AHB1ENR_GPIOCEN_Pos;
+	//RCC->AHB1ENR |= 0b1 << RCC_AHB1ENR_GPIOCEN_Pos;
 	// alternative func for PC7 & PC6: AF3 (refer to datasheet)
-	GPIOC->AFR[0] |= (0b0011 << GPIO_AFRL_AFRL7_Pos) | (0b0011 << GPIO_AFRL_AFRL6_Pos);
+	//GPIOC->AFR[0] |= (0b0011 << GPIO_AFRL_AFRL7_Pos) | (0b0011 << GPIO_AFRL_AFRL6_Pos);
 
 	// activate clock for peripheral TIM8
 	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM8EN_Pos;
@@ -674,21 +683,17 @@ void TIM8_Init(void){
   * @retval None
   */
 /* USER CODE END Header_StartTouchGFXTask */
-//void StartTouchGFXTask(void const * argument)
-//{
-//  /* USER CODE BEGIN 5 */
-//  MX_TouchGFX_Process();
-//  /* Infinite loop */
-//  for(;;)
-//  {
-//    osDelay(1);
-//  }
-//  /* USER CODE END 5 */
-//}
-
-
-
-
+void StartTouchGFXTask(void const * argument)
+{
+  /* USER CODE BEGIN 5 */
+  MX_TouchGFX_Process();
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */
+}
 
 /* MPU Configuration */
 
