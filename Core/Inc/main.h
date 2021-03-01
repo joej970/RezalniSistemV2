@@ -62,6 +62,16 @@ void Error_Handler(void);
 #define LCD_BL_CTRL_GPIO_Port GPIOK
 #define LCD_DISP_Pin GPIO_PIN_12
 #define LCD_DISP_GPIO_Port GPIOI
+#define RLY1_Pin GPIO_PIN_8
+#define RLY1_GPIO_Port GPIOA
+#define ENC2_Pin GPIO_PIN_7
+#define ENC2_GPIO_Port GPIOC
+#define ENC1_Pin GPIO_PIN_6
+#define ENC1_GPIO_Port GPIOC
+#define RLY2_Pin GPIO_PIN_14
+#define RLY2_GPIO_Port GPIOB
+#define RLY3_Pin GPIO_PIN_15
+#define RLY3_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

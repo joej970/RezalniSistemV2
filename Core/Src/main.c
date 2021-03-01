@@ -18,7 +18,6 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <qPackages.h>
 #include "main.h"
 #include "cmsis_os.h"
 #include "app_touchgfx.h"
@@ -99,7 +98,11 @@ static void MX_QUADSPI_Init(void);
 void StartTouchGFXTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
-void TIM8_Init(void);
+void TIM3_Init(void);	// encoder
+void TIM4_Init(void);	// forwarded for other timers
+void TIM1_Init(void);	// RLY1
+void TIM12_Init(void);	// RLY2
+void TIM8_Init(void);	// RLY3
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -152,7 +155,12 @@ int main(void)
   MX_QUADSPI_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
-  TIM8_Init();
+  TIM3_Init();	// encoder
+  TIM4_Init();	// forwarded for other timers
+  TIM1_Init();	// RLY1
+  TIM12_Init();	// RLY2
+  TIM8_Init();	// RLY3
+
 
   /* USER CODE END 2 */
 
@@ -244,7 +252,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_6) != HAL_OK)
   {
@@ -639,38 +647,154 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LCD_DISP_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PC7 PC6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_6;
+  /*Configure GPIO pin : RLY1_Pin */
+  GPIO_InitStruct.Pin = RLY1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+  HAL_GPIO_Init(RLY1_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : ENC2_Pin ENC1_Pin */
+  GPIO_InitStruct.Pin = ENC2_Pin|ENC1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : RLY2_Pin */
+  GPIO_InitStruct.Pin = RLY2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF9_TIM12;
+  HAL_GPIO_Init(RLY2_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : RLY3_Pin */
+  GPIO_InitStruct.Pin = RLY3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(RLY3_GPIO_Port, &GPIO_InitStruct);
 
 }
 
 /* USER CODE BEGIN 4 */
 
 /*
- * Init TIM8 timer to be used as encoder
+ * Init TIM3 timer to be used as encoder
+ */
+void TIM3_Init(void){
+	// activate clock for peripheral TIM3
+	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM3EN_Pos;
+	// Master mode selection: Update Event as trigger output (TRGO)
+	TIM3->CR2 = 0b010 << TIM_CR2_MMS_Pos;
+	// Slave mode selection: Encoder mode 2 - Counter counts up/down on TI2FP2 (PC7) edge depending on TI1FP1 (PC6) level.
+	TIM3->SMCR = 0b010 << TIM_SMCR_SMS_Pos;
+	// Capture/Compare 2 & 1 Selection: CC2 & CC1 channels are configured as input, IC2/IC1 is mapped on TI2/TI1
+	TIM3->CCMR1 = (0b01 << TIM_CCMR1_CC2S_Pos) | (0b01 << TIM_CCMR1_CC1S_Pos);
+	// Capture/Compare 2 output polarity: inverted/falling edge.
+	TIM3->CCER = 0b1 << TIM_CCER_CC2P_Pos;
+
+}
+
+
+
+/*
+ * Init TIM4 timer to be used as trigger timer for TIM1, TIM8, TIM12
+ */
+void TIM4_Init(void){
+	// activate clock for peripheral TIM4
+	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM4EN_Pos;
+	// One pulse mode
+	TIM4->CR1 = 0b1 << TIM_CR1_OPM_Pos;
+	// Master mode selection: CNT_EN as trigger output (TRGO)
+	TIM4->CR2 = 0b001 << TIM_CR2_MMS_Pos;
+	// Trigger selection: ITR2 (TIM3), Slave mode selection: Trigger mode - the counter starts on rising edge of TRGI
+	TIM4->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b010 << TIM_SMCR_TS_Pos;
+	// Let it stop immediately.
+	TIM4->ARR = 1;
+
+}
+
+/*
+ * Init TIM1 timer to control RLY1
+ */
+void TIM1_Init(void){
+	// activate clock for peripheral TIM1
+	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM1EN_Pos;
+	// Lower its frequency from 100 MHz to 2.5 kHz
+	TIM1->PSC = 40000;
+	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
+	TIM1->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
+	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
+	TIM1->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b011 << TIM_SMCR_TS_Pos;
+	// Master enable output MOE, Off-state selection for Run and Idle mode: Inactive level when in off state
+	TIM1->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
+	// PWM Mode 2 on channel 1, Output Compare 1 pre-load enable
+	TIM1->CCMR1 = 0b0111 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
+
+	// Set ARR and CC1 to max
+	TIM1->ARR = 0xFFFF;
+	TIM1->CCR1 = 0xFFFF;
+	// Update event generation as ARR and CCR1 are preloaded
+	TIM1->EGR = 0b1 << TIM_EGR_UG_Pos;
+	// Output Compare 1 output enable
+	TIM1->CCER = 0b1 << TIM_CCER_CC1E_Pos;
+
+
+}
+
+/*
+ * Init TIM12 timer to control RLY2
+ */
+void TIM12_Init(void){
+	// activate clock for peripheral TIM12
+	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM12EN_Pos;
+	// Lower its frequency from 100 MHz to 2.5 kHz
+	TIM12->PSC = 40000;
+	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
+	TIM12->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
+	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
+	TIM12->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b000 << TIM_SMCR_TS_Pos;
+	// Master enable output MOE
+	TIM12->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
+	// PWM Mode 2 on channel 1, Output Compare 1 pre-load enable
+	TIM12->CCMR1 = 0b0111 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
+	// Set ARR and CC1 to max
+	TIM12->ARR = 0xFFFF;
+	TIM12->CCR1 = 0xFFFF;
+	// Update event generation as ARR and CCR1 are preloaded
+	TIM12->EGR = 0b1 << TIM_EGR_UG_Pos;
+	// Output Compare 1 output enable
+	TIM12->CCER = 0b1 << TIM_CCER_CC1E_Pos;
+}
+
+/*
+ * Init TIM8 timer to control RLY3
  */
 void TIM8_Init(void){
-	// TAKEN CARE OF BY CUBEMX
-	// activate clock for peripheral GPIOC
-	//RCC->AHB1ENR |= 0b1 << RCC_AHB1ENR_GPIOCEN_Pos;
-	// alternative func for PC7 & PC6: AF3 (refer to datasheet)
-	//GPIOC->AFR[0] |= (0b0011 << GPIO_AFRL_AFRL7_Pos) | (0b0011 << GPIO_AFRL_AFRL6_Pos);
-
 	// activate clock for peripheral TIM8
 	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM8EN_Pos;
-	// Master mode selection: Update Event as trigger output (TRGO)
-	TIM8->CR2 = 0b010 << TIM_CR2_MMS_Pos;
-	// Slave mode selection: Encoder mode 2 - Counter counts up/down on TI2FP2 (PC7) edge depending on TI1FP1 (PC6) level.
-	TIM8->SMCR = 0b0010 << TIM_SMCR_SMS_Pos;
-	// Capture/Compare 2 & 1 Selection: CC2 & CC1 channels are configured as input, IC2/IC1 is mapped on TI2/TI1
-	TIM8->CCMR1 = (0b01 << TIM_CCMR1_CC2S_Pos) | (0b01 << TIM_CCMR1_CC1S_Pos);
-	// Capture/Compare 2 output polarity: inverted/falling edge.
-	TIM8->CCER = 0b1 << TIM_CCER_CC2P_Pos;
+	// Lower its frequency from 100 MHz to 2.5 kHz
+	TIM8->PSC = 40000;
+	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
+	TIM8->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
+	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
+	TIM8->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b010 << TIM_SMCR_TS_Pos;
+	// Master enable output MOE
+	TIM8->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
+	// PWM Mode 2 on channel 1, Output Compare 1 pre-load enable
+	TIM8->CCMR2 = 0b0111 << TIM_CCMR2_OC3M_Pos | 0b1 << TIM_CCMR2_OC3PE_Pos;
+	// Set ARR and CC3 to max
+	TIM8->ARR = 0xFFFF;
+	TIM8->CCR3 = 0xFFFF;
+	// Update event generation as ARR and CCR1 are preloaded
+	TIM8->EGR = 0b1 << TIM_EGR_UG_Pos;
+	// Output Compare 1 output enable
+	TIM8->CCER = 0b1 << TIM_CCER_CC3NE_Pos;
 
 }
 

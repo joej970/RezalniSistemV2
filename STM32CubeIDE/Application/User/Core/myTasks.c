@@ -37,12 +37,12 @@ void encoderControlTask(void *pvParameters){
 			while(1);
 		}
 		if(receivedPackage.isActive){
-			TIM8 -> CR1 |= TIM_CR1_CEN_Msk;
+			TIM3 -> CR1 |= TIM_CR1_CEN_Msk;
 		}else{
-			TIM8 -> CR1 &= ~TIM_CR1_CEN_Msk;
+			TIM3 -> CR1 &= ~TIM_CR1_CEN_Msk;
 		}
 		if(receivedPackage.immCut){
-			TIM8 -> EGR = TIM_EGR_UG_Msk;
+			TIM3 -> EGR = TIM_EGR_UG_Msk;
 		}
 
 		//TODO setup a timer to measure diff between int and fp calculation
@@ -51,9 +51,9 @@ void encoderControlTask(void *pvParameters){
 		uint32_t newArr = (uint32_t)(0.5+(float)receivedPackage.resolution*receivedPackage.length_01mm/(2*3.1415926*receivedPackage.radius_01mm));
 
 		if(newArr > 0xFFFF ){
-			TIM8 -> ARR = (uint32_t) 0xFFFF;
+			TIM3 -> ARR = (uint32_t) 0xFFFF;
 		}else{
-			TIM8 -> ARR = (uint32_t) newArr;
+			TIM3 -> ARR = (uint32_t) newArr;
 		}
 
 
@@ -81,11 +81,9 @@ void reportTask(void *pvParameters){
 			radius_01mm = receivedPackage.radius_01mm;
 		}
 
-//		packageToSend.setLengthActual_01mm  = (((TIM8->ARR*3216)/512)*radius_01mm)/resolution;
-//		packageToSend.currLength_01mm = (((TIM8->CNT*3216)/512)*radius_01mm)/resolution;
 
-		packageToSend.setLengthActual_01mm  = (uint32_t)((float)TTIM8->ARR*2*3.141592*radius_01mm/resolution+0.5);
-		packageToSend.currLength_01mm = (uint32_t)((float)TIM8->CNT*2*3.141592*radius_01mm/resolution+0.5);
+		packageToSend.setLengthActual_01mm  = (uint32_t)((float)TIM3->ARR*2*3.141592*radius_01mm/resolution+0.5);
+		packageToSend.currLength_01mm = (uint32_t)((float)TIM3->CNT*2*3.141592*radius_01mm/resolution+0.5);
 		packageToSend.ammount = (uint32_t) ((uint16_t) HAL_GetTick()); // TODO: setup a timer to count ammount;
 
 		xStatus = xQueueOverwrite(qhReportToTouchGFX, &packageToSend);
