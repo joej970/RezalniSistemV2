@@ -13,7 +13,7 @@
 
 typedef struct{
 	uint8_t isActive;
-	uint8_t immCut;
+	//uint8_t immCut;
 	uint32_t length_01mm; // unit: 0.1 mm
 	uint32_t resolution;
 	uint32_t radius_01mm;
@@ -22,13 +22,23 @@ typedef struct{
 
 // might add cuttingActive
 typedef struct{
-	uint32_t setLengthActual_01mm;
+	//uint32_t setLengthActual_01mm;
 	uint32_t currLength_01mm;
 	uint32_t ammount;
 
 } qPackage_report_t;
 
+typedef struct{
+	uint32_t relayId;
+	uint32_t delay_ms;
+	uint32_t duration_ms;
+} qPackage_relaySetup_t;
 
+typedef struct{
+	uint32_t statusId;
+	uint32_t data;
+	//char message[30];
+} qPackage_statusReport_t;
 
 
 

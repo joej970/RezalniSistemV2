@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include <stm32746g_discovery_qspi.h>
 #include "queue.h"
+#include "event_groups.h"
 
 #include "../../STM32CubeIDE/Application/User/Core/myTasks.h" // maybe try with <>
 /* USER CODE END Includes */
@@ -80,9 +81,15 @@ static FMC_SDRAM_CommandTypeDef Command;
 QueueHandle_t qhGUItoEncoderControl;
 QueueHandle_t qhEncoderControlToReport;
 QueueHandle_t qhReportToTouchGFX;
+QueueHandle_t qhTouchGFXToRelaySetup;
+QueueHandle_t qhStatusReport;
+
+EventGroupHandle_t ehEvents;
 
 TaskHandle_t thEncoderControl;
 TaskHandle_t thReport;
+TaskHandle_t thRelaySetup;
+TaskHandle_t thSingleEvent;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,10 +106,11 @@ void StartTouchGFXTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 void TIM3_Init(void);	// encoder
-void TIM4_Init(void);	// forwarded for other timers
+void TIM4_Init(void);	// forwarder to other timers
 void TIM1_Init(void);	// RLY1
 void TIM12_Init(void);	// RLY2
 void TIM8_Init(void);	// RLY3
+void TIM5_Init(void);	// Ammount counter
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -156,10 +164,11 @@ int main(void)
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
   TIM3_Init();	// encoder
-  TIM4_Init();	// forwarded for other timers
+  TIM4_Init();	// forwarder for other timers
   TIM1_Init();	// RLY1
   TIM12_Init();	// RLY2
   TIM8_Init();	// RLY3
+  TIM5_Init();  // Ammount counter
 
 
   /* USER CODE END 2 */
@@ -181,6 +190,10 @@ int main(void)
   qhGUItoEncoderControl = xQueueCreate(1, sizeof(qPackage_encoderControl_t));
   qhEncoderControlToReport = xQueueCreate(1, sizeof(qPackage_encoderControl_t));
   qhReportToTouchGFX = xQueueCreate(1 , sizeof(qPackage_report_t));
+  qhTouchGFXToRelaySetup = xQueueCreate(1, sizeof(qPackage_relaySetup_t));
+  qhStatusReport = xQueueCreate(1, sizeof(qPackage_statusReport_t));
+
+  ehEvents = xEventGroupCreate();
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -192,6 +205,8 @@ int main(void)
   /* add threads, ... */
   xTaskCreate(encoderControlTask,"encoderControlTask",256,NULL,2,&thEncoderControl);
   xTaskCreate(reportTask, "reportTask",256,NULL,1,&thReport);
+  xTaskCreate(relaySetupTask, "relaySetupTask", 256, NULL, 2, &thRelaySetup);
+  xTaskCreate(singleEventTask, "singleEventTask", 256, NULL, 2, &thSingleEvent);
 
   /* USER CODE END RTOS_THREADS */
 
@@ -698,6 +713,7 @@ void TIM3_Init(void){
 	// Capture/Compare 2 output polarity: inverted/falling edge.
 	TIM3->CCER = 0b1 << TIM_CCER_CC2P_Pos;
 
+	// TODO: Add possibility to inverse encoder direction
 }
 
 
@@ -725,16 +741,28 @@ void TIM4_Init(void){
 void TIM1_Init(void){
 	// activate clock for peripheral TIM1
 	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM1EN_Pos;
-	// Lower its frequency from 100 MHz to 2.5 kHz
-	TIM1->PSC = 40000;
+	// Lower its frequency from 100 MHz to 1.525879 kHz
+	TIM1->PSC = 0xFFFF;
 	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
 	TIM1->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM1->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b011 << TIM_SMCR_TS_Pos;
+
+
+	/* DEBUG ONLY: Configure the TIM1 IRQ priority */
+	//HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 2 ,0);
+
+	/* Enable the TIM1 global Interrupt */
+	//HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+	// Interrupt generation on trigger input
+	//TIM1->DIER = 0b1 << TIM_DIER_TIE_Pos;
+
+
 	// Master enable output MOE, Off-state selection for Run and Idle mode: Inactive level when in off state
 	TIM1->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
-	// PWM Mode 2 on channel 1, Output Compare 1 pre-load enable
-	TIM1->CCMR1 = 0b0111 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
+	// force inactive level: PWM Mode 2 on channel 1 set in relaySetupTask when relay activated, Output Compare 1 pre-load enable
+	TIM1->CCMR1 = 0b100 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
+
 
 	// Set ARR and CC1 to max
 	TIM1->ARR = 0xFFFF;
@@ -753,16 +781,16 @@ void TIM1_Init(void){
 void TIM12_Init(void){
 	// activate clock for peripheral TIM12
 	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM12EN_Pos;
-	// Lower its frequency from 100 MHz to 2.5 kHz
-	TIM12->PSC = 40000;
+	// Lower its frequency from 100 MHz to 1.525879 kHz
+	TIM12->PSC = 0xFFFF;
 	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
 	TIM12->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM12->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b000 << TIM_SMCR_TS_Pos;
 	// Master enable output MOE
 	TIM12->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
-	// PWM Mode 2 on channel 1, Output Compare 1 pre-load enable
-	TIM12->CCMR1 = 0b0111 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
+	// force inactive level: PWM Mode 2 on channel 1 set in relaySetupTask when relay activated, Output Compare 1 pre-load enable
+	TIM12->CCMR1 = 0b100 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
 	// Set ARR and CC1 to max
 	TIM12->ARR = 0xFFFF;
 	TIM12->CCR1 = 0xFFFF;
@@ -778,16 +806,16 @@ void TIM12_Init(void){
 void TIM8_Init(void){
 	// activate clock for peripheral TIM8
 	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM8EN_Pos;
-	// Lower its frequency from 100 MHz to 2.5 kHz
-	TIM8->PSC = 40000;
+	// Lower its frequency from 100 MHz to 1.525879 kHz
+	TIM8->PSC = 0xFFFF;
 	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
 	TIM8->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM8->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b010 << TIM_SMCR_TS_Pos;
 	// Master enable output MOE
 	TIM8->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
-	// PWM Mode 2 on channel 1, Output Compare 1 pre-load enable
-	TIM8->CCMR2 = 0b0111 << TIM_CCMR2_OC3M_Pos | 0b1 << TIM_CCMR2_OC3PE_Pos;
+	// force inactive level: PWM Mode 2 on channel 1 set in relaySetupTask when relay activated, Output Compare 1 pre-load enable
+	TIM8->CCMR2 = 0b100 << TIM_CCMR2_OC3M_Pos | 0b1 << TIM_CCMR2_OC3PE_Pos;
 	// Set ARR and CC3 to max
 	TIM8->ARR = 0xFFFF;
 	TIM8->CCR3 = 0xFFFF;
@@ -795,6 +823,30 @@ void TIM8_Init(void){
 	TIM8->EGR = 0b1 << TIM_EGR_UG_Pos;
 	// Output Compare 1 output enable
 	TIM8->CCER = 0b1 << TIM_CCER_CC3NE_Pos;
+
+}
+
+
+/*
+ * Init TIM5 timer to count ammount
+ */
+void TIM5_Init(void){
+	// activate clock for peripheral TIM5
+	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM5EN_Pos;
+
+	/* DEBUG ONLY: Configure the TIM1 IRQ priority */
+	HAL_NVIC_SetPriority(TIM5_IRQn, 2 ,0);
+
+	/* Enable the TIM1 global Interrupt */
+	HAL_NVIC_EnableIRQ(TIM5_IRQn);
+	// Interrupt generation on trigger input
+	TIM5->DIER = 0b1 << TIM_DIER_TIE_Pos;
+
+	// SMS: External clock mode 1, TS: Internal trigger 2: TIM4
+	TIM5->SMCR = 0b010 << TIM_SMCR_TS_Pos | 0b111 << TIM_SMCR_SMS_Pos;
+
+	// Counter Enable
+	TIM5->CR1 = 0b1 << TIM_CR1_CEN_Pos;
 
 }
 

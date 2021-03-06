@@ -12,14 +12,23 @@
 #include <qPackages.h>
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "event_groups.h"
 #include "stm32f7xx_hal.h"
+#include "main.h"
+
 
 extern QueueHandle_t qhGUItoEncoderControl;
 extern QueueHandle_t qhEncoderControlToReport;
 extern QueueHandle_t qhReportToTouchGFX;
+extern QueueHandle_t qhTouchGFXToRelaySetup;
+extern QueueHandle_t qhStatusReport;
 
 void encoderControlTask(void *pvParameters);
 void reportTask(void *pvParameters);
+void relaySetupTask(void *pvParameters);
+void singleEventTask(void *pvParameters);
 //void StartTouchGFXTask(void * argument);
+
+
 
 #endif /* APPLICATION_USER_CORE_MYTASKS_H_ */

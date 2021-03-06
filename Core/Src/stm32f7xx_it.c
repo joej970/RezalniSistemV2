@@ -204,5 +204,11 @@ void DMA2D_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 
+void TIM5_IRQHandler(void){
+	TIM5->SR &= ~TIM_SR_TIF_Msk;
+	volatile static uint32_t hdlr_cnt = 0;
+	hdlr_cnt++;
+}
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

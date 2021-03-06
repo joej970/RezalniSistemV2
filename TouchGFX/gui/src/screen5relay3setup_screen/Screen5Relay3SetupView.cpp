@@ -7,10 +7,10 @@ Screen5Relay3SetupView::Screen5Relay3SetupView()
 
 void Screen5Relay3SetupView::setupScreen()
 {
-	uint32_t duration = presenter->fetchRelayDuration();
 	uint32_t delay = presenter->fetchRelayDelay();
-	digitSelectorDuration.setCurrentValue(duration);
+	uint32_t duration = presenter->fetchRelayDuration();
 	digitSelectorDelay.setCurrentValue(delay);
+	digitSelectorDuration.setCurrentValue(duration);
     Screen5Relay3SetupViewBase::setupScreen();
 }
 
@@ -21,8 +21,8 @@ void Screen5Relay3SetupView::tearDownScreen()
 
 void Screen5Relay3SetupView::saveData()
 {
-	uint32_t duration = digitSelectorDuration.getCurrentValue();
 	uint32_t delay = digitSelectorDelay.getCurrentValue();
-    presenter->forwardRelayDuration(duration);
+	uint32_t duration = digitSelectorDuration.getCurrentValue();
     presenter->forwardRelayDelay(delay);
+    presenter->forwardRelayDuration(duration);
 }

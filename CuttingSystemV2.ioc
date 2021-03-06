@@ -561,4 +561,3 @@ VP_STMicroelectronics.X-CUBE-TOUCHGFX_VS_GraphicsJjApplication_4.16.0.Signal=STM
 VP_SYS_VS_tim6.Mode=TIM6
 VP_SYS_VS_tim6.Signal=SYS_VS_tim6
 board=custom
-isbadioc=false

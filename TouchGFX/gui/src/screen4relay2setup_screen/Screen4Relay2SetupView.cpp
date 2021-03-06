@@ -7,10 +7,10 @@ Screen4Relay2SetupView::Screen4Relay2SetupView()
 
 void Screen4Relay2SetupView::setupScreen()
 {
-	uint32_t duration = presenter->fetchRelayDuration();
 	uint32_t delay = presenter->fetchRelayDelay();
-	digitSelectorDuration.setCurrentValue(duration);
+	uint32_t duration = presenter->fetchRelayDuration();
 	digitSelectorDelay.setCurrentValue(delay);
+	digitSelectorDuration.setCurrentValue(duration);
     Screen4Relay2SetupViewBase::setupScreen();
 }
 
@@ -21,8 +21,8 @@ void Screen4Relay2SetupView::tearDownScreen()
 
 void Screen4Relay2SetupView::saveData()
 {
-	uint32_t duration = digitSelectorDuration.getCurrentValue();
 	uint32_t delay = digitSelectorDelay.getCurrentValue();
-    presenter->forwardRelayDuration(duration);
+	uint32_t duration = digitSelectorDuration.getCurrentValue();
     presenter->forwardRelayDelay(delay);
+    presenter->forwardRelayDuration(duration);
 }

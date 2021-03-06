@@ -2,6 +2,7 @@
 #define MODEL_HPP
 
 #include <touchgfx/hal/types.hpp>
+#include "main.h"
 
 class ModelListener;
 
@@ -29,6 +30,7 @@ public:
     void immCut();
 	void updateSetLength(uint32_t newLength);
 	void reportToEncoderControlTask();
+	void reportToRelaySetupTask(uint32_t id);
 
     uint32_t getRelay1duration();
     uint32_t getRelay1delay();
