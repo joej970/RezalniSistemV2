@@ -1,5 +1,7 @@
 #include <gui/screen1maincutting_screen/Screen1MainCuttingView.hpp>
 #include "BitmapDatabase.hpp"
+//#include "main.h"
+#include <texts/TextKeysAndLanguages.hpp>
 
 Screen1MainCuttingView::Screen1MainCuttingView() :
 	swipeCallback(this, &Screen1MainCuttingView::swipeCallbackHandler),
@@ -103,6 +105,48 @@ void Screen1MainCuttingView::handleTickEvent(){
 	textSetLen.invalidate();
 	Unicode::snprintf(textAmmountBuffer, TEXTAMMOUNT_SIZE, "%d", presenter->fetchAmmount());
 	textAmmount.invalidate();
+
+
+	switch(presenter->fetchLastStatus()){
+		case OP_OK:
+			break;
+		case SET_LENGTH_VALID:
+			presenter->resetLastStatus();
+			break;
+		case SET_LENGTH_TRIMMED:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_SET_LENGTH_TRIMMED);
+			popUpWindowMain.invalidate();
+//			popUpWindowMain.setText(SET_LENGTH_TRIMMED);
+			break;
+		case RELAY_DELAY_OF:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_DELAY_OF);
+			popUpWindowMain.invalidate();
+			break;
+		case RELAY_DURATION_OF:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_DURATION_OF);
+			popUpWindowMain.invalidate();
+			break;
+		case RELAY_DEACTIVATED:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_RELAY_DEACTIVATED);
+			popUpWindowMain.invalidate();
+			break;
+		default:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_OTHER_ERR);
+			popUpWindowMain.invalidate();
+
+	}
+
+
 
 }
 

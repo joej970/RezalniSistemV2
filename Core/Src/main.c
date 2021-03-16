@@ -27,8 +27,8 @@
 #include <stm32746g_discovery_qspi.h>
 #include "queue.h"
 #include "event_groups.h"
-
-#include "../../STM32CubeIDE/Application/User/Core/myTasks.h" // maybe try with <>
+#include "myTasks.h"
+#include "qPackages.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,6 +54,8 @@
 #define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((uint16_t)0x0000)
 #define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
 
+#define EEPROM_ADDR		(uint8_t)0b10100000
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -67,6 +69,7 @@ CRC_HandleTypeDef hcrc;
 
 DMA2D_HandleTypeDef hdma2d;
 
+I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
 
 LTDC_HandleTypeDef hltdc;
@@ -102,6 +105,7 @@ static void MX_FMC_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_LTDC_Init(void);
 static void MX_QUADSPI_Init(void);
+static void MX_I2C1_Init(void);
 void StartTouchGFXTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
@@ -161,6 +165,7 @@ int main(void)
   MX_I2C3_Init();
   MX_LTDC_Init();
   MX_QUADSPI_Init();
+  MX_I2C1_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
   TIM3_Init();	// encoder
@@ -273,13 +278,15 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC|RCC_PERIPHCLK_I2C3;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC|RCC_PERIPHCLK_I2C1
+                              |RCC_PERIPHCLK_I2C3;
   PeriphClkInitStruct.PLLSAI.PLLSAIN = 384;
   PeriphClkInitStruct.PLLSAI.PLLSAIR = 5;
   PeriphClkInitStruct.PLLSAI.PLLSAIQ = 2;
   PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV2;
   PeriphClkInitStruct.PLLSAIDivQ = 1;
   PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_8;
+  PeriphClkInitStruct.I2c1ClockSelection = RCC_I2C1CLKSOURCE_SYSCLK;
   PeriphClkInitStruct.I2c3ClockSelection = RCC_I2C3CLKSOURCE_PCLK1;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
@@ -352,6 +359,54 @@ static void MX_DMA2D_Init(void)
   /* USER CODE BEGIN DMA2D_Init 2 */
 
   /* USER CODE END DMA2D_Init 2 */
+
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x109035B7;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+	// 	Enable
+  I2C1->CR1 |= I2C_CR1_PE_Msk;
+
+  /* USER CODE END I2C1_Init 2 */
 
 }
 
@@ -631,8 +686,8 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOJ_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
@@ -849,6 +904,103 @@ void TIM5_Init(void){
 	TIM5->CR1 = 0b1 << TIM_CR1_CEN_Pos;
 
 }
+
+
+/*
+ * Send a byte to EEPROM over I2C1. Blocking function
+ * */
+enum eepromStatus_t byteWriteToEEPROM(uint8_t data_addr, uint8_t data){
+	uint32_t startTime = HAL_GetTick();
+	// 	Is bus busy?
+	if(I2C1->ISR & I2C_ISR_BUSY){
+		return EEPROM_BUSY;
+	}
+	// 	AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
+	I2C1->CR2 = I2C_CR2_AUTOEND | (uint8_t)0x02 << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
+	// 	Send START condition and have NBYTES transferred
+	I2C1->CR2 |= I2C_CR2_START;
+	// 	Wait for first byte (data address) to be transferred
+	while(1){
+		if(I2C1->ISR & I2C_ISR_TXE){
+			break;
+		}
+		if(startTime + 100 > HAL_GetTick()){
+			return EEPROM_TIMEOUT;
+		}
+	}
+	// 	Transfer data address
+	I2C1->TXDR = (uint32_t)data_addr;
+
+	while(1){
+		if(I2C1->ISR & I2C_ISR_TXE){
+			break;
+		}
+		if(startTime + 100 > HAL_GetTick()){
+			return EEPROM_TIMEOUT;
+		}
+	}
+	// 	Transfer data
+	I2C1->TXDR = (uint32_t)data;
+
+	// 	Wait for last transfer to complete. Reset when STOP bit is sent.
+	while(I2C1->ISR | I2C_ISR_TC){
+		if(startTime + 100 > HAL_GetTick()){
+			return EEPROM_TIMEOUT;
+		}
+	}
+	return EEPROM_SUCCESS;
+
+}
+
+/*
+ * Read <nr> of bytes from EEPROM from address
+ * */
+enum eepromStatus_t bytesReadFromEEPROM(uint8_t *dstBuffer, uint8_t data_addr, uint8_t nr){
+	uint32_t startTime = HAL_GetTick();
+	// 	Is bus busy?
+	if(I2C1->ISR & I2C_ISR_BUSY){
+		return EEPROM_BUSY;
+	}
+	/* Set data address */
+	//	NBYTES: data address; SADD: slave address; WRITE = 0
+	I2C1->CR2 = (uint8_t)0x01 << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
+	//	Send START condition and have NBYTES received
+	I2C1->CR2 |= I2C_CR2_START;
+	//	Send address
+	I2C1->TXDR = (uint32_t)data_addr;
+	// 	Wait for transfer complete before issuing a new START bit
+	while(1){
+		if(I2C1->ISR | I2C_ISR_TC_Msk)
+			break;
+	}
+	/* Read bytes */
+	// 	AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data; RD_WRN: read opearation; SADD: slave address;
+	I2C1->CR2 = I2C_CR2_AUTOEND | nr << I2C_CR2_NBYTES_Pos | I2C_CR2_RD_WRN | EEPROM_ADDR << I2C_CR2_SADD_Pos;
+	// 	Send START condition
+	I2C1->CR2 |= I2C_CR2_START;
+	//	Have NBYTES received
+	for(uint8_t i = 0; i < nr; i++){
+		while(1){
+			if(startTime + 100 > HAL_GetTick()){
+				return EEPROM_TIMEOUT;
+			}
+			if(I2C1->ISR | I2C_ISR_RXNE){
+				dstBuffer[i] = I2C1->RXDR;
+				break;
+			}
+		}
+	}
+	return EEPROM_SUCCESS;
+}
+
+
+
+
+
+
+
+
+
 
 /* USER CODE END 4 */
 

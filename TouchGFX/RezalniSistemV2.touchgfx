@@ -439,6 +439,21 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "popUpWindow",
+            "Type": "CustomContainerInstance",
+            "Name": "popUpWindowMain",
+            "X": 22,
+            "Y": 17,
+            "Width": 437,
+            "Height": 238,
+            "Visible": false,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -566,6 +581,121 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "Type": "Box",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 86,
+            "Name": "lengthBackgorund",
+            "X": 128,
+            "Y": 84,
+            "Width": 209,
+            "Height": 91,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId53",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "TextId": "SingleUseId54",
+              "UseBuffer": true,
+              "BufferSize": 10
+            },
+            "Name": "textTotalLength",
+            "X": 219,
+            "Y": 92,
+            "Width": 62,
+            "Height": 74,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ToggleButton",
+            "InitialStatePressed": false,
+            "Pressed": "__designer\\Blue_Togglebars_Toggle_RE_large_button_ON.png",
+            "Released": "__designer\\Blue_Togglebars_Toggle_RE_large_button_OFF.png",
+            "Alpha": 255,
+            "Style": "Style2",
+            "Name": "toggleButtonLengthMeasurement",
+            "X": 176,
+            "Y": 26,
+            "Width": 128,
+            "Height": 38,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "configuration.png",
+            "Released": "configuration.png",
+            "Alpha": 255,
+            "Name": "buttonConfig",
+            "X": 401,
+            "Y": 210,
+            "Width": 48,
+            "Height": 48,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ButtonWithLabel",
+            "Pressed": "__designer\\Blue_Buttons_Round_Edge_small_pressed.png",
+            "Released": "__designer\\Blue_Buttons_Round_Edge_small.png",
+            "Alpha": 255,
+            "TextId": "SingleUseId55",
+            "ReleasedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "PressedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "TextRotation": "0",
+            "Style": "Style4",
+            "Name": "buttonResetLength",
+            "X": 147,
+            "Y": 198,
+            "Width": 170,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -581,6 +711,44 @@
               "ScreenTransitionType": "ScreenTransitionSlide",
               "ScreenTransitionDirection": "West",
               "ActionComponent": "Screen1MainCutting"
+            }
+          },
+          {
+            "InteractionName": "InteractionToggle",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "toggleButtonLengthMeasurement"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "toggleLengthMeasurement"
+            }
+          },
+          {
+            "InteractionName": "InteractionReset",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonResetLength"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "resetLengthMeasurement"
+            }
+          },
+          {
+            "InteractionName": "InteractionConfig",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonConfig"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionSlide",
+              "ScreenTransitionDirection": "East",
+              "ActionComponent": "Screen7Config"
             }
           }
         ],
@@ -691,7 +859,7 @@
             "LineSpacing": 0,
             "Name": "textDelay",
             "X": 109,
-            "Y": 93,
+            "Y": 88,
             "Width": 64,
             "Height": 37,
             "Visible": true,
@@ -715,7 +883,7 @@
             "LineSpacing": 0,
             "Name": "textDuration",
             "X": 79,
-            "Y": 180,
+            "Y": 183,
             "Width": 99,
             "Height": 37,
             "Visible": true,
@@ -854,8 +1022,8 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textRelay2Setup",
-            "X": 138,
-            "Y": 18,
+            "X": 158,
+            "Y": 11,
             "Width": 168,
             "Height": 37,
             "Visible": true,
@@ -909,7 +1077,7 @@
             "LineSpacing": 0,
             "Name": "textDelay",
             "X": 106,
-            "Y": 93,
+            "Y": 88,
             "Width": 64,
             "Height": 37,
             "Visible": true,
@@ -933,7 +1101,7 @@
             "LineSpacing": 0,
             "Name": "textDuration",
             "X": 79,
-            "Y": 186,
+            "Y": 183,
             "Width": 99,
             "Height": 37,
             "Visible": true,
@@ -1072,8 +1240,8 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textRelay3Setup",
-            "X": 138,
-            "Y": 18,
+            "X": 158,
+            "Y": 11,
             "Width": 168,
             "Height": 37,
             "Visible": true,
@@ -1127,7 +1295,7 @@
             "LineSpacing": 0,
             "Name": "textDelay",
             "X": 106,
-            "Y": 93,
+            "Y": 88,
             "Width": 64,
             "Height": 37,
             "Visible": true,
@@ -1151,7 +1319,7 @@
             "LineSpacing": 0,
             "Name": "textDuration",
             "X": 79,
-            "Y": 186,
+            "Y": 183,
             "Width": 99,
             "Height": 37,
             "Visible": true,
@@ -1339,6 +1507,30 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId48",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDecDot",
+            "X": 296,
+            "Y": 118,
+            "Width": 6,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -1358,6 +1550,236 @@
           }
         ],
         "Name": "Screen6LengthSetup",
+        "OverrideDefaultBufferSize": false,
+        "CanvasBufferSize": 0
+      },
+      {
+        "Components": [
+          {
+            "Type": "Image",
+            "RelativeFilename": "background_Screen2.png",
+            "Alpha": 255,
+            "Name": "BCKG6",
+            "X": 0,
+            "Y": 0,
+            "Width": 480,
+            "Height": 272,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ButtonWithLabel",
+            "Pressed": "__designer\\Blue_Buttons_Round_Edge_icon_button_pressed.png",
+            "Released": "__designer\\Blue_Buttons_Round_Edge_icon_button.png",
+            "Alpha": 255,
+            "TextId": "SingleUseId49",
+            "ReleasedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "PressedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "TextRotation": "0",
+            "Style": "Style1",
+            "Name": "buttonSetSI",
+            "X": 180,
+            "Y": 198,
+            "Width": 60,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ButtonWithLabel",
+            "Pressed": "__designer\\Blue_Buttons_Round_Edge_icon_button_pressed.png",
+            "Released": "__designer\\Blue_Buttons_Round_Edge_icon_button.png",
+            "Alpha": 255,
+            "TextId": "SingleUseId52",
+            "ReleasedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "PressedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "TextRotation": "0",
+            "Style": "Style1",
+            "Name": "buttonSetENG",
+            "X": 240,
+            "Y": 198,
+            "Width": 60,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorRadius",
+            "X": 147,
+            "Y": 28,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId50",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textLengthMM",
+            "X": 333,
+            "Y": 40,
+            "Width": 35,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId51",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDecDot",
+            "X": 297,
+            "Y": 43,
+            "Width": 6,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "arrow-return_60x60.png",
+            "Released": "arrow-return_60x60.png",
+            "Alpha": 255,
+            "Name": "goBack",
+            "X": 19,
+            "Y": 18,
+            "Width": 60,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Slider",
+            "IsHorizontalSlider": false,
+            "BackgroundUnselected": "__designer\\Blue_Slider_Vertical_Small_Slider3_Vertical_Round_back.png",
+            "BackgroundSelected": "__designer\\Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.png",
+            "Indicator": "__designer\\Blue_Slider_Vertical_Small_Indicators_Slider3_Vertical_Round_nob.png",
+            "BackgroundX": 7,
+            "BackgroundY": 3,
+            "IndicatorPos": 0,
+            "IndicatorMax": 125,
+            "IndicatorMin": 0,
+            "ValueMax": 100,
+            "ValueMin": 0,
+            "InitValue": 0,
+            "Style": "Style1",
+            "Name": "sliderBrightness",
+            "X": 421,
+            "Y": 43,
+            "Width": 34,
+            "Height": 179,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "InteractionGoBack",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "goBack"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionSlide",
+              "ScreenTransitionDirection": "West",
+              "ActionComponent": "Screen2CurrLen"
+            }
+          },
+          {
+            "InteractionName": "InteractionSetSI",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonSetSI"
+            },
+            "Action": {
+              "Type": "ActionSetLanguage",
+              "Language": "SI"
+            }
+          },
+          {
+            "InteractionName": "InteractionSetENG",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonSetENG"
+            },
+            "Action": {
+              "Type": "ActionSetLanguage",
+              "Language": "GB"
+            }
+          }
+        ],
+        "Name": "Screen7Config",
         "OverrideDefaultBufferSize": false,
         "CanvasBufferSize": 0
       }
@@ -1734,9 +2156,9 @@
             "TextId": "SingleUseId12",
             "TextRotation": "0",
             "Color": {
-              "Red": 110,
-              "Green": 110,
-              "Blue": 110
+              "Red": 204,
+              "Green": 204,
+              "Blue": 204
             },
             "Alpha": 255,
             "AutoSize": true,
@@ -1765,6 +2187,125 @@
         "Y": 66,
         "Width": 31,
         "Height": 37
+      },
+      {
+        "Components": [
+          {
+            "Type": "BoxWithBorder",
+            "Color": {
+              "Red": 114,
+              "Green": 169,
+              "Blue": 178
+            },
+            "BorderColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "BorderSize": 5,
+            "Alpha": 255,
+            "Name": "backgroundBox",
+            "X": 0,
+            "Y": 0,
+            "Width": 437,
+            "Height": 238,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "STATUSMSG_DELAY_OF",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 224,
+              "Green": 224,
+              "Blue": 224
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Name": "statusText",
+            "X": 36,
+            "Y": 27,
+            "Width": 365,
+            "Height": 85,
+            "Visible": true,
+            "LockPosition": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId45",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 224,
+              "Green": 224,
+              "Blue": 224
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "TextId": "SingleUseId46",
+              "UseBuffer": true,
+              "BufferSize": 3
+            },
+            "Name": "statusIdText",
+            "X": 174,
+            "Y": 132,
+            "Width": 89,
+            "Height": 36,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "arrow-return_60x60.png",
+            "Released": "arrow-return_60x60.png",
+            "Alpha": 255,
+            "Name": "goBackButton",
+            "X": 188,
+            "Y": 168,
+            "Width": 60,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "InteractionHidePopUp",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "goBackButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "hidePopUp"
+            }
+          }
+        ],
+        "Name": "popUpWindow",
+        "X": 22,
+        "Y": 17,
+        "Width": 437,
+        "Height": 238
       }
     ],
     "TextEntries": [
@@ -1898,6 +2439,70 @@
       },
       {
         "TextEntryId": "SingleUseId44",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "STATUSMSG_DELAY_OF",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "STATUSMSG_DURATION_OF",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "STATUSMSG_RELAY_DEACTIVATED",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "STATUSMSG_SET_LENGTH_TRIMMED",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "STATUSMSG_OTHER_ERR",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "SingleUseId45",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId46",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId47",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId48",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId49",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId50",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId51",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId52",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId53",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId54",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId55",
         "IsResource": false
       }
     ],

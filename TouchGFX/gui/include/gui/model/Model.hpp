@@ -2,7 +2,9 @@
 #define MODEL_HPP
 
 #include <touchgfx/hal/types.hpp>
+//#include "status_enum.h"
 #include "main.h"
+
 
 class ModelListener;
 
@@ -31,6 +33,7 @@ public:
 	void updateSetLength(uint32_t newLength);
 	void reportToEncoderControlTask();
 	void reportToRelaySetupTask(uint32_t id);
+	void resetLastStatus();
 
     uint32_t getRelay1duration();
     uint32_t getRelay1delay();
@@ -43,6 +46,7 @@ public:
 	uint32_t getSetLength();
 	uint32_t getSetLengthActual();
 	uint32_t getCurrLength();
+	statusId_t getLastStatus();
 
 
 protected:
@@ -59,6 +63,7 @@ protected:
     uint32_t currLength;
     bool cuttingActive;
     bool immediateCut;
+    statusId_t lastStatus;
 
 
 

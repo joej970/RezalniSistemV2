@@ -47,6 +47,12 @@ enum statusId_t{
 	RELAY_ACTIVATED,
 	SET_LENGTH_OF
 };
+
+enum eepromStatus_t{
+	EEPROM_SUCCESS,
+	EEPROM_TIMEOUT,
+	EEPROM_BUSY,
+};
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

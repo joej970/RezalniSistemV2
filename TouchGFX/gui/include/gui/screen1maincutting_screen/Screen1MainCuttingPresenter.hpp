@@ -3,6 +3,7 @@
 
 #include <gui/model/ModelListener.hpp>
 #include <mvp/Presenter.hpp>
+//#include "main.h"
 
 using namespace touchgfx;
 
@@ -65,6 +66,10 @@ public:
     	return model->getCurrLength();
     }
 
+    statusId_t fetchLastStatus(){
+    	return model->getLastStatus();
+    }
+
     bool isCutting(){
     	return model -> getCutting();
     }
@@ -79,6 +84,10 @@ public:
 
     void initiateImmCut(){
     	model->immCut();
+    }
+
+    void resetLastStatus(){
+    	model->resetLastStatus();
     }
 
 

@@ -5,12 +5,25 @@
  *      Author: Asus
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef APPLICATION_USER_CORE_QPACKAGES_H_
 #define APPLICATION_USER_CORE_QPACKAGES_H_
+
 
 #include <stdint.h>
 
 
+//#include "status_enum.h"
+#include "main.h"
+
+
+
+
+
+//#include "../../STM32CubeIDE/Application/User/Core/status_enum.h"
 typedef struct{
 	uint8_t isActive;
 	//uint8_t immCut;
@@ -19,8 +32,6 @@ typedef struct{
 	uint32_t radius_01mm;
 } qPackage_encoderControl_t;
 
-
-// might add cuttingActive
 typedef struct{
 	//uint32_t setLengthActual_01mm;
 	uint32_t currLength_01mm;
@@ -35,7 +46,7 @@ typedef struct{
 } qPackage_relaySetup_t;
 
 typedef struct{
-	uint32_t statusId;
+	enum statusId_t statusId;
 	uint32_t data;
 	//char message[30];
 } qPackage_statusReport_t;
@@ -43,4 +54,9 @@ typedef struct{
 
 
 
+
 #endif /* APPLICATION_USER_CORE_QPACKAGES_H_ */
+
+#ifdef __cplusplus
+}
+#endif

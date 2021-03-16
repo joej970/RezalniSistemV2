@@ -8,13 +8,17 @@
 #ifndef APPLICATION_USER_CORE_MYTASKS_H_
 #define APPLICATION_USER_CORE_MYTASKS_H_
 
+
+
 //#include "app_touchgfx.h"
-#include <qPackages.h>
-#include "FreeRTOS.h"
+
+//#include <qPackages.h>
+
 #include "queue.h"
-#include "event_groups.h"
-#include "stm32f7xx_hal.h"
-#include "main.h"
+
+//#include "status_enum.h"
+
+
 
 
 extern QueueHandle_t qhGUItoEncoderControl;

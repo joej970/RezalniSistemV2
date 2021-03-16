@@ -1,14 +1,18 @@
 #include <gui/model/Model.hpp>
 #include <gui/model/ModelListener.hpp>
-#include <qPackages.h>
+
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "event_groups.h"
+//#include "main.h"
+#include "qPackages.h"
+
+
 
 Model::Model() :
 				modelListener(0), relay1duration(0), relay1delay(0), relay2duration(
 								0), relay2delay(0), relay3duration(0), relay3delay(
-								0), ammount(0), setLengthActual(0)
+								0), ammount(0), setLengthActual(0), lastStatus(OP_OK)
 
 {
 
@@ -30,13 +34,12 @@ void Model::tick() {
 	}
 	xStatus = xQueueReceive(qhStatusReport, &packageStatusReport, 0);
 	if (xStatus == pdPASS) {
+		lastStatus = packageStatusReport.statusId;
 		switch (packageStatusReport.statusId) {
 			case SET_LENGTH_TRIMMED:
-
 				setLengthActual = packageStatusReport.data;
 				break;
 			case SET_LENGTH_VALID:
-
 				setLengthActual = packageStatusReport.data;
 				break;
 			case RELAY_DELAY_OF:
@@ -46,9 +49,6 @@ void Model::tick() {
 
 				break;
 			case RELAY_DEACTIVATED:
-
-				break;
-			case SET_LENGTH_OF:
 
 				break;
 		}
@@ -80,6 +80,10 @@ void Model::setRelay3delay(uint32_t delay) {
 void Model::setRelay3duration(uint32_t duration) {
 	relay3duration = duration;
 	reportToRelaySetupTask(3);
+}
+
+void Model::resetLastStatus(){
+	lastStatus = OP_OK;
 }
 
 void Model::resetAmmount(void) {
@@ -184,5 +188,8 @@ uint32_t Model::getSetLengthActual() {
 }
 uint32_t Model::getCurrLength() {
 	return currLength;
+}
+statusId_t Model::getLastStatus(){
+	return lastStatus;
 }
 

@@ -12,7 +12,13 @@
  *		TaskHandle_t *pxCreatedTask );
  *
  */
+#include "FreeRTOS.h"
+#include "event_groups.h"
+#include "stm32f7xx_hal.h"
 #include "myTasks.h"
+#include "qPackages.h"
+#include "main.h"
+
 
 
 
@@ -124,6 +130,7 @@ void relaySetupTask(void *pvParameters){
 			//TODO: report a problem
 			while(1);
 		}
+		statusId = OP_OK;
 		uint32_t newArr = (uint32_t)(((uint64_t)receivedSettings.delay_ms+(uint64_t)receivedSettings.duration_ms)*100e3/(0xFFFF+1)); //100 MHz / 1000 s
 		uint32_t newCC = (uint32_t)((uint64_t)receivedSettings.delay_ms*100e3/(0xFFFF+1)); //100 MHz / 1000 s
 		if(newArr > 0xFFFF){
@@ -145,7 +152,6 @@ void relaySetupTask(void *pvParameters){
 				statusId = RELAY_DEACTIVATED;
 			}else{
 				TIM1->CCMR1 = 0b111 << TIM_CCMR1_OC1M_Pos; // PWM mode 2
-				statusId = RELAY_ACTIVATED;
 			}
 			TIM1->ARR = newArr;
 			TIM1->CCR1 = newCC;

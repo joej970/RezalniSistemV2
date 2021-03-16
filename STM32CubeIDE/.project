@@ -314,6 +314,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/DigitSelector.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/gui/popUpWindow.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/popUpWindow.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/gui/RelayWidget.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/RelayWidget.cpp</locationURI>
@@ -389,6 +394,16 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen6lengthsetup_screen/Screen6LengthSetupView.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/gui/Screen7ConfigPresenter.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen7config_screen/Screen7ConfigPresenter.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen7ConfigView.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen7config_screen/Screen7ConfigView.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/ApplicationFontProvider.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/ApplicationFontProvider.cpp</locationURI>
@@ -402,6 +417,11 @@
 			<name>Application/User/generated/FontCache.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/FontCache.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Font_isocpeur_10_4bpp_0.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_isocpeur_10_4bpp_0.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Font_isocpeur_20_4bpp_0.cpp</name>
@@ -419,14 +439,19 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_isocpeur_40_4bpp_0.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Font_verdana_10_4bpp_0.cpp</name>
+			<name>Application/User/generated/Font_isocpeur_60_4bpp_0.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_verdana_10_4bpp_0.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_isocpeur_60_4bpp_0.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/GeneratedFont.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/GeneratedFont.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Kerning_isocpeur_10_4bpp.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_10_4bpp.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Kerning_isocpeur_20_4bpp.cpp</name>
@@ -444,9 +469,14 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_40_4bpp.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Kerning_verdana_10_4bpp.cpp</name>
+			<name>Application/User/generated/Kerning_isocpeur_60_4bpp.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_verdana_10_4bpp.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_60_4bpp.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Table_isocpeur_10_4bpp.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_isocpeur_10_4bpp.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Table_isocpeur_20_4bpp.cpp</name>
@@ -464,9 +494,9 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_isocpeur_40_4bpp.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Table_verdana_10_4bpp.cpp</name>
+			<name>Application/User/generated/Table_isocpeur_60_4bpp.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_verdana_10_4bpp.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_isocpeur_60_4bpp.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/UnmappedDataFont.cpp</name>
@@ -487,6 +517,11 @@
 			<name>Application/User/generated/DigitSelectorBase.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/DigitSelectorBase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/popUpWindowBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/popUpWindowBase.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/RelayWidgetBase.cpp</name>
@@ -527,6 +562,11 @@
 			<name>Application/User/generated/Screen6LengthSetupViewBase.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen6lengthsetup_screen/Screen6LengthSetupViewBase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Screen7ConfigViewBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen7config_screen/Screen7ConfigViewBase.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/BitmapDatabase.cpp</name>
@@ -639,9 +679,54 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Up_arrow_pressed.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_Blue_Buttons_Round_Edge_icon_button.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Buttons_Round_Edge_icon_button.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Buttons_Round_Edge_icon_button_pressed.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Buttons_Round_Edge_icon_button_pressed.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Buttons_Round_Edge_small.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Buttons_Round_Edge_small.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Buttons_Round_Edge_small_pressed.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Buttons_Round_Edge_small_pressed.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_Blue_ProgressIndicators_bg_medium_circle_indicator_bg_full.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_ProgressIndicators_bg_medium_circle_indicator_bg_full.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Slider_Vertical_Small_Indicators_Slider3_Vertical_Round_nob.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Slider_Vertical_Small_Indicators_Slider3_Vertical_Round_nob.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_back.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_back.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Togglebars_Toggle_RE_large_button_OFF.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Togglebars_Toggle_RE_large_button_OFF.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Togglebars_Toggle_RE_large_button_ON.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Togglebars_Toggle_RE_large_button_ON.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/LanguageGb.cpp</name>
