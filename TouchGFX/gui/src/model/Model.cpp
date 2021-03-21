@@ -51,6 +51,8 @@ void Model::tick() {
 			case RELAY_DEACTIVATED:
 
 				break;
+			default:
+				break;
 		}
 
 	}

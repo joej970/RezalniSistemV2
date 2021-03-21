@@ -50,8 +50,13 @@ enum statusId_t{
 
 enum eepromStatus_t{
 	EEPROM_SUCCESS,
-	EEPROM_TIMEOUT,
+	EEPROM_TIMEOUT_1,
+	EEPROM_TIMEOUT_2,
+	EEPROM_TIMEOUT_3,
+	EEPROM_TIMEOUT_4,
 	EEPROM_BUSY,
+	EEPROM_TXFULL,
+	EEPROM_ERR
 };
 /* USER CODE END ET */
 
@@ -69,7 +74,9 @@ enum eepromStatus_t{
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+enum eepromStatus_t byteWriteToEEPROM(uint8_t dataAddr, uint8_t data);
+enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uint8_t nr);
+enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, uint8_t nr);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -83,6 +90,8 @@ void Error_Handler(void);
 #define ENC2_GPIO_Port GPIOC
 #define ENC1_Pin GPIO_PIN_6
 #define ENC1_GPIO_Port GPIOC
+#define TRIGGER_OUT_Pin GPIO_PIN_7
+#define TRIGGER_OUT_GPIO_Port GPIOF
 #define RLY2_Pin GPIO_PIN_14
 #define RLY2_GPIO_Port GPIOB
 #define RLY3_Pin GPIO_PIN_15
