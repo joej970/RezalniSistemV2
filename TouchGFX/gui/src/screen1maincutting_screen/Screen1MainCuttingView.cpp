@@ -3,6 +3,7 @@
 //#include "main.h"
 #include <texts/TextKeysAndLanguages.hpp>
 
+
 Screen1MainCuttingView::Screen1MainCuttingView() :
 	swipeCallback(this, &Screen1MainCuttingView::swipeCallbackHandler),
 	flexButtonTouchedCallback(this,&Screen1MainCuttingView::flexButtonTouchedHandler) {
@@ -59,7 +60,7 @@ void Screen1MainCuttingView::flexButtonTouchedHandler(const ImageButtonStyle<tou
 
 		} else if (evt.getType() == ClickEvent::RELEASED) {
 			if (HAL_GetTick() > amountButtonPressedTime + 1000) {// LONG PRESS?
-				presenter -> resetAmmount();
+				presenter -> resetAmount();
 			}
 			circleProgress.setValue(0);
 			circleProgress.setVisible(false);
@@ -99,13 +100,12 @@ void Screen1MainCuttingView::handleTickEvent(){
 			circleProgress.setValue(currentValue+6);
 		}
 	}
-	Unicode::snprintf(textCurrLenBuffer, TEXTCURRLEN_SIZE, "%d", presenter->fetchCurrLength());
+	Unicode::snprintfFloat(textCurrLenBuffer, TEXTCURRLEN_SIZE, "%0.1f", 0.1*(float)presenter->fetchCurrLength());
 	textCurrLen.invalidate();
-	Unicode::snprintf(textSetLenBuffer, TEXTSETLEN_SIZE, "%d", presenter->fetchSetLengthActual());
+	Unicode::snprintfFloat(textSetLenBuffer, TEXTSETLEN_SIZE, "%0.1f", 0.1*(float)presenter->fetchSetLengthActual());
 	textSetLen.invalidate();
-	Unicode::snprintf(textAmmountBuffer, TEXTAMMOUNT_SIZE, "%d", presenter->fetchAmmount());
-	textAmmount.invalidate();
-
+	Unicode::snprintf(textAmountBuffer, TEXTAMOUNT_SIZE, "%d", presenter->fetchAmount());
+	textAmount.invalidate();
 
 	switch(presenter->fetchLastStatus()){
 		case OP_OK:
@@ -138,11 +138,32 @@ void Screen1MainCuttingView::handleTickEvent(){
 			popUpWindowMain.setText(T_STATUSMSG_RELAY_DEACTIVATED);
 			popUpWindowMain.invalidate();
 			break;
+		case SETTINGS_LOAD_SUCCESS:
+			presenter->resetLastStatus();
+			relayWidget1.setDelay(presenter->fetchRelay1delay());
+			relayWidget1.setDuration(presenter->fetchRelay1duration());
+			relayWidget2.setDelay(presenter->fetchRelay2delay());
+			relayWidget2.setDuration(presenter->fetchRelay2duration());
+			relayWidget3.setDelay(presenter->fetchRelay3delay());
+			relayWidget3.setDuration(presenter->fetchRelay3duration());
+			break;
+		case SETTINGS_LOAD_ERR:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_SETTINGS_LOAD_ERR);
+			popUpWindowMain.invalidate();
+			break;
+		case SETTINGS_SAVE_ERR:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_SETTINGS_SAVE_ERR);
+			popUpWindowMain.invalidate();
 		default:
 			presenter->resetLastStatus();
 			popUpWindowMain.setVisible(true);
 			popUpWindowMain.setText(T_STATUSMSG_OTHER_ERR);
 			popUpWindowMain.invalidate();
+			break;
 
 	}
 

@@ -316,7 +316,7 @@
               "UseBuffer": true,
               "BufferSize": 5
             },
-            "Name": "textAmmount",
+            "Name": "textAmount",
             "X": 34,
             "Y": 28,
             "Width": 160,
@@ -2504,6 +2504,14 @@
       {
         "TextEntryId": "SingleUseId55",
         "IsResource": false
+      },
+      {
+        "TextEntryId": "STATUSMSG_SETTINGS_LOAD_ERR",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "STATUSMSG_SETTINGS_SAVE_ERR",
+        "IsResource": true
       }
     ],
     "Name": "CuttingSystemV2",

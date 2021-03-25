@@ -27,10 +27,13 @@ public:
     void setRelay2delay(uint32_t delay);
     void setRelay3duration(uint32_t duration);
     void setRelay3delay(uint32_t delay);
-    void resetAmmount(void);
+    void resetAmount(void);
     void enableCutting(bool enable);
     void immCut();
 	void updateSetLength(uint32_t newLength);
+	void saveRelaySettings(uint32_t id);
+	void saveEncoderSettings();
+	void loadSettings(void);
 	void reportToEncoderControlTask();
 	void reportToRelaySetupTask(uint32_t id);
 	void resetLastStatus();
@@ -41,7 +44,7 @@ public:
     uint32_t getRelay2delay();
     uint32_t getRelay3duration();
     uint32_t getRelay3delay();
-    uint32_t getAmmount();
+    uint32_t getAmount();
     bool getCutting();
 	uint32_t getSetLength();
 	uint32_t getSetLengthActual();
@@ -57,13 +60,16 @@ protected:
     uint32_t relay2delay;
     uint32_t relay3duration;
     uint32_t relay3delay;
-    uint32_t ammount;
+    uint32_t amount;
     uint32_t setLength;
     uint32_t setLengthActual;
     uint32_t currLength;
+    uint16_t radius_01mm;
+    uint16_t resolution;
     bool cuttingActive;
-    bool immediateCut;
+    //bool immediateCut;
     statusId_t lastStatus;
+    bool fetchSettings;
 
 
 

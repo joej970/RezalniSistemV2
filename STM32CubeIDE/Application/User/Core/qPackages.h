@@ -28,14 +28,14 @@ typedef struct{
 	uint8_t isActive;
 	//uint8_t immCut;
 	uint32_t length_01mm; // unit: 0.1 mm
-	uint32_t resolution;
-	uint32_t radius_01mm;
+	uint16_t resolution;
+	uint16_t radius_01mm;
 } qPackage_encoderControl_t;
 
 typedef struct{
 	//uint32_t setLengthActual_01mm;
 	uint32_t currLength_01mm;
-	uint32_t ammount;
+	uint32_t amount;
 
 } qPackage_report_t;
 
@@ -50,6 +50,14 @@ typedef struct{
 	uint32_t data;
 	//char message[30];
 } qPackage_statusReport_t;
+
+typedef struct{
+	qPackage_encoderControl_t encoderControl;
+	qPackage_relaySetup_t relay1;
+	qPackage_relaySetup_t relay2;
+	qPackage_relaySetup_t relay3;
+	uint8_t settingsMask;
+} qPackage_settings_t;
 
 
 

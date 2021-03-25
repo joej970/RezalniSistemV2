@@ -21,16 +21,13 @@
 
 
 
-extern QueueHandle_t qhGUItoEncoderControl;
-extern QueueHandle_t qhEncoderControlToReport;
-extern QueueHandle_t qhReportToTouchGFX;
-extern QueueHandle_t qhTouchGFXToRelaySetup;
-extern QueueHandle_t qhStatusReport;
+
 
 void encoderControlTask(void *pvParameters);
 void reportTask(void *pvParameters);
 void relaySetupTask(void *pvParameters);
 void singleEventTask(void *pvParameters);
+void writeSettingsTask(void *pvParamaters);
 //void StartTouchGFXTask(void * argument);
 
 

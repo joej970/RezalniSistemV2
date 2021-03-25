@@ -50,8 +50,8 @@ public:
     	return model->getRelay3delay();
     }
 
-    uint32_t fetchAmmount(){
-    	return model->getAmmount();
+    uint32_t fetchAmount(){
+    	return model->getAmount();
     }
 
     uint32_t fetchSetLength(){
@@ -78,8 +78,8 @@ public:
 		model -> enableCutting(enable);
 	}
 
-    void resetAmmount(){
-    	model->resetAmmount();
+    void resetAmount(){
+    	model->resetAmount();
     }
 
     void initiateImmCut(){

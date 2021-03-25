@@ -45,7 +45,10 @@ enum statusId_t{
 	RELAY_DURATION_OF,
 	RELAY_DEACTIVATED,
 	RELAY_ACTIVATED,
-	SET_LENGTH_OF
+	SET_LENGTH_OF,
+	SETTINGS_LOAD_SUCCESS,
+	SETTINGS_LOAD_ERR,
+	SETTINGS_SAVE_ERR
 };
 
 enum eepromStatus_t{
@@ -58,6 +61,21 @@ enum eepromStatus_t{
 	EEPROM_TXFULL,
 	EEPROM_ERR
 };
+
+enum eepromMemoryMap_t{
+//	RES_ENTRYIDX_RADIUS_ENTRYVALID = 0,
+	RESOLUTION_RADIUS	= 0,
+	SET_LENGTH 	= 4,
+	RLY1_DUR 	= 8,
+	RLY1_DEL	= 12,
+	RLY2_DUR 	= 16,
+	RLY2_DEL 	= 20,
+	RLY3_DUR 	= 24,
+	RLY3_DEL 	= 28,
+	OFFSET		= 32
+};
+
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -77,6 +95,11 @@ void Error_Handler(void);
 enum eepromStatus_t byteWriteToEEPROM(uint8_t dataAddr, uint8_t data);
 enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uint8_t nr);
 enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, uint8_t nr);
+enum eepromStatus_t getResolutionRadiusFromEEPROM(uint16_t*, uint16_t*);
+enum eepromStatus_t getSettingsFromEEPROM(uint16_t* resolution, uint16_t* radius_01mm, uint32_t* setLength_01mm, uint32_t *relayData[6]);
+enum eepromStatus_t saveRelayDataToEEPROM(uint32_t* duration, uint32_t* delay, uint8_t relayIdx);
+enum eepromStatus_t saveSetLengthToEEPROM(uint32_t* setLength);
+enum eepromStatus_t saveResolutionRadiusToEEPROM(uint16_t* resolution, uint16_t* radius_01mm);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -97,9 +120,30 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 #define RLY3_Pin GPIO_PIN_15
 #define RLY3_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-#define EVENT_BIT_IMM_CUT 		(0b1UL << 0UL)
-#define EVENT_BIT_RST_AMMOUNT	(0b1UL << 1UL)
-#define EVENT_BITS_ALL			(EVENT_BIT_IMM_CUT | EVENT_BIT_RST_AMMOUNT)
+//  Event masking bits
+#define EVENT_BIT_IMM_CUT 		(1UL << 0UL)
+#define EVENT_BIT_RST_AMOUNT	(1UL << 1UL)
+#define EVENT_BIT_LOAD_SETTINGS	(1UL << 2UL)
+#define EVENT_BITS_ALL			(EVENT_BIT_IMM_CUT | EVENT_BIT_RST_AMOUNT | EVENT_BIT_LOAD_SETTINGS)
+//  Memory organisation
+#define RESOLUTION_Pos	0U
+#define ENTRY_IDX_Pos 	14U
+#define RADIUS_Pos		16U
+#define ENTRY_VALID_Pos	31U
+
+#define RESOLUTION_Msk	(0x3FFFUL << RESOLUTION_Pos)
+#define ENTRY_IDX_Msk  	(3UL << ENTRY_IDX_Pos)
+#define RADIUS_Msk		(0x7FFFUL << RADIUS_Pos)
+#define ENTRY_VALID_Msk (1UL << ENTRY_VALID_Pos)
+
+//  Settings bits
+#define SETTINGS_NONE_Bit		(1UL << 0U)
+#define SETTINGS_ALL_Bit 		(1UL << 1U)
+#define SETTINGS_RES_RAD_Bit	(1UL << 2U)
+#define SETTINGS_LENGTH_Bit		(1UL << 3U)
+#define SETTINGS_RELAY1_Bit		(1UL << 4U)
+#define SETTINGS_RELAY2_Bit		(1UL << 5U)
+#define SETTINGS_RELAY3_Bit		(1UL << 6U)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

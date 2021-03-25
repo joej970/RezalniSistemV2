@@ -86,6 +86,8 @@ QueueHandle_t qhEncoderControlToReport;
 QueueHandle_t qhReportToTouchGFX;
 QueueHandle_t qhTouchGFXToRelaySetup;
 QueueHandle_t qhStatusReport;
+QueueHandle_t qhGUItoWriteSettings;
+QueueHandle_t qhSettingsToGUI;
 
 EventGroupHandle_t ehEvents;
 
@@ -93,6 +95,7 @@ TaskHandle_t thEncoderControl;
 TaskHandle_t thReport;
 TaskHandle_t thRelaySetup;
 TaskHandle_t thSingleEvent;
+TaskHandle_t thWriteSettings;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -198,9 +201,11 @@ int main(void)
   /* add queues, ... */
   qhGUItoEncoderControl = xQueueCreate(1, sizeof(qPackage_encoderControl_t));
   qhEncoderControlToReport = xQueueCreate(1, sizeof(qPackage_encoderControl_t));
-  qhReportToTouchGFX = xQueueCreate(1 , sizeof(qPackage_report_t));
+  qhReportToTouchGFX = xQueueCreate(1 , sizeof(qPackage_report_t)); 	// reports current length and amount
   qhTouchGFXToRelaySetup = xQueueCreate(1, sizeof(qPackage_relaySetup_t));
-  qhStatusReport = xQueueCreate(1, sizeof(qPackage_statusReport_t));
+  qhStatusReport = xQueueCreate(5, sizeof(qPackage_statusReport_t)); // can be called from 5 higher priority tasks
+  qhGUItoWriteSettings = xQueueCreate(1, sizeof(qPackage_settings_t));
+  qhSettingsToGUI = xQueueCreate(1,sizeof(qPackage_settings_t));
 
   ehEvents = xEventGroupCreate();
   /* USER CODE END RTOS_QUEUES */
@@ -212,10 +217,11 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  xTaskCreate(encoderControlTask,"encoderControlTask",256,NULL,2,&thEncoderControl);
-  xTaskCreate(reportTask, "reportTask",256,NULL,1,&thReport);
-  xTaskCreate(relaySetupTask, "relaySetupTask", 256, NULL, 2, &thRelaySetup);
-  xTaskCreate(singleEventTask, "singleEventTask", 256, NULL, 2, &thSingleEvent);
+  xTaskCreate(encoderControlTask,"encoderControlTask",256,NULL,3+2 ,&thEncoderControl);
+  xTaskCreate(reportTask, "reportTask",256,NULL,3+1,&thReport);
+  xTaskCreate(relaySetupTask, "relaySetupTask", 256, NULL,3+2, &thRelaySetup);
+  xTaskCreate(singleEventTask, "singleEventTask", 256, NULL, 3+2, &thSingleEvent);
+  xTaskCreate(writeSettingsTask, "writeSettingsTask", 256, NULL,3+2 , &thWriteSettings);
 
   /*TEST I2C EEPROM*/
   uint8_t dataAddr = 0;
@@ -240,8 +246,19 @@ int main(void)
   uint8_t srcBuffer3[] = {44,45};
   writeStatus2 = bytesWriteToEEPROM(dataAddr2, srcBuffer3, nr);
   readStatus2 = bytesReadFromEEPROM(dataAddr, dstBuffer2, nr);
-  writeStatus2 = writeStatus2;
-  readStatus2 = readStatus2;
+
+
+  uint16_t resolution = 1024;
+  uint16_t radius_01mm = 500;
+
+  writeStatus2 = saveResolutionRadiusToEEPROM(&resolution, &radius_01mm);
+
+  uint16_t resolution_blank = 0;
+  uint16_t radius_01mm_blank = 0;
+  readStatus2 = getResolutionRadiusFromEEPROM(&resolution_blank, &radius_01mm_blank);
+
+  readStatus2++;
+  writeStatus2++;
   UNUSED(writeStatus2);
   UNUSED(readStatus2);
 
@@ -976,7 +993,12 @@ enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uin
 	//  Wait if busy
 	while(I2C1->ISR & I2C_ISR_BUSY_Msk) {
 		if(startTime + 100 < HAL_GetTick()) {
-			return EEPROM_BUSY;
+			I2C1->CR1 &= ~I2C_CR1_PE;
+			for(uint8_t i = 0; i<10; i++){
+				asm("NOP");
+			}
+			I2C1->CR1 |= I2C_CR1_PE;
+			return EEPROM_BUSY; // TODO: Reset Peripheral
 		}
 	}
 
@@ -1011,6 +1033,9 @@ enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uin
 				}
 			}
 			// 	Transfer data
+			uint8_t tmp1 = srcBuffer[i];
+			uint8_t tmp3 = &srcBuffer[i];
+
 			I2C1->TXDR = (uint32_t)srcBuffer[i];
 	}
 
@@ -1055,6 +1080,11 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 	//  Wait if busy
 	while(I2C1->ISR & I2C_ISR_BUSY_Msk) {
 		if(startTime + 100 < HAL_GetTick()) {
+			I2C1->CR1 &= ~I2C_CR1_PE;
+			for(uint8_t i = 0; i<10; i++){
+				asm("NOP");
+			}
+			I2C1->CR1 |= I2C_CR1_PE;
 			return EEPROM_BUSY;
 		}
 	}
@@ -1153,6 +1183,128 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 	return EEPROM_SUCCESS;
 }
 
+enum eepromStatus_t getResolutionRadiusFromEEPROM(uint16_t* resolution, uint16_t* radius_01mm){
+	enum eepromStatus_t status = EEPROM_SUCCESS;
+	uint8_t dstBuffer[] = {0,0,0,0};
+	uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
+
+	status = bytesReadFromEEPROM((uint8_t)RESOLUTION_RADIUS, dstBuffer, nr);
+	if(status == EEPROM_SUCCESS){
+		//	Save resolution, radius data and entryIdx
+		*resolution = (uint16_t) (dstBuffer[0] << 8 | dstBuffer[1]);
+		*radius_01mm= (uint16_t) (dstBuffer[2] << 8 | dstBuffer[3]);
+	}
+	return status;
+}
+
+enum eepromStatus_t getSettingsFromEEPROM(uint16_t* resolution, uint16_t* radius_01mm, uint32_t* setLength_01mm, uint32_t *relayData[6]){
+	enum eepromStatus_t status = EEPROM_SUCCESS;
+	uint8_t dstBuffer[32];
+	uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
+
+	status = bytesReadFromEEPROM((uint8_t)RESOLUTION_RADIUS, dstBuffer, nr);
+	if(status == EEPROM_SUCCESS){
+		//	Save resolution, radius data and setLength
+		*resolution 	= (uint16_t) (dstBuffer[0] << 8 | dstBuffer[1]);
+		*radius_01mm	= (uint16_t) (dstBuffer[2] << 8 | dstBuffer[3]);
+		*setLength_01mm = (uint32_t) (dstBuffer[4] << 8 | dstBuffer[5] << 16 | dstBuffer[6] << 8 | dstBuffer[7]);
+		//	Save relay data to an array of pointers
+		for(int8_t i = 0; i < 6; i++){
+			*relayData[i]	= (uint32_t) (dstBuffer[8+i*4] << 8 | dstBuffer[9+i*4] << 16 | dstBuffer[10+i*4] << 8 | dstBuffer[11+i*4]);
+		}
+
+	}
+	return status;
+}
+
+
+enum eepromStatus_t saveResolutionRadiusToEEPROM(uint16_t* resolution, uint16_t* radius_01mm){
+	enum eepromStatus_t status = EEPROM_SUCCESS;
+	uint8_t srcBuffer[4];
+	uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
+
+	srcBuffer[0] = (uint8_t) (*resolution >> 8);
+	srcBuffer[1] = (uint8_t) (*resolution);
+	srcBuffer[2] = (uint8_t) (*radius_01mm >> 8);
+	srcBuffer[3] = (uint8_t) (*radius_01mm);
+
+	status = bytesWriteToEEPROM((uint8_t)RESOLUTION_RADIUS, srcBuffer, nr);
+
+	return status;
+}
+
+enum eepromStatus_t saveSetLengthToEEPROM(uint32_t* setLength){
+	enum eepromStatus_t status = EEPROM_SUCCESS;
+	uint8_t srcBuffer[4];
+	uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
+
+	srcBuffer[0] = (uint8_t) (*setLength >> 24);
+	srcBuffer[1] = (uint8_t) (*setLength >> 16);
+	srcBuffer[2] = (uint8_t) (*setLength >> 8);
+	srcBuffer[3] = (uint8_t) (*setLength >> 0);
+
+	status = bytesWriteToEEPROM((uint8_t)SET_LENGTH, srcBuffer, nr);
+
+	return status;
+}
+
+enum eepromStatus_t saveRelayDataToEEPROM(uint32_t* duration, uint32_t* delay, uint8_t relayIdx){
+	enum eepromStatus_t status = EEPROM_SUCCESS;
+	uint8_t srcBuffer[8];
+	uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
+
+	srcBuffer[0] = (uint8_t) (*duration >> 24);
+	srcBuffer[1] = (uint8_t) (*duration >> 16);
+	srcBuffer[2] = (uint8_t) (*duration >> 8);
+	srcBuffer[3] = (uint8_t) (*duration >> 0);
+	srcBuffer[4] = (uint8_t) (*delay >> 24);
+	srcBuffer[5] = (uint8_t) (*delay >> 16);
+	srcBuffer[6] = (uint8_t) (*delay >> 8);
+	srcBuffer[7] = (uint8_t) (*delay >> 0);
+
+	status = bytesWriteToEEPROM((uint8_t)RLY1_DUR + 8*(relayIdx-1), srcBuffer, nr);
+
+	return status;
+}
+
+//enum eepromStatus_t getLatestEntryFromEEPROM(uint8_t *latestEntryIdx, uint16_t *resolution, uint16_t *radius_01mm){
+//	enum eepromStatus_t status = EEPROM_SUCCESS;
+//	uint8_t dstBuffer[] = {0,0,0,0};
+//	uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
+//
+//	uint8_t largestEntryIdx = 0;
+//	uint8_t entryIdx = 0;
+//	uint32_t memoryValue = 0;
+//
+//	//	Iterate through all 4 memory locations
+//	for(uint8_t i = 0; i < 4; i++ ){
+//		status = bytesReadFromEEPROM(i*OFFSET+RES_ENTRYIDX_RADIUS_ENTRYVALID, dstBuffer, nr);
+//		if(status != EEPROM_SUCCESS){
+//			return status;
+//		}else{
+//			//  Reconstruct 4 byte memory data
+//			memoryValue = dstBuffer[0] << 24 | dstBuffer[1] << 16 | dstBuffer[2] << 8 | dstBuffer[3];
+//			//  Is data entry valid?
+//			if(memoryValue & ENTRY_VALID_Msk){
+//				//	Is this the most recent entry
+//				entryIdx = (memoryValue & ENTRY_IDX_Msk) >> ENTRY_IDX_Pos;
+//				if( entryIdx >= largestEntryIdx ){
+//					//	Save resolution, radius data and entryIdx
+//					*resolution = (memoryValue & RESOLUTION_Msk) >> RESOLUTION_Pos;
+//					*radius_01mm= (memoryValue & RADIUS_Msk) >> RADIUS_Pos;
+//					*latestEntryIdx = entryIdx;
+//					//	Set a new largest entry idx
+//					largestEntryIdx = entryIdx;
+//				}
+//			}
+//
+//		}
+//
+//	}
+//	/* When writing, if last read location was 0b11, then erase whole memory */
+//	return status;
+//}
+
 
 
 
@@ -1168,6 +1320,7 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 void StartTouchGFXTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+	UBaseType_t basePriority = uxTaskPriorityGet( NULL );
   MX_TouchGFX_Process();
   /* Infinite loop */
   for(;;)

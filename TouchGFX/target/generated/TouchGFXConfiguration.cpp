@@ -54,6 +54,7 @@ void touchgfx_init()
   hal.initialize();
 }
 
+
 void touchgfx_taskEntry()
 {
  /*
