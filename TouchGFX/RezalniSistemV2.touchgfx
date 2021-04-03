@@ -2255,12 +2255,12 @@
             "Wildcard1": {
               "TextId": "SingleUseId46",
               "UseBuffer": true,
-              "BufferSize": 3
+              "BufferSize": 30
             },
             "Name": "statusIdText",
-            "X": 174,
+            "X": 36,
             "Y": 132,
-            "Width": 89,
+            "Width": 365,
             "Height": 36,
             "Visible": true,
             "LockPosition": false,

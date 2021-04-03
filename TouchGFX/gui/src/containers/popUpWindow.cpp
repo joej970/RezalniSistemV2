@@ -21,8 +21,16 @@ void popUpWindow::hidePopUp(){
 }
 
 void popUpWindow::setText(TEXTS textId){
-//	statusText.setTypedText(touchgfx::TypedText(T_STATUSMSG_DURATION_OF));
 	statusText.setTypedText(touchgfx::TypedText(textId));
 	statusText.resizeHeightToCurrentText();
-	//statusText.invalidate();
+	statusIdText.setVisible(false);
+	statusIdText.invalidate();
+}
+
+void popUpWindow::setTextWithMessage(TEXTS textId, const char* message){
+	statusText.setTypedText(touchgfx::TypedText(textId));
+	statusText.resizeHeightToCurrentText();
+	statusIdText.setVisible(true);
+	Unicode::strncpy(statusIdTextBuffer, message, Unicode::strlen(message));
+	statusIdText.invalidate();
 }

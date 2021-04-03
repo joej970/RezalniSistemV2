@@ -62,6 +62,19 @@ enum eepromStatus_t{
 	EEPROM_ERR
 };
 
+//const char* eepromStatus_strings[]  = {
+//				[EEPROM_SUCCESS] = "EEPROM_SUCCESS",
+//				[EEPROM_TIMEOUT_2] = "EEPROM_TIMEOUT_2",
+//				[EEPROM_TIMEOUT_1] = "EEPROM_TIMEOUT_3",
+//				[EEPROM_TIMEOUT_1] = "EEPROM_TIMEOUT_3",
+//				[EEPROM_TIMEOUT_4] = "EEPROM_TIMEOUT_4",
+//				[EEPROM_BUSY] = "EEPROM_BUSY",
+//				[EEPROM_TXFULL] = "EEPROM_TXFULL",
+//				[EEPROM_ERR] = "EEPROM_ERR"
+//};
+
+
+
 enum eepromMemoryMap_t{
 //	RES_ENTRYIDX_RADIUS_ENTRYVALID = 0,
 	RESOLUTION_RADIUS	= 0,

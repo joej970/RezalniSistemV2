@@ -161,7 +161,9 @@ void Screen1MainCuttingView::handleTickEvent(){
 		default:
 			presenter->resetLastStatus();
 			popUpWindowMain.setVisible(true);
-			popUpWindowMain.setText(T_STATUSMSG_OTHER_ERR);
+			uint32_t msgIdx = presenter->fetchStatusPackageData();
+			const char* message = eepromStatus_strings[msgIdx];
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_OTHER_ERR, message);
 			popUpWindowMain.invalidate();
 			break;
 

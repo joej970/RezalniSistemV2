@@ -13,6 +13,7 @@ public:
 
     void hidePopUp();
     void setText(TEXTS textId);
+    void setTextWithMessage(TEXTS textId, const char* message);
 
     virtual void initialize();
 protected:

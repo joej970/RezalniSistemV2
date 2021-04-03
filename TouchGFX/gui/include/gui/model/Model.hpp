@@ -50,6 +50,7 @@ public:
 	uint32_t getSetLengthActual();
 	uint32_t getCurrLength();
 	statusId_t getLastStatus();
+	uint32_t getStatusPackageData();
 
 
 protected:
@@ -70,6 +71,9 @@ protected:
     //bool immediateCut;
     statusId_t lastStatus;
     bool fetchSettings;
+    uint32_t statusPackageData;
+
+
 
 
 

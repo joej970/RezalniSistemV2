@@ -96,6 +96,17 @@ TaskHandle_t thReport;
 TaskHandle_t thRelaySetup;
 TaskHandle_t thSingleEvent;
 TaskHandle_t thWriteSettings;
+
+const char* eepromStatus_strings[]  = {
+				"EEPROM_SUCCESS",
+				"EEPROM_TIMEOUT_2",
+				"EEPROM_TIMEOUT_3",
+				"EEPROM_TIMEOUT_3",
+				"EEPROM_TIMEOUT_4",
+				"EEPROM_BUSY",
+				"EEPROM_TXFULL",
+				"EEPROM_ERR"
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -222,45 +233,6 @@ int main(void)
   xTaskCreate(relaySetupTask, "relaySetupTask", 256, NULL,3+2, &thRelaySetup);
   xTaskCreate(singleEventTask, "singleEventTask", 256, NULL, 3+2, &thSingleEvent);
   xTaskCreate(writeSettingsTask, "writeSettingsTask", 256, NULL,3+2 , &thWriteSettings);
-
-  /*TEST I2C EEPROM*/
-  uint8_t dataAddr = 0;
-  uint8_t data = 187;
-//  enum eepromStatus_t writeStatus = byteWriteToEEPROM(dataAddr, data);
-  enum eepromStatus_t writeStatus = bytesWriteToEEPROM(dataAddr, &data, 1);
-  UNUSED(writeStatus);
-
-  uint8_t dstBuffer[1];
-  dstBuffer[0]= 35;
-  uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
-  enum eepromStatus_t readStatus = bytesReadFromEEPROM(dataAddr, dstBuffer, nr);
-  UNUSED(readStatus);
-
-  uint8_t dataAddr2 = 1;
-  uint8_t srcBuffer[] = {210,211};
-  uint8_t dstBuffer2[3];
-  nr = sizeof(dstBuffer2)/sizeof(dstBuffer2[0]);
-  enum eepromStatus_t writeStatus2 = bytesWriteToEEPROM(dataAddr2, srcBuffer, sizeof(srcBuffer)/sizeof(srcBuffer[0]));
-  enum eepromStatus_t readStatus2 = bytesReadFromEEPROM(dataAddr, dstBuffer2, nr);
-
-  uint8_t srcBuffer3[] = {44,45};
-  writeStatus2 = bytesWriteToEEPROM(dataAddr2, srcBuffer3, nr);
-  readStatus2 = bytesReadFromEEPROM(dataAddr, dstBuffer2, nr);
-
-
-  uint16_t resolution = 1024;
-  uint16_t radius_01mm = 500;
-
-  writeStatus2 = saveResolutionRadiusToEEPROM(&resolution, &radius_01mm);
-
-  uint16_t resolution_blank = 0;
-  uint16_t radius_01mm_blank = 0;
-  readStatus2 = getResolutionRadiusFromEEPROM(&resolution_blank, &radius_01mm_blank);
-
-  readStatus2++;
-  writeStatus2++;
-  UNUSED(writeStatus2);
-  UNUSED(readStatus2);
 
 
   /* USER CODE END RTOS_THREADS */
@@ -948,47 +920,13 @@ void TIM5_Init(void){
 
 
 /*
- * Send a byte to EEPROM over I2C1. Blocking function
- * */
-//enum eepromStatus_t byteWriteToEEPROM(uint8_t dataAddr, uint8_t data){
-//	uint32_t startTime = HAL_GetTick();
-//	// 	Return if busy
-//	if(I2C1->ISR & I2C_ISR_BUSY_Msk) return EEPROM_BUSY;
-//	//	Return if TXDR not empty
-//	if(!(I2C1->ISR & I2C_ISR_TXE_Msk)) return EEPROM_TXFULL;
-//
-//	// 	AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
-//	I2C1->CR2 = I2C_CR2_AUTOEND | (uint8_t) 2 << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-//	// 	Send START condition and have NBYTES transferred
-//	I2C1->CR2 |= I2C_CR2_START;
-//	// 	Transfer data address
-//	I2C1->TXDR = (uint32_t)dataAddr;
-//
-//	//	Wait if previous byte has not been transferred yet
-//	while(!(I2C1->ISR & I2C_ISR_TXIS_Msk)) {
-//		if(startTime + 100 < HAL_GetTick()) {
-//			return EEPROM_TIMEOUT;
-//		}
-//	}
-//	// 	Transfer data
-//	I2C1->TXDR = (uint32_t)data;
-//
-//	// 	Wait if STOPF is not set
-//	while(!(I2C1->ISR & I2C_ISR_STOPF_Msk)){
-//		if(startTime + 100 < HAL_GetTick()) {
-//			return EEPROM_TIMEOUT;
-//		}
-//	}
-//	//	Clear STOP flag
-//	I2C1->ICR = I2C_ICR_STOPCF_Msk;
-//
-//	return EEPROM_SUCCESS;
-//}
-
-/*
  * Send <nr> of bytes to EEPROM over I2C1. Blocking function
  * */
 enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uint8_t nr){
+	static uint32_t lastWriteTimestamp = 0;
+	//	Wait for 5ms after last write
+	while(lastWriteTimestamp + 5 >= HAL_GetTick()){
+	}
 	uint32_t startTime = HAL_GetTick();
 	//  Wait if busy
 	while(I2C1->ISR & I2C_ISR_BUSY_Msk) {
@@ -998,29 +936,39 @@ enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uin
 				asm("NOP");
 			}
 			I2C1->CR1 |= I2C_CR1_PE;
-			return EEPROM_BUSY; // TODO: Reset Peripheral
+			return EEPROM_BUSY;
 		}
 	}
-
+	uint32_t icr = I2C1->ICR;
+	uint32_t tries = 0;
+	I2C1->ICR = I2C_ICR_NACKCF_Msk;
 	// 	AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
 	//I2C1->CR2 = I2C_CR2_AUTOEND | (uint8_t) (nr+1) << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
 	while(1){
-			//	Send START, AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
-			I2C1->CR2 = I2C_CR2_START | I2C_CR2_AUTOEND | (uint8_t) (nr+1) << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-			//	Wait until address + write bit transmission is finished to check if EEPROM has acknoledged
-			while(I2C1->CR2 & I2C_CR2_START_Msk){
-				if(startTime + 100 < HAL_GetTick()) {
-					return EEPROM_TIMEOUT_1;
-				}
+		tries++;
+		//	Send START, AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
+		I2C1->CR2 = I2C_CR2_START | I2C_CR2_AUTOEND | (uint8_t) (nr+1) << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
+		//	Wait until address + write bit transmission is finished to check if EEPROM has acknoledged
+		while(I2C1->CR2 & I2C_CR2_START_Msk){
+			if(startTime + 100 < HAL_GetTick()) {
+				return EEPROM_TIMEOUT_1;
 			}
-			//	If NACK is not set (ACK was received) break out of loop
-			if(!(I2C1->ISR & I2C_ISR_NACKF_Msk)){
+		}
+		//	Wait for TXIS (ack received) or NACK (nack received)
+		while(1){
+			if((I2C1->ISR & I2C_ISR_TXIS_Msk) || (I2C1->ISR & I2C_ISR_NACKF_Msk)){
 				break;
 			}
-			// 	Clear NACK & STOP flag for the next attempt
-			I2C1->ICR = I2C_ICR_NACKCF_Msk | I2C_ICR_STOPCF_Msk;
-			HAL_Delay(1);
 		}
+
+		//	If NACK is not set (ACK was received) break out of loop
+		if(!(I2C1->ISR & I2C_ISR_NACKF_Msk)){
+			break;
+		}
+		// 	Clear NACK & STOP flag for the next attempt
+		I2C1->ICR = I2C_ICR_NACKCF_Msk | I2C_ICR_STOPCF_Msk;
+		HAL_Delay(1);
+	}
 	// 	Transfer data address
 	I2C1->TXDR = (uint32_t)dataAddr;
 
@@ -1033,9 +981,6 @@ enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uin
 				}
 			}
 			// 	Transfer data
-			uint8_t tmp1 = srcBuffer[i];
-			uint8_t tmp3 = &srcBuffer[i];
-
 			I2C1->TXDR = (uint32_t)srcBuffer[i];
 	}
 
@@ -1051,23 +996,9 @@ enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uin
 	I2C1->ICR = I2C_ICR_STOPCF_Msk;
 	I2C1->CR2 = 0;
 
-//	if(I2C1->ISR & I2C_ISR_BUSY_Msk) {
-//			uint32_t isr = I2C1->ISR;
-//			UNUSED(isr);
-//			return EEPROM_BUSY;
-//		}
-
-//	if(I2C1->ISR & I2C_ISR_STOPF_Msk){
-//		uint32_t smt = 0;
-//		smt++;
-//		return EEPROM_ERR;
-//	}
-//	if(I2C1->ISR & I2C_ISR_BUSY_Msk) {
-//			uint32_t isr = I2C1->ISR;
-//			UNUSED(isr);
-//			return EEPROM_BUSY;
-//		}
-
+	//HAL_Delay(10);
+	//	Timestamp last write
+	lastWriteTimestamp = HAL_GetTick();
 	return EEPROM_SUCCESS;
 
 }

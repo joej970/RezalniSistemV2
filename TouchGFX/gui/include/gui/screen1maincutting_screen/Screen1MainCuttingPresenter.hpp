@@ -70,6 +70,10 @@ public:
     	return model->getLastStatus();
     }
 
+    uint32_t fetchStatusPackageData(){
+    	return model->getStatusPackageData();
+    }
+
     bool isCutting(){
     	return model -> getCutting();
     }

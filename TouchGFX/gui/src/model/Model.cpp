@@ -12,7 +12,7 @@
 Model::Model() :
 				modelListener(0), relay1duration(0), relay1delay(0), relay2duration(
 								0), relay2delay(0), relay3duration(0), relay3delay(
-								0), amount(0), setLengthActual(0), lastStatus(OP_OK), fetchSettings(true)
+								0), amount(0), setLengthActual(0), lastStatus(OP_OK), fetchSettings(true), statusPackageData(0)
 
 {
 
@@ -37,6 +37,7 @@ void Model::tick() {
 	xStatus = xQueueReceive(qhStatusReport, &packageStatusReport, 0);
 	if (xStatus == pdTRUE) {
 		lastStatus = packageStatusReport.statusId;
+		statusPackageData = packageStatusReport.data;
 		switch (packageStatusReport.statusId) {
 			case SET_LENGTH_TRIMMED:
 				setLengthActual = packageStatusReport.data;
@@ -55,6 +56,7 @@ void Model::tick() {
 				break;
 			case SETTINGS_LOAD_ERR:
 
+				break;
 			default:
 				break;
 		}
@@ -160,35 +162,7 @@ void Model::updateSetLength(uint32_t newLength) {
 	saveEncoderSettings();
 }
 
-//void Model::loadSettings(void){
-//	extern EventGroupHandle_t ehEvents;
-//	extern QueueHandle_t qhSettingsToGUI;
-//	qPackage_settings_t receivedSettings;
-//	BaseType_t xStatus;
-//
-//	xEventGroupSetBits(ehEvents,EVENT_BIT_LOAD_SETTINGS);
-//
-//	//	Now wait for the message. Transfer should take (address + memory address + 32 bytes) * (8 bits + ACK) = 34*9*1/400000 = 0.765 ms
-//	xStatus = xQueueReceive(qhSettingsToGUI, &receivedSettings, pdMS_TO_TICKS(10));
-//	if(xStatus != pdTRUE){
-//		// TODO: Report unsuccessful read
-//	}else if(receivedSettings.settingsMask & SETTINGS_ALL_Bit){
-//		resolution 		= receivedSettings.encoderControl.resolution;
-//		radius_01mm 	= receivedSettings.encoderControl.radius_01mm;
-//		setLength 		= receivedSettings.encoderControl.length_01mm;
-//		relay1duration  = receivedSettings.relay1.duration_ms;
-//		relay1delay  	= receivedSettings.relay1.delay_ms;
-//		relay2duration  = receivedSettings.relay2.duration_ms;
-//		relay2delay  	= receivedSettings.relay2.delay_ms;
-//		relay3duration  = receivedSettings.relay3.duration_ms;
-//		relay3delay  	= receivedSettings.relay3.delay_ms;
-//	}else{
-//		//	Reading from EEPROM did not return EEPROM_SUCCESS
-//		// TODO: Report unsuccessful read
-//	}
-//
-//
-//}
+
 
 void Model::saveEncoderSettings(){
 	extern QueueHandle_t qhGUItoWriteSettings;
@@ -332,5 +306,8 @@ uint32_t Model::getCurrLength() {
 }
 statusId_t Model::getLastStatus(){
 	return lastStatus;
+}
+uint32_t Model::getStatusPackageData(){
+	return statusPackageData;
 }
 

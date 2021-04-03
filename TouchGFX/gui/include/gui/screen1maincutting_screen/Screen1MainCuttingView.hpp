@@ -5,6 +5,8 @@
 #include <gui/screen1maincutting_screen/Screen1MainCuttingPresenter.hpp>
 #include "stm32f7xx_hal.h"
 
+extern const char* eepromStatus_strings[];
+
 class Screen1MainCuttingView : public Screen1MainCuttingViewBase
 {
 public:
