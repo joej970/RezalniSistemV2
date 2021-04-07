@@ -74,6 +74,10 @@ public:
     	return model->getStatusPackageData();
     }
 
+    char* fetchMessage(){
+    	return model->getMessage();
+    }
+
     bool isCutting(){
     	return model -> getCutting();
     }

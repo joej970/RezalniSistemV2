@@ -3,6 +3,7 @@
 
 #include <gui/model/ModelListener.hpp>
 #include <mvp/Presenter.hpp>
+#include <texts/TextKeysAndLanguages.hpp>
 
 using namespace touchgfx;
 
@@ -24,6 +25,16 @@ public:
      * (ie. made inactive). Teardown functionality can be placed here.
      */
     virtual void deactivate();
+
+    void saveLanguage(LANGUAGES language){
+    	model->saveLanguage(language);
+    }
+    uint16_t fetchRadius(){
+    	return model->getRadius();
+    }
+    void forwardRadius(uint16_t radius){
+    	model->setRadius(radius);
+    }
 
     virtual ~Screen7ConfigPresenter() {};
 

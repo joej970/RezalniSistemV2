@@ -2,35 +2,24 @@
 /*
  * FreeRTOS tasks
  *
- *  void ATaskFunction( void *pvParameters );
- *
- * 	BaseType_t xTaskCreate( TaskFunction_t pvTaskCode,
- *		const char * const pcName,
- *		uint16_t usStackDepth,
- *		void *pvParameters,
- *		UBaseType_t uxPriority,
- *		TaskHandle_t *pxCreatedTask );
- *
  */
 #include "FreeRTOS.h"
 #include "event_groups.h"
-#include "stm32f7xx_hal.h"
+#include "main.h"
 #include "myTasks.h"
 #include "qPackages.h"
-#include "main.h"
-
-
+#include "eeprom.h"
+#include "string.h"
 
 
 /*
  * A task that waits to receive instructions about set length,
- * and whether the timer should be active and counting encoder pulses.
+ * and whether the timer should be active and thus counting encoder pulses.
  * It generates update event when immediate cut instruction is received.
  *
  * This task should be higher priority than GUI task, so it pre-empts the GUI task when data is available.
  *
  * Package structure contains: uint8_t isActive; uint8_t immCut; uint32_t length;
-} qPacket_encoderControl_t;
  */
 void encoderControlTask(void *pvParameters){
 	extern QueueHandle_t qhGUItoEncoderControl;
@@ -52,10 +41,6 @@ void encoderControlTask(void *pvParameters){
 		}else{
 			TIM3 -> CR1 &= ~TIM_CR1_CEN_Msk;
 		}
-
-
-		//TODO setup a timer to measure diff between int and fp calculation
-		//uint64_t newArr_int = ((uint64_t)512*receivedSettings.resolution*receivedSettings.length_01mm)/(3216*receivedSettings.radius_01mm);
 
 		uint32_t newArr = (uint32_t)(0.5+(float)receivedSettings.resolution*receivedSettings.length_01mm/(2*3.1415926*receivedSettings.radius_01mm));
 
@@ -100,8 +85,15 @@ void reportTask(void *pvParameters){
 	qPackage_encoderControl_t receivedSettings;
 	qPackage_report_t packageToSend;
 	BaseType_t xStatus;
-	uint32_t resolution = 2048; //read from EEPROM
-	uint32_t radius_01mm = 0;//read from EEPROM
+	uint32_t resolution; //read from EEPROM
+	uint32_t radius_01mm;//read from EEPROM
+
+	//	Wait to receive settings from EEPROM
+	xStatus = xQueueReceive(qhEncoderControlToReport, &receivedSettings, portMAX_DELAY);
+	if(xStatus == pdPASS){
+		resolution = receivedSettings.resolution;
+		radius_01mm = receivedSettings.radius_01mm;
+	}
 
 	for(;;){
 		xStatus = xQueueReceive(qhEncoderControlToReport, &receivedSettings, 0);
@@ -120,23 +112,22 @@ void reportTask(void *pvParameters){
 			while(1);
 		}
 
-
-
-		vTaskDelay(pdMS_TO_TICKS(10));
+		vTaskDelay(pdMS_TO_TICKS(1000/60));
 	}
 
 }
 
+/*
+ * 	A task that runs when package with relay settings is received. *
+ *
+ * */
 void relaySetupTask(void *pvParameters){
-	extern QueueHandle_t qhTouchGFXToRelaySetup;
-	extern QueueHandle_t qhStatusReport;
-	qPackage_relaySetup_t receivedSettings;
-	qPackage_statusReport_t packageToSend;
 	BaseType_t xStatus;
 	enum statusId_t statusId;
 
 	for(;;){
-		UBaseType_t relayPriority = uxTaskPriorityGet( NULL );
+		extern QueueHandle_t qhTouchGFXToRelaySetup;
+		qPackage_relaySetup_t receivedSettings;
 		xStatus = xQueueReceive(qhTouchGFXToRelaySetup, &receivedSettings, portMAX_DELAY); // will stay in block mode indefinetely
 		if(xStatus == errQUEUE_EMPTY){
 			//TODO: report a problem
@@ -193,6 +184,8 @@ void relaySetupTask(void *pvParameters){
 			break;
 		}
 		//TODO: Report back with actual value;
+		extern QueueHandle_t qhStatusReport;
+		qPackage_statusReport_t packageToSend;
 		packageToSend.statusId = statusId;
 		xStatus = xQueueSend(qhStatusReport, &packageToSend, pdMS_TO_TICKS(10));
 		if(xStatus == errQUEUE_FULL){
@@ -211,39 +204,63 @@ void singleEventTask(void *pvParameters){
 	EventBits_t eventBits;
 
 	for(;;){
+		//	Wait until at least one event bit is set
 		eventBits = xEventGroupWaitBits(ehEvents, EVENT_BITS_ALL, pdTRUE, pdFALSE, portMAX_DELAY);
 
+		/*	RESET AMOUNT  */
 		if(eventBits & EVENT_BIT_RST_AMOUNT){
 			TIM5 -> CNT = 0;
 		}
+
+		/*	RESET CURRENT LENGTH*/
+		if(eventBits & EVENT_BIT_RST_CURR_LEN){
+			TIM3 -> CNT = 0;
+		}
+
+		/*	IMMEDIATE CUT  */
 		if(eventBits & EVENT_BIT_IMM_CUT){
 			TIM3 -> EGR = TIM_EGR_UG_Msk;
 			TIM5 -> CNT -=1; // cutting a new piece increments amount counter
 		}
+
+		/*	ACTIVATE RELAYS	 */
+		if(eventBits & EVENT_BIT_RELAYS_ACTIVATE){
+			enableRelayTimers();
+		}
+
+		/*	DEACTIVATE RELAYS  */
+		if(eventBits & EVENT_BIT_RELAYS_DEACTIVATE){
+			disableRelayTimers();
+		}
+
+		/*	LOAD SETTINGS  */
 		if(eventBits & EVENT_BIT_LOAD_SETTINGS){
 			extern QueueHandle_t qhSettingsToGUI;
 			qPackage_settings_t settingsToSend;
 			BaseType_t xStatus;
 			enum eepromStatus_t status;
 
-
+			//	Prepare array of pointers to locations for getSettingsFromEEPROM() to fill in
 			uint32_t *relayData[] = {
 							&settingsToSend.relay1.duration_ms, &settingsToSend.relay1.delay_ms,
 							&settingsToSend.relay2.duration_ms, &settingsToSend.relay2.delay_ms,
 							&settingsToSend.relay3.duration_ms, &settingsToSend.relay3.delay_ms,
 			};
-
+			//	Get settings
 			status = getSettingsFromEEPROM(
 							&settingsToSend.encoderControl.resolution,
 							&settingsToSend.encoderControl.radius_01mm,
 							&settingsToSend.encoderControl.length_01mm,
-							relayData);
+							relayData,
+							&settingsToSend.languageIdx,
+							&settingsToSend.relaysActive,
+							&settingsToSend.brightness);
 			if(status == EEPROM_SUCCESS){
 				settingsToSend.settingsMask = SETTINGS_ALL_Bit;
 			}else{
-				settingsToSend.settingsMask = 0;
+				settingsToSend.settingsMask = SETTINGS_FAIL_Bit;
 			}
-			// Only the following line can send to this queue
+			// Only the following line can send to this queue, so it should never be full as it will be emptied before this function can be called again.
 			xStatus = xQueueSend(qhSettingsToGUI, &settingsToSend, pdMS_TO_TICKS(0));
 
 			if(xStatus == errQUEUE_FULL){
@@ -258,68 +275,72 @@ void singleEventTask(void *pvParameters){
 
 
 /*
- * This task waits for a message and then reads data from EEPROM based on a mask
+ * This task waits for a message and then writes data to EEPROM
  * */
 void writeSettingsTask(void *pvParamaters){
 	extern QueueHandle_t qhGUItoWriteSettings;
 	qPackage_settings_t receivedSettings;
 	BaseType_t xStatus;
 
-
 	for(;;){
+		//	Wait for new settings to arrive
 		xStatus = xQueueReceive(qhGUItoWriteSettings, &receivedSettings, portMAX_DELAY); // will stay in block mode indefinetely
 		if(xStatus != pdTRUE){
 			//TODO: report a problem
 			while(1);
 		}
-		enum eepromStatus_t status;
-		if(receivedSettings.settingsMask & SETTINGS_ALL_Bit){
+
+		enum eepromStatus_t status = EEPROM_SUCCESS;
+//		if(receivedSettings.settingsMask & SETTINGS_ALL_Bit){
+//			status = saveResolutionRadiusToEEPROM(&receivedSettings.encoderControl.resolution, &receivedSettings.encoderControl.radius_01mm);
+//			status = saveSetLengthToEEPROM(&receivedSettings.encoderControl.length_01mm);
+//			status = saveRelayDataToEEPROM(&receivedSettings.relay1.duration_ms, &receivedSettings.relay1.delay_ms, 1);
+//			status = saveRelayDataToEEPROM(&receivedSettings.relay2.duration_ms, &receivedSettings.relay2.delay_ms, 2);
+//			status = saveRelayDataToEEPROM(&receivedSettings.relay3.duration_ms, &receivedSettings.relay3.delay_ms, 3);
+//			status = saveLanguageIdxToEEPROM(&receivedSettings.languageIdx);
+//			status = saveRelaysActiveToEEPROM(&receivedSettings.relaysActive);
+//		}else
+
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_RES_RAD_Bit){
 			status = saveResolutionRadiusToEEPROM(&receivedSettings.encoderControl.resolution, &receivedSettings.encoderControl.radius_01mm);
+		}
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_LENGTH_Bit){
 			status = saveSetLengthToEEPROM(&receivedSettings.encoderControl.length_01mm);
+		}
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_RELAY1_Bit){
 			status = saveRelayDataToEEPROM(&receivedSettings.relay1.duration_ms, &receivedSettings.relay1.delay_ms, 1);
+		}
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_RELAY2_Bit){
 			status = saveRelayDataToEEPROM(&receivedSettings.relay2.duration_ms, &receivedSettings.relay2.delay_ms, 2);
+		}
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_RELAY3_Bit){
 			status = saveRelayDataToEEPROM(&receivedSettings.relay3.duration_ms, &receivedSettings.relay3.delay_ms, 3);
-		}else{
-			if(receivedSettings.settingsMask & SETTINGS_RES_RAD_Bit){
-				status = saveResolutionRadiusToEEPROM(&receivedSettings.encoderControl.resolution, &receivedSettings.encoderControl.radius_01mm);
+		}
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_LANG_IDX_Bit){
+			status = saveLanguageIdxToEEPROM(receivedSettings.languageIdx);
+		}
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_RELAY_ACT_Bit){
+			status = saveRelaysActiveToEEPROM(receivedSettings.relaysActive);
+		}
+
+		if(status != EEPROM_SUCCESS ){
+			qPackage_statusReport_t packageToSend;
+			extern QueueHandle_t qhStatusReport;
+			extern const char* eepromStatus_strings[];
+
+			packageToSend.statusId = SETTINGS_SAVE_ERR;
+			packageToSend.data = status;
+			strcpy(packageToSend.message, eepromStatus_strings[status]);
+
+			xStatus = xQueueSend(qhStatusReport, &packageToSend, pdMS_TO_TICKS(0));
+			if(xStatus != pdTRUE){
+				//TODO: report a problem
+				while(1);
 			}
-			if(receivedSettings.settingsMask & SETTINGS_LENGTH_Bit){
-				status = saveSetLengthToEEPROM(&receivedSettings.encoderControl.length_01mm);
-			}
-			if(receivedSettings.settingsMask & SETTINGS_RELAY1_Bit){
-				status = saveRelayDataToEEPROM(&receivedSettings.relay1.duration_ms, &receivedSettings.relay1.delay_ms, 1);
-			}
-			if(receivedSettings.settingsMask & SETTINGS_RELAY2_Bit){
-				status = saveRelayDataToEEPROM(&receivedSettings.relay2.duration_ms, &receivedSettings.relay2.delay_ms, 2);
-			}
-			if(receivedSettings.settingsMask & SETTINGS_RELAY3_Bit){
-				status = saveRelayDataToEEPROM(&receivedSettings.relay3.duration_ms, &receivedSettings.relay3.delay_ms, 3);
-			}
-			if(status != EEPROM_SUCCESS ){
-				qPackage_statusReport_t packageToSend;
-				extern QueueHandle_t qhStatusReport;
-				packageToSend.statusId = SETTINGS_SAVE_ERR;
-				packageToSend.data = status;
-				xStatus = xQueueSend(qhStatusReport, &packageToSend, pdMS_TO_TICKS(0));
-				if(xStatus != pdTRUE){
-					//TODO: report a problem
-					while(1);
-				}
-			}
-		} // TODO: error handling if status != SUCCESS
+
+		}
 	}
 }
 
 
 
-//void StartTouchGFXTask(void * argument)
-//{
-//  /* USER CODE BEGIN 5 */
-//  MX_TouchGFX_Process();
-//  /* Infinite loop */
-//  for(;;)
-//  {
-//	  vTaskDelay(pdMS_TO_TICKS(1));
-//  }
-//  /* USER CODE END 5 */
-//}

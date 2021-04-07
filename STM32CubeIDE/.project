@@ -669,6 +669,16 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Right_arrow_pressed.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_ToogleOFF.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_ToogleOFF.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_ToogleON.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_ToogleON.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_Up_arrow.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Up_arrow.cpp</locationURI>
@@ -719,19 +729,9 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/image_Blue_Togglebars_Toggle_RE_large_button_OFF.cpp</name>
+			<name>Application/User/generated/LanguageEng.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Togglebars_Toggle_RE_large_button_OFF.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Blue_Togglebars_Toggle_RE_large_button_ON.cpp</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Togglebars_Toggle_RE_large_button_ON.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/LanguageGb.cpp</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/texts/src/LanguageGb.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/texts/src/LanguageEng.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/LanguageSi.cpp</name>

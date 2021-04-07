@@ -16,6 +16,13 @@ private:
     touchgfx::Callback<Screen2CurrLenView, int16_t> swipeCallback;
 
     void swipeCallbackHandler(int16_t);
+
+    void handleTickEvent();
+
+    void toggleRelaysActive();  // Override and implement this function in Screen2CurrLen
+
+    void resetLengthMeasurement();  // Override and implement this function in Screen2CurrLen
+
 };
 
 #endif // SCREEN2CURRLENVIEW_HPP

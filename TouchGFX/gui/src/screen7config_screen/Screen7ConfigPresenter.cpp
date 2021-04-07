@@ -16,3 +16,4 @@ void Screen7ConfigPresenter::deactivate()
 {
 
 }
+

@@ -2,8 +2,10 @@
 #define MODEL_HPP
 
 #include <touchgfx/hal/types.hpp>
-//#include "status_enum.h"
+#include <texts/TextKeysAndLanguages.hpp>
+#include <touchgfx/Texts.hpp>
 #include "main.h"
+
 
 
 class ModelListener;
@@ -27,7 +29,9 @@ public:
     void setRelay2delay(uint32_t delay);
     void setRelay3duration(uint32_t duration);
     void setRelay3delay(uint32_t delay);
+	void setRadius(uint16_t radius);
     void resetAmount(void);
+    void resetCurrLength(void);
     void enableCutting(bool enable);
     void immCut();
 	void updateSetLength(uint32_t newLength);
@@ -37,6 +41,9 @@ public:
 	void reportToEncoderControlTask();
 	void reportToRelaySetupTask(uint32_t id);
 	void resetLastStatus();
+	void toggleRelaysActive();
+	void saveLanguage(LANGUAGES language);
+
 
     uint32_t getRelay1duration();
     uint32_t getRelay1delay();
@@ -44,6 +51,7 @@ public:
     uint32_t getRelay2delay();
     uint32_t getRelay3duration();
     uint32_t getRelay3delay();
+	uint16_t getRadius();
     uint32_t getAmount();
     bool getCutting();
 	uint32_t getSetLength();
@@ -51,6 +59,8 @@ public:
 	uint32_t getCurrLength();
 	statusId_t getLastStatus();
 	uint32_t getStatusPackageData();
+	char* getMessage();
+	uint8_t getRelaysActive();
 
 
 protected:
@@ -72,9 +82,11 @@ protected:
     statusId_t lastStatus;
     bool fetchSettings;
     uint32_t statusPackageData;
-
-
-
+    char message[30];
+    char* p_message;
+    LANGUAGES languageIdx;
+    uint8_t relaysActive;
+    uint16_t brightness;
 
 
 };

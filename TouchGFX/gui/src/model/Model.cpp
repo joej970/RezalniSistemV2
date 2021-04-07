@@ -4,15 +4,17 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "event_groups.h"
-//#include "main.h"
 #include "qPackages.h"
+#include "string.h"
+
 
 
 
 Model::Model() :
 				modelListener(0), relay1duration(0), relay1delay(0), relay2duration(
 								0), relay2delay(0), relay3duration(0), relay3delay(
-								0), amount(0), setLengthActual(0), lastStatus(OP_OK), fetchSettings(true), statusPackageData(0)
+								0), amount(0), setLengthActual(0), currLength(0), lastStatus(OP_OK),
+								fetchSettings(true), message(""), p_message(message), relaysActive(0)
 
 {
 
@@ -31,13 +33,14 @@ void Model::tick() {
 		currLength = packageReport.currLength_01mm;
 		amount = packageReport.amount;
 	}
-	/*	Receive memory load, relaySetup or encoderControl report	*/
+	/*	Receive statusReport from eeprom write, encoder & relay set up	*/
 	extern QueueHandle_t qhStatusReport;
 	qPackage_statusReport_t packageStatusReport;
 	xStatus = xQueueReceive(qhStatusReport, &packageStatusReport, 0);
 	if (xStatus == pdTRUE) {
 		lastStatus = packageStatusReport.statusId;
 		statusPackageData = packageStatusReport.data;
+		strcpy(message, packageStatusReport.message);
 		switch (packageStatusReport.statusId) {
 			case SET_LENGTH_TRIMMED:
 				setLengthActual = packageStatusReport.data;
@@ -85,17 +88,26 @@ void Model::tick() {
 			relay2delay  	= receivedSettings.relay2.delay_ms;
 			relay3duration  = receivedSettings.relay3.duration_ms;
 			relay3delay  	= receivedSettings.relay3.delay_ms;
+			languageIdx		= (LANGUAGES) receivedSettings.languageIdx;
+			relaysActive	= receivedSettings.relaysActive;
+			brightness		= receivedSettings.brightness;
 
+			//  Apply new settings on hardware
 			reportToRelaySetupTask(1);
 			reportToRelaySetupTask(2);
 			reportToRelaySetupTask(3);
 			reportToEncoderControlTask();
+			if(relaysActive == 0){
+				xEventGroupSetBits(ehEvents,EVENT_BIT_RELAYS_DEACTIVATE);
+			}
+			touchgfx::Texts::setLanguage(languageIdx);
+			// TODO: reportToBrightnessControl()
 
 			//	Report to have widgets updated in Screen 1
 			settingsStatusReport.statusId = SETTINGS_LOAD_SUCCESS;
 			settingsStatusReport.data = 0;
 		}else{
-			//	Reading from EEPROM did not return EEPROM_SUCCESS
+			//	Loading from memory did not return SUCCESS
 			settingsStatusReport.statusId = SETTINGS_LOAD_ERR;
 			settingsStatusReport.data = 0;
 		}
@@ -109,7 +121,6 @@ void Model::setRelay1delay(uint32_t delay) {
 	relay1delay = delay;
 }
 void Model::setRelay1duration(uint32_t duration) {
-//TODO: limit to max duration+delay (42s per timer)
 	relay1duration = duration;
 	reportToRelaySetupTask(1);
 	saveRelaySettings(1);
@@ -134,6 +145,13 @@ void Model::setRelay3duration(uint32_t duration) {
 	saveRelaySettings(3);
 }
 
+void Model::setRadius(uint16_t radius){
+	radius_01mm = radius;
+	reportToEncoderControlTask();
+	saveEncoderSettings();
+}
+
+
 void Model::resetLastStatus(){
 	lastStatus = OP_OK;
 }
@@ -142,18 +160,23 @@ void Model::resetAmount(void) {
 	amount = 0;
 	extern EventGroupHandle_t ehEvents;
 	xEventGroupSetBits(ehEvents,EVENT_BIT_RST_AMOUNT);
-// TODO: send a message to reset counting timer
 }
+
+void Model::resetCurrLength(void) {
+	currLength = 0;
+	extern EventGroupHandle_t ehEvents;
+	xEventGroupSetBits(ehEvents,EVENT_BIT_RST_CURR_LEN);
+}
+
+
 void Model::enableCutting(bool enable) {
 	cuttingActive = enable;
 	reportToEncoderControlTask();
 }
 
 void Model::immCut() {
-	//immediateCut = true;
 	extern EventGroupHandle_t ehEvents;
 	xEventGroupSetBits(ehEvents,EVENT_BIT_IMM_CUT);
-	//reportToEncoderControlTask();
 }
 
 void Model::updateSetLength(uint32_t newLength) {
@@ -166,13 +189,11 @@ void Model::updateSetLength(uint32_t newLength) {
 
 void Model::saveEncoderSettings(){
 	extern QueueHandle_t qhGUItoWriteSettings;
-	qPackage_settings_t settingsPackage = {
-					qPackage_encoderControl_t {(uint8_t) cuttingActive, setLength, resolution, radius_01mm},
-					qPackage_relaySetup_t {0,0,0},
-					qPackage_relaySetup_t {0,0,0},
-					qPackage_relaySetup_t {0,0,0},
-					SETTINGS_RES_RAD_Bit | SETTINGS_LENGTH_Bit
-					};
+	qPackage_settings_t settingsPackage;
+
+	settingsPackage.encoderControl = qPackage_encoderControl_t {(uint8_t) cuttingActive, setLength, resolution, radius_01mm};
+	settingsPackage.settingsMask = SETTINGS_RES_RAD_Bit | SETTINGS_LENGTH_Bit;
+
 
 	BaseType_t xStatus = xQueueSend(qhGUItoWriteSettings, &settingsPackage, 0); // should be able to put in the queue as it will be emptied immediately
 	if (xStatus != pdTRUE) {
@@ -204,15 +225,9 @@ void Model::reportToEncoderControlTask() {
 
 void Model::saveRelaySettings(uint32_t id){
 	extern QueueHandle_t qhGUItoWriteSettings;
+	qPackage_settings_t settingsPackage;
 
-	qPackage_settings_t settingsPackage = {
-					qPackage_encoderControl_t {false,0,0,0},
-					qPackage_relaySetup_t {0,0,0},
-					qPackage_relaySetup_t {0,0,0},
-					qPackage_relaySetup_t {0,0,0},
-					SETTINGS_NONE_Bit
-					};
-
+	settingsPackage.settingsMask = SETTINGS_NONE_Bit;
 
 		switch (id) {
 			case 1:
@@ -257,16 +272,53 @@ void Model::reportToRelaySetupTask(uint32_t id) {
             packageToSend.delay_ms 		= relay3delay;
 			break;
 	}
-	UBaseType_t modelPriority = uxTaskPriorityGet( NULL );
 	BaseType_t xStatus = xQueueSend(qhTouchGFXToRelaySetup, &packageToSend, 0); // should be able to put in the queue as it will be emptied immediately
 	if (xStatus != pdTRUE) {
 		//TODO: report a problem
-		while (1)
-			;
+		while(1);
 	}
 
 
 }
+
+void Model::toggleRelaysActive(){
+	relaysActive = !relaysActive;
+	extern EventGroupHandle_t ehEvents;
+	if(relaysActive){
+		xEventGroupSetBits(ehEvents,EVENT_BIT_RELAYS_ACTIVATE);
+	}else{
+		xEventGroupSetBits(ehEvents,EVENT_BIT_RELAYS_DEACTIVATE);
+	}
+
+	//	Save to memory
+	extern QueueHandle_t qhGUItoWriteSettings;
+	qPackage_settings_t settingsPackage;
+
+	settingsPackage.settingsMask = SETTINGS_RELAY_ACT_Bit;
+	settingsPackage.relaysActive = relaysActive;
+
+	BaseType_t xStatus = xQueueSend(qhGUItoWriteSettings, &settingsPackage, 0); // should be able to put in the queue as it will be emptied immediately
+	if (xStatus == pdFAIL) {
+		while (1);
+	}
+
+}
+
+void Model::saveLanguage(LANGUAGES language){
+	//	Save to memory
+	extern QueueHandle_t qhGUItoWriteSettings;
+	qPackage_settings_t settingsPackage;
+
+	settingsPackage.settingsMask = SETTINGS_LANG_IDX_Bit;
+	settingsPackage.languageIdx = (uint8_t) language;
+
+	BaseType_t xStatus = xQueueSend(qhGUItoWriteSettings, &settingsPackage, 0); // should be able to put in the queue as it will be emptied immediately
+	if (xStatus == pdFAIL) {
+		while (1);
+	}
+
+}
+
 
 
 
@@ -289,6 +341,10 @@ uint32_t Model::getRelay3duration() {
 uint32_t Model::getRelay3delay() {
 	return relay3delay;
 }
+
+uint16_t Model::getRadius(){
+	return radius_01mm;
+}
 uint32_t Model::getAmount() {
 	return amount;
 }
@@ -310,4 +366,9 @@ statusId_t Model::getLastStatus(){
 uint32_t Model::getStatusPackageData(){
 	return statusPackageData;
 }
-
+char* Model::getMessage(){
+	return p_message;
+}
+uint8_t Model::getRelaysActive(){
+	return relaysActive;
+}

@@ -612,7 +612,7 @@
               "Blue": 255
             },
             "Alpha": 255,
-            "AutoSize": true,
+            "AutoSize": false,
             "LineSpacing": 0,
             "Wildcard1": {
               "TextId": "SingleUseId54",
@@ -620,10 +620,36 @@
               "BufferSize": 10
             },
             "Name": "textTotalLength",
-            "X": 219,
+            "X": 128,
             "Y": 92,
-            "Width": 62,
+            "Width": 209,
             "Height": 74,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "BoxWithBorder",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "BorderColor": {
+              "Red": 40,
+              "Green": 179,
+              "Blue": 255
+            },
+            "BorderSize": 5,
+            "Alpha": 86,
+            "Name": "boxWithBorder1",
+            "X": 128,
+            "Y": 12,
+            "Width": 226,
+            "Height": 59,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -634,15 +660,14 @@
           {
             "Type": "ToggleButton",
             "InitialStatePressed": false,
-            "Pressed": "__designer\\Blue_Togglebars_Toggle_RE_large_button_ON.png",
-            "Released": "__designer\\Blue_Togglebars_Toggle_RE_large_button_OFF.png",
+            "Pressed": "ToogleOFF.png",
+            "Released": "ToogleON.png",
             "Alpha": 255,
-            "Style": "Style2",
-            "Name": "toggleButtonLengthMeasurement",
-            "X": 176,
-            "Y": 26,
-            "Width": 128,
-            "Height": 38,
+            "Name": "toggleButtonRelaysActive",
+            "X": 269,
+            "Y": 19,
+            "Width": 79,
+            "Height": 45,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -696,6 +721,30 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId57",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textRelaysActive",
+            "X": 147,
+            "Y": 29,
+            "Width": 106,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -718,11 +767,11 @@
             "HasCompletedTrigger": false,
             "Trigger": {
               "Type": "TriggerClicked",
-              "TriggerComponent": "toggleButtonLengthMeasurement"
+              "TriggerComponent": "toggleButtonRelaysActive"
             },
             "Action": {
               "Type": "ActionCustom",
-              "FunctionName": "toggleLengthMeasurement"
+              "FunctionName": "toggleRelaysActive"
             }
           },
           {
@@ -1636,7 +1685,7 @@
             "Type": "CustomContainerInstance",
             "Name": "digitSelectorRadius",
             "X": 147,
-            "Y": 28,
+            "Y": 69,
             "Width": 186,
             "Height": 67,
             "Visible": true,
@@ -1660,7 +1709,7 @@
             "LineSpacing": 0,
             "Name": "textLengthMM",
             "X": 333,
-            "Y": 40,
+            "Y": 84,
             "Width": 35,
             "Height": 37,
             "Visible": true,
@@ -1684,7 +1733,7 @@
             "LineSpacing": 0,
             "Name": "textDecDot",
             "X": 297,
-            "Y": 43,
+            "Y": 84,
             "Width": 6,
             "Height": 37,
             "Visible": true,
@@ -1737,6 +1786,30 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId58",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textSetUpRadius",
+            "X": 215,
+            "Y": 23,
+            "Width": 50,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -1762,8 +1835,8 @@
               "TriggerComponent": "buttonSetSI"
             },
             "Action": {
-              "Type": "ActionSetLanguage",
-              "Language": "SI"
+              "Type": "ActionCustom",
+              "FunctionName": "setLanguageSI"
             }
           },
           {
@@ -1774,8 +1847,8 @@
               "TriggerComponent": "buttonSetENG"
             },
             "Action": {
-              "Type": "ActionSetLanguage",
-              "Language": "GB"
+              "Type": "ActionCustom",
+              "FunctionName": "setLanguageENG"
             }
           }
         ],
@@ -2512,6 +2585,14 @@
       {
         "TextEntryId": "STATUSMSG_SETTINGS_SAVE_ERR",
         "IsResource": true
+      },
+      {
+        "TextEntryId": "SingleUseId57",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId58",
+        "IsResource": false
       }
     ],
     "Name": "CuttingSystemV2",
@@ -2521,7 +2602,7 @@
     },
     "SelectedColorDepth": 16,
     "StartupScreenName": "Screen1MainCutting",
-    "SelectedStartupLanguage": "GB",
+    "SelectedStartupLanguage": "ENG",
     "Skin": "Blue",
     "TouchGfxPath": "../Middlewares/ST/touchgfx",
     "UIPath": ".",

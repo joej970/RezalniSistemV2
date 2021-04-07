@@ -1,6 +1,5 @@
 #include <gui/screen1maincutting_screen/Screen1MainCuttingView.hpp>
 #include "BitmapDatabase.hpp"
-//#include "main.h"
 #include <texts/TextKeysAndLanguages.hpp>
 
 
@@ -156,14 +155,13 @@ void Screen1MainCuttingView::handleTickEvent(){
 		case SETTINGS_SAVE_ERR:
 			presenter->resetLastStatus();
 			popUpWindowMain.setVisible(true);
-			popUpWindowMain.setText(T_STATUSMSG_SETTINGS_SAVE_ERR);
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_SAVE_ERR, presenter->fetchMessage());
 			popUpWindowMain.invalidate();
+			break;
 		default:
 			presenter->resetLastStatus();
 			popUpWindowMain.setVisible(true);
-			uint32_t msgIdx = presenter->fetchStatusPackageData();
-			const char* message = eepromStatus_strings[msgIdx];
-			popUpWindowMain.setTextWithMessage(T_STATUSMSG_OTHER_ERR, message);
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_OTHER_ERR, presenter->fetchMessage());
 			popUpWindowMain.invalidate();
 			break;
 

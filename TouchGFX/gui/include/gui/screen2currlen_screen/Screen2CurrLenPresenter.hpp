@@ -27,6 +27,33 @@ public:
 
     virtual ~Screen2CurrLenPresenter() {};
 
+    uint32_t fetchSetLengthActual(){
+    	return model->getSetLengthActual();
+    }
+
+    uint32_t fetchCurrLength(){
+    	return model->getCurrLength();
+    }
+
+    uint32_t fetchAmount(){
+    	return model->getAmount();
+    }
+
+    uint8_t fetchRelaysActive(){
+    	return model->getRelaysActive();
+    }
+
+    void toggleRelaysActive(){
+    	model->toggleRelaysActive();
+    }
+
+    void resetTotalLength(){
+    	model->resetAmount();
+    	model->resetCurrLength();
+    }
+
+
+
 private:
     Screen2CurrLenPresenter();
 

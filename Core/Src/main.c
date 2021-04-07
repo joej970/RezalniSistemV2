@@ -54,7 +54,7 @@
 #define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((uint16_t)0x0000)
 #define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
 
-#define EEPROM_ADDR		(uint8_t)0b10100000
+
 
 /* USER CODE END PD */
 
@@ -97,16 +97,16 @@ TaskHandle_t thRelaySetup;
 TaskHandle_t thSingleEvent;
 TaskHandle_t thWriteSettings;
 
-const char* eepromStatus_strings[]  = {
-				"EEPROM_SUCCESS",
-				"EEPROM_TIMEOUT_2",
-				"EEPROM_TIMEOUT_3",
-				"EEPROM_TIMEOUT_3",
-				"EEPROM_TIMEOUT_4",
-				"EEPROM_BUSY",
-				"EEPROM_TXFULL",
-				"EEPROM_ERR"
-};
+//const char* eepromStatus_strings[]  = {
+//				"EEPROM_SUCCESS",
+//				"EEPROM_TIMEOUT_2",
+//				"EEPROM_TIMEOUT_3",
+//				"EEPROM_TIMEOUT_3",
+//				"EEPROM_TIMEOUT_4",
+//				"EEPROM_BUSY",
+//				"EEPROM_TXFULL",
+//				"EEPROM_ERR"
+//};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -771,7 +771,7 @@ static void MX_GPIO_Init(void)
  */
 void TIM3_Init(void){
 	// activate clock for peripheral TIM3
-	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM3EN_Pos;
+	RCC->APB1ENR |= 1UL << RCC_APB1ENR_TIM3EN_Pos;
 	// Master mode selection: Update Event as trigger output (TRGO)
 	TIM3->CR2 = 0b010 << TIM_CR2_MMS_Pos;
 	// Slave mode selection: Encoder mode 2 - Counter counts up/down on TI2FP2 (PC7) edge depending on TI1FP1 (PC6) level.
@@ -779,21 +779,21 @@ void TIM3_Init(void){
 	// Capture/Compare 2 & 1 Selection: CC2 & CC1 channels are configured as input, IC2/IC1 is mapped on TI2/TI1
 	TIM3->CCMR1 = (0b01 << TIM_CCMR1_CC2S_Pos) | (0b01 << TIM_CCMR1_CC1S_Pos);
 	// Capture/Compare 2 output polarity: inverted/falling edge.
-	TIM3->CCER = 0b1 << TIM_CCER_CC2P_Pos;
+	TIM3->CCER = 1UL << TIM_CCER_CC2P_Pos;
 
-	// TODO: Add possibility to inverse encoder direction
+	// TODO: Add possibility to invert encoder direction
 }
 
 
 
 /*
- * Init TIM4 timer to be used as trigger timer for TIM1, TIM8, TIM12
+ * Init TIM4 timer to be used as forward timer from TIM3 (encoder) to TIM1, TIM8, TIM12
  */
 void TIM4_Init(void){
 	// activate clock for peripheral TIM4
-	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM4EN_Pos;
+	RCC->APB1ENR |= 1UL << RCC_APB1ENR_TIM4EN_Pos;
 	// One pulse mode
-	TIM4->CR1 = 0b1 << TIM_CR1_OPM_Pos;
+	TIM4->CR1 = 1UL << TIM_CR1_OPM_Pos;
 	// Master mode selection: CNT_EN as trigger output (TRGO)
 	TIM4->CR2 = 0b001 << TIM_CR2_MMS_Pos;
 	// Trigger selection: ITR2 (TIM3), Slave mode selection: Trigger mode - the counter starts on rising edge of TRGI
@@ -808,38 +808,26 @@ void TIM4_Init(void){
  */
 void TIM1_Init(void){
 	// activate clock for peripheral TIM1
-	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM1EN_Pos;
+	RCC->APB2ENR |= 1UL << RCC_APB2ENR_TIM1EN_Pos;
 	// Lower its frequency from 100 MHz to 1.525879 kHz
 	TIM1->PSC = 0xFFFF;
 	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
-	TIM1->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
+	TIM1->CR1 = 1UL << TIM_CR1_OPM_Pos | 1UL << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM1->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b011 << TIM_SMCR_TS_Pos;
 
-
-	/* DEBUG ONLY: Configure the TIM1 IRQ priority */
-	//HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 2 ,0);
-
-	/* Enable the TIM1 global Interrupt */
-	//HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
-	// Interrupt generation on trigger input
-	//TIM1->DIER = 0b1 << TIM_DIER_TIE_Pos;
-
-
 	// Master enable output MOE, Off-state selection for Run and Idle mode: Inactive level when in off state
-	TIM1->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
+	TIM1->BDTR = 1UL << TIM_BDTR_MOE_Pos;
 	// force inactive level: PWM Mode 2 on channel 1 set in relaySetupTask when relay activated, Output Compare 1 pre-load enable
-	TIM1->CCMR1 = 0b100 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
-
+	TIM1->CCMR1 = 0b100 << TIM_CCMR1_OC1M_Pos | 1UL << TIM_CCMR1_OC1PE_Pos;
 
 	// Set ARR and CC1 to max
 	TIM1->ARR = 0xFFFF;
 	TIM1->CCR1 = 0xFFFF;
 	// Update event generation as ARR and CCR1 are preloaded
-	TIM1->EGR = 0b1 << TIM_EGR_UG_Pos;
+	TIM1->EGR = 1UL << TIM_EGR_UG_Pos;
 	// Output Compare 1 output enable
-	TIM1->CCER = 0b1 << TIM_CCER_CC1E_Pos;
-
+	TIM1->CCER = 1UL << TIM_CCER_CC1E_Pos;
 
 }
 
@@ -848,24 +836,24 @@ void TIM1_Init(void){
  */
 void TIM12_Init(void){
 	// activate clock for peripheral TIM12
-	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM12EN_Pos;
+	RCC->APB1ENR |= 1UL << RCC_APB1ENR_TIM12EN_Pos;
 	// Lower its frequency from 100 MHz to 1.525879 kHz
 	TIM12->PSC = 0xFFFF;
 	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
-	TIM12->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
+	TIM12->CR1 = 1UL << TIM_CR1_OPM_Pos | 1UL << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM12->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b000 << TIM_SMCR_TS_Pos;
 	// Master enable output MOE
-	TIM12->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
+	TIM12->BDTR = 1UL << TIM_BDTR_MOE_Pos;
 	// force inactive level: PWM Mode 2 on channel 1 set in relaySetupTask when relay activated, Output Compare 1 pre-load enable
-	TIM12->CCMR1 = 0b100 << TIM_CCMR1_OC1M_Pos | 0b1 << TIM_CCMR1_OC1PE_Pos;
+	TIM12->CCMR1 = 0b100 << TIM_CCMR1_OC1M_Pos | 1UL << TIM_CCMR1_OC1PE_Pos;
 	// Set ARR and CC1 to max
 	TIM12->ARR = 0xFFFF;
 	TIM12->CCR1 = 0xFFFF;
 	// Update event generation as ARR and CCR1 are preloaded
-	TIM12->EGR = 0b1 << TIM_EGR_UG_Pos;
+	TIM12->EGR = 1UL << TIM_EGR_UG_Pos;
 	// Output Compare 1 output enable
-	TIM12->CCER = 0b1 << TIM_CCER_CC1E_Pos;
+	TIM12->CCER = 1UL << TIM_CCER_CC1E_Pos;
 }
 
 /*
@@ -873,25 +861,43 @@ void TIM12_Init(void){
  */
 void TIM8_Init(void){
 	// activate clock for peripheral TIM8
-	RCC->APB2ENR |= 0b1 << RCC_APB2ENR_TIM8EN_Pos;
+	RCC->APB2ENR |= 1UL << RCC_APB2ENR_TIM8EN_Pos;
 	// Lower its frequency from 100 MHz to 1.525879 kHz
 	TIM8->PSC = 0xFFFF;
 	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
-	TIM8->CR1 = 0b1 << TIM_CR1_OPM_Pos | 0b1 << TIM_CR1_ARPE_Pos;
+	TIM8->CR1 = 1UL << TIM_CR1_OPM_Pos | 1UL << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM8->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b010 << TIM_SMCR_TS_Pos;
 	// Master enable output MOE
-	TIM8->BDTR = 0b1 << TIM_BDTR_MOE_Pos;
+	TIM8->BDTR = 1UL << TIM_BDTR_MOE_Pos;
 	// force inactive level: PWM Mode 2 on channel 1 set in relaySetupTask when relay activated, Output Compare 1 pre-load enable
-	TIM8->CCMR2 = 0b100 << TIM_CCMR2_OC3M_Pos | 0b1 << TIM_CCMR2_OC3PE_Pos;
+	TIM8->CCMR2 = 0b100 << TIM_CCMR2_OC3M_Pos | 1UL << TIM_CCMR2_OC3PE_Pos;
 	// Set ARR and CC3 to max
 	TIM8->ARR = 0xFFFF;
 	TIM8->CCR3 = 0xFFFF;
 	// Update event generation as ARR and CCR1 are preloaded
-	TIM8->EGR = 0b1 << TIM_EGR_UG_Pos;
+	TIM8->EGR = 1UL << TIM_EGR_UG_Pos;
 	// Output Compare 1 output enable
-	TIM8->CCER = 0b1 << TIM_CCER_CC3NE_Pos;
+	TIM8->CCER = 1UL << TIM_CCER_CC3NE_Pos;
 
+}
+
+/*
+ * 	Disable relay timers by disabling slave mode
+ * */
+void disableRelayTimers(void){
+	TIM1->SMCR &= ~(0b111 << TIM_SMCR_SMS_Pos); // Slave mode disabled (0b000)
+	TIM12->SMCR &= ~(0b111 << TIM_SMCR_SMS_Pos);// Slave mode disabled (0b000)
+	TIM8->SMCR &= ~(0b111 << TIM_SMCR_SMS_Pos);	// Slave mode disabled (0b000)
+}
+
+/*
+ * 	Enable relay timers by enabling trigger mode
+ * */
+void enableRelayTimers(void){
+	TIM1->SMCR |= 0b110 << TIM_SMCR_SMS_Pos;	// Trigger mode
+	TIM12->SMCR |= 0b110 << TIM_SMCR_SMS_Pos;	// Trigger mode
+	TIM8->SMCR |= 0b110 << TIM_SMCR_SMS_Pos;	// Trigger mode
 }
 
 
@@ -900,341 +906,19 @@ void TIM8_Init(void){
  */
 void TIM5_Init(void){
 	// activate clock for peripheral TIM5
-	RCC->APB1ENR |= 0b1 << RCC_APB1ENR_TIM5EN_Pos;
+	RCC->APB1ENR |= 1UL << RCC_APB1ENR_TIM5EN_Pos;
 
-	/* DEBUG ONLY: Configure the TIM1 IRQ priority */
-	HAL_NVIC_SetPriority(TIM5_IRQn, 2 ,0);
-
-	/* Enable the TIM1 global Interrupt */
-	HAL_NVIC_EnableIRQ(TIM5_IRQn);
 	// Interrupt generation on trigger input
-	TIM5->DIER = 0b1 << TIM_DIER_TIE_Pos;
+	TIM5->DIER = 1UL << TIM_DIER_TIE_Pos;
 
 	// SMS: External clock mode 1, TS: Internal trigger 2: TIM4
 	TIM5->SMCR = 0b010 << TIM_SMCR_TS_Pos | 0b111 << TIM_SMCR_SMS_Pos;
 
 	// Counter Enable
-	TIM5->CR1 = 0b1 << TIM_CR1_CEN_Pos;
+	TIM5->CR1 = 1UL << TIM_CR1_CEN_Pos;
 
 }
 
-
-/*
- * Send <nr> of bytes to EEPROM over I2C1. Blocking function
- * */
-enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uint8_t nr){
-	static uint32_t lastWriteTimestamp = 0;
-	//	Wait for 5ms after last write
-	while(lastWriteTimestamp + 5 >= HAL_GetTick()){
-	}
-	uint32_t startTime = HAL_GetTick();
-	//  Wait if busy
-	while(I2C1->ISR & I2C_ISR_BUSY_Msk) {
-		if(startTime + 100 < HAL_GetTick()) {
-			I2C1->CR1 &= ~I2C_CR1_PE;
-			for(uint8_t i = 0; i<10; i++){
-				asm("NOP");
-			}
-			I2C1->CR1 |= I2C_CR1_PE;
-			return EEPROM_BUSY;
-		}
-	}
-	uint32_t icr = I2C1->ICR;
-	uint32_t tries = 0;
-	I2C1->ICR = I2C_ICR_NACKCF_Msk;
-	// 	AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
-	//I2C1->CR2 = I2C_CR2_AUTOEND | (uint8_t) (nr+1) << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-	while(1){
-		tries++;
-		//	Send START, AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
-		I2C1->CR2 = I2C_CR2_START | I2C_CR2_AUTOEND | (uint8_t) (nr+1) << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-		//	Wait until address + write bit transmission is finished to check if EEPROM has acknoledged
-		while(I2C1->CR2 & I2C_CR2_START_Msk){
-			if(startTime + 100 < HAL_GetTick()) {
-				return EEPROM_TIMEOUT_1;
-			}
-		}
-		//	Wait for TXIS (ack received) or NACK (nack received)
-		while(1){
-			if((I2C1->ISR & I2C_ISR_TXIS_Msk) || (I2C1->ISR & I2C_ISR_NACKF_Msk)){
-				break;
-			}
-		}
-
-		//	If NACK is not set (ACK was received) break out of loop
-		if(!(I2C1->ISR & I2C_ISR_NACKF_Msk)){
-			break;
-		}
-		// 	Clear NACK & STOP flag for the next attempt
-		I2C1->ICR = I2C_ICR_NACKCF_Msk | I2C_ICR_STOPCF_Msk;
-		HAL_Delay(1);
-	}
-	// 	Transfer data address
-	I2C1->TXDR = (uint32_t)dataAddr;
-
-	/* Transfer data */
-	for(uint8_t i = 0; i < nr; i++){
-		//	Wait if next byte needs to be written to TXDR
-			while(!(I2C1->ISR & I2C_ISR_TXIS_Msk)){
-				if(startTime + 100 < HAL_GetTick()) {
-					return EEPROM_TIMEOUT_2;
-				}
-			}
-			// 	Transfer data
-			I2C1->TXDR = (uint32_t)srcBuffer[i];
-	}
-
-	uint32_t blabla = 0;
-	// 	Wait if STOPF is not set
-	while(!(I2C1->ISR & I2C_ISR_STOPF_Msk)){
-		blabla++;
-		if(startTime + 100 < HAL_GetTick()) {
-			return EEPROM_TIMEOUT_3;
-		}
-	}
-	//	Clear STOP flag
-	I2C1->ICR = I2C_ICR_STOPCF_Msk;
-	I2C1->CR2 = 0;
-
-	//HAL_Delay(10);
-	//	Timestamp last write
-	lastWriteTimestamp = HAL_GetTick();
-	return EEPROM_SUCCESS;
-
-}
-
-/*
- * Set EEPROM to <dataAddr> and read <nr> of bytes from EEPROM and load it to <*dstBuffer>. Blocking function (max 100ms).
- * */
-enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, uint8_t nr){
-	uint32_t startTime = HAL_GetTick();
-	//  Wait if busy
-	while(I2C1->ISR & I2C_ISR_BUSY_Msk) {
-		if(startTime + 100 < HAL_GetTick()) {
-			I2C1->CR1 &= ~I2C_CR1_PE;
-			for(uint8_t i = 0; i<10; i++){
-				asm("NOP");
-			}
-			I2C1->CR1 |= I2C_CR1_PE;
-			return EEPROM_BUSY;
-		}
-	}
-
-	/* Has EEPROM finished with previous write cycle?*/
-	/* Set data address */
-
-	//I2C1->CR2 = (uint8_t) 1 << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-	uint32_t nrOfAttemtps = 0;
-	while(1){
-		nrOfAttemtps++;
-		//	Send START; NBYTES: data address; SADD: slave address; WRITE = 0
-		I2C1->CR2 = I2C_CR2_START | (uint8_t) 1 << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-		//	Wait until address + write bit is sent to check if EEPROM has acknoledged
-		while(I2C1->CR2 & I2C_CR2_START_Msk){
-			if(startTime + 100 < HAL_GetTick()) {
-				return EEPROM_TIMEOUT_1;
-			}
-		}
-		//	If NACK is not set (ACK was received) break out of loop
-		if(!(I2C1->ISR & I2C_ISR_NACKF_Msk)){
-			break;
-		}
-		// 	Clear NACK & STOP flag for the next attempt
-		I2C1->ICR = I2C_ICR_NACKCF_Msk | I2C_ICR_STOPCF_Msk;
-		HAL_Delay(1);
-	}
-//	//SET
-//	TRIGGER_OUT_GPIO_Port->BSRR |= TRIGGER_OUT_Pin;
-//	//RESET
-//	TRIGGER_OUT_GPIO_Port->BSRR |= (TRIGGER_OUT_Pin) << 16;
-
-	//	Send address
-	I2C1->TXDR = (uint32_t)dataAddr;
-
-	// 	Wait if TC bit is not set
-	while(!(I2C1->ISR & I2C_ISR_TC_Msk)){
-		if(startTime + 100 < HAL_GetTick()) {
-			return EEPROM_TIMEOUT_2;
-		}
-	}
-	/* Read bytes */
-	//  Send START;	AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data; RD_WRN: read opearation; SADD: slave address;
-//	I2C1->CR2 = I2C_CR2_AUTOEND | nr << I2C_CR2_NBYTES_Pos | I2C_CR2_RD_WRN | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-	I2C1->ICR = I2C_ICR_STOPCF_Msk;
-	I2C1->CR2 = I2C_CR2_START | I2C_CR2_AUTOEND | nr << I2C_CR2_NBYTES_Pos | I2C_CR2_RD_WRN | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-	/* Have NBYTES received */
-	for(uint8_t i = 0; i < nr; i++){
-		// Wait if receive buffer is not not-empty = wait if receive buffer not full
-		while(!(I2C1->ISR & I2C_ISR_RXNE)){
-			if(startTime + 100 < HAL_GetTick()){
-				return EEPROM_TIMEOUT_3;
-			}
-		}
-		dstBuffer[i] = I2C1->RXDR;
-	}
-
-//	// 	Wait if TC bit is not set
-//	while(!(I2C1->ISR & I2C_ISR_TC_Msk)){
-//		if(startTime + 100 < HAL_GetTick()) {
-//			return EEPROM_TIMEOUT;
-//		}
-//	}
-//	if(I2C1->ISR & I2C_ISR_STOPF_Msk){
-//		// should not be set yet
-//		uint32_t isr_early = I2C1->ISR;
-//		UNUSED(isr_early);
-//		uint32_t smt;
-//		UNUSED(smt);
-//		return EEPROM_ERR;
-//	}
-//
-//	// Stop the transfer now
-//	I2C1->CR2 = I2C_CR2_STOP;
-
-	uint32_t blabla = 0;
-	// 	Wait if STOPF is not set
-	while(1){
-		if(I2C1->ISR & I2C_ISR_STOPF_Msk){
-			break;
-		}
-		if(startTime + 100 < HAL_GetTick()) {
-			return EEPROM_TIMEOUT_4;
-		}
-		blabla++;
-	}
-	//	Clear STOP
-	I2C1->ICR = I2C_ICR_STOPCF_Msk;
-	I2C1->CR2 = 0;
-
-//	if(I2C1->ISR & I2C_ISR_BUSY_Msk) {
-//			uint32_t isr = I2C1->ISR;
-//			UNUSED(isr);
-//			return EEPROM_BUSY;
-//		}
-	return EEPROM_SUCCESS;
-}
-
-enum eepromStatus_t getResolutionRadiusFromEEPROM(uint16_t* resolution, uint16_t* radius_01mm){
-	enum eepromStatus_t status = EEPROM_SUCCESS;
-	uint8_t dstBuffer[] = {0,0,0,0};
-	uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
-
-	status = bytesReadFromEEPROM((uint8_t)RESOLUTION_RADIUS, dstBuffer, nr);
-	if(status == EEPROM_SUCCESS){
-		//	Save resolution, radius data and entryIdx
-		*resolution = (uint16_t) (dstBuffer[0] << 8 | dstBuffer[1]);
-		*radius_01mm= (uint16_t) (dstBuffer[2] << 8 | dstBuffer[3]);
-	}
-	return status;
-}
-
-enum eepromStatus_t getSettingsFromEEPROM(uint16_t* resolution, uint16_t* radius_01mm, uint32_t* setLength_01mm, uint32_t *relayData[6]){
-	enum eepromStatus_t status = EEPROM_SUCCESS;
-	uint8_t dstBuffer[32];
-	uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
-
-	status = bytesReadFromEEPROM((uint8_t)RESOLUTION_RADIUS, dstBuffer, nr);
-	if(status == EEPROM_SUCCESS){
-		//	Save resolution, radius data and setLength
-		*resolution 	= (uint16_t) (dstBuffer[0] << 8 | dstBuffer[1]);
-		*radius_01mm	= (uint16_t) (dstBuffer[2] << 8 | dstBuffer[3]);
-		*setLength_01mm = (uint32_t) (dstBuffer[4] << 8 | dstBuffer[5] << 16 | dstBuffer[6] << 8 | dstBuffer[7]);
-		//	Save relay data to an array of pointers
-		for(int8_t i = 0; i < 6; i++){
-			*relayData[i]	= (uint32_t) (dstBuffer[8+i*4] << 8 | dstBuffer[9+i*4] << 16 | dstBuffer[10+i*4] << 8 | dstBuffer[11+i*4]);
-		}
-
-	}
-	return status;
-}
-
-
-enum eepromStatus_t saveResolutionRadiusToEEPROM(uint16_t* resolution, uint16_t* radius_01mm){
-	enum eepromStatus_t status = EEPROM_SUCCESS;
-	uint8_t srcBuffer[4];
-	uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
-
-	srcBuffer[0] = (uint8_t) (*resolution >> 8);
-	srcBuffer[1] = (uint8_t) (*resolution);
-	srcBuffer[2] = (uint8_t) (*radius_01mm >> 8);
-	srcBuffer[3] = (uint8_t) (*radius_01mm);
-
-	status = bytesWriteToEEPROM((uint8_t)RESOLUTION_RADIUS, srcBuffer, nr);
-
-	return status;
-}
-
-enum eepromStatus_t saveSetLengthToEEPROM(uint32_t* setLength){
-	enum eepromStatus_t status = EEPROM_SUCCESS;
-	uint8_t srcBuffer[4];
-	uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
-
-	srcBuffer[0] = (uint8_t) (*setLength >> 24);
-	srcBuffer[1] = (uint8_t) (*setLength >> 16);
-	srcBuffer[2] = (uint8_t) (*setLength >> 8);
-	srcBuffer[3] = (uint8_t) (*setLength >> 0);
-
-	status = bytesWriteToEEPROM((uint8_t)SET_LENGTH, srcBuffer, nr);
-
-	return status;
-}
-
-enum eepromStatus_t saveRelayDataToEEPROM(uint32_t* duration, uint32_t* delay, uint8_t relayIdx){
-	enum eepromStatus_t status = EEPROM_SUCCESS;
-	uint8_t srcBuffer[8];
-	uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
-
-	srcBuffer[0] = (uint8_t) (*duration >> 24);
-	srcBuffer[1] = (uint8_t) (*duration >> 16);
-	srcBuffer[2] = (uint8_t) (*duration >> 8);
-	srcBuffer[3] = (uint8_t) (*duration >> 0);
-	srcBuffer[4] = (uint8_t) (*delay >> 24);
-	srcBuffer[5] = (uint8_t) (*delay >> 16);
-	srcBuffer[6] = (uint8_t) (*delay >> 8);
-	srcBuffer[7] = (uint8_t) (*delay >> 0);
-
-	status = bytesWriteToEEPROM((uint8_t)RLY1_DUR + 8*(relayIdx-1), srcBuffer, nr);
-
-	return status;
-}
-
-//enum eepromStatus_t getLatestEntryFromEEPROM(uint8_t *latestEntryIdx, uint16_t *resolution, uint16_t *radius_01mm){
-//	enum eepromStatus_t status = EEPROM_SUCCESS;
-//	uint8_t dstBuffer[] = {0,0,0,0};
-//	uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
-//
-//	uint8_t largestEntryIdx = 0;
-//	uint8_t entryIdx = 0;
-//	uint32_t memoryValue = 0;
-//
-//	//	Iterate through all 4 memory locations
-//	for(uint8_t i = 0; i < 4; i++ ){
-//		status = bytesReadFromEEPROM(i*OFFSET+RES_ENTRYIDX_RADIUS_ENTRYVALID, dstBuffer, nr);
-//		if(status != EEPROM_SUCCESS){
-//			return status;
-//		}else{
-//			//  Reconstruct 4 byte memory data
-//			memoryValue = dstBuffer[0] << 24 | dstBuffer[1] << 16 | dstBuffer[2] << 8 | dstBuffer[3];
-//			//  Is data entry valid?
-//			if(memoryValue & ENTRY_VALID_Msk){
-//				//	Is this the most recent entry
-//				entryIdx = (memoryValue & ENTRY_IDX_Msk) >> ENTRY_IDX_Pos;
-//				if( entryIdx >= largestEntryIdx ){
-//					//	Save resolution, radius data and entryIdx
-//					*resolution = (memoryValue & RESOLUTION_Msk) >> RESOLUTION_Pos;
-//					*radius_01mm= (memoryValue & RADIUS_Msk) >> RADIUS_Pos;
-//					*latestEntryIdx = entryIdx;
-//					//	Set a new largest entry idx
-//					largestEntryIdx = entryIdx;
-//				}
-//			}
-//
-//		}
-//
-//	}
-//	/* When writing, if last read location was 0b11, then erase whole memory */
-//	return status;
-//}
 
 
 
@@ -1251,7 +935,6 @@ enum eepromStatus_t saveRelayDataToEEPROM(uint32_t* duration, uint32_t* delay, u
 void StartTouchGFXTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
-	UBaseType_t basePriority = uxTaskPriorityGet( NULL );
   MX_TouchGFX_Process();
   /* Infinite loop */
   for(;;)

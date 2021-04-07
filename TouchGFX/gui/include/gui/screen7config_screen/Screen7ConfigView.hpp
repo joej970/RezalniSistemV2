@@ -11,6 +11,8 @@ public:
     virtual ~Screen7ConfigView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
+    void setLanguageSI();
+    void setLanguageENG();
 protected:
 };
 
