@@ -811,7 +811,8 @@ void TIM1_Init(void){
 	RCC->APB2ENR |= 1UL << RCC_APB2ENR_TIM1EN_Pos;
 	// Lower its frequency from 100 MHz to 1.525879 kHz
 	TIM1->PSC = 0xFFFF;
-	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating. This ensures timer does not run past ARR should ARR be decreased just being reached
+	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating.
+	//	This ensures timer does not run past ARR should ARR be decreased just being reached
 	TIM1->CR1 = 1UL << TIM_CR1_OPM_Pos | 1UL << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM1->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b011 << TIM_SMCR_TS_Pos;

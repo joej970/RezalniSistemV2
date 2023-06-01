@@ -178,7 +178,7 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 	uint32_t startTime = HAL_GetTick();
 	//  Wait if busy
 	while(I2C1->ISR & I2C_ISR_BUSY_Msk) {
-		if(startTime + 100 < HAL_GetTick()) {
+		if(HAL_GetTick() - startTime > 100) {
 			I2C1->CR1 &= ~I2C_CR1_PE;
 			for(uint8_t i = 0; i<10; i++){
 				asm("NOP");
@@ -197,9 +197,9 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 		nrOfAttemtps++;
 		//	Send START; NBYTES: data address; SADD: slave address; WRITE = 0
 		I2C1->CR2 = I2C_CR2_START | (uint8_t) 1 << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
-		//	Wait until address + write bit is sent to check if EEPROM has acknoledged
+		//	Wait until address + write bit is sent to check if EEPROM has acknowledged
 		while(I2C1->CR2 & I2C_CR2_START_Msk){
-			if(startTime + 100 < HAL_GetTick()) {
+			if(HAL_GetTick() - startTime > 100) {
 				return EEPROM_TIMEOUT_1;
 			}
 		}
@@ -221,7 +221,7 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 
 	// 	Wait if TC bit is not set
 	while(!(I2C1->ISR & I2C_ISR_TC_Msk)){
-		if(startTime + 100 < HAL_GetTick()) {
+		if(HAL_GetTick() - startTime > 100) {
 			return EEPROM_TIMEOUT_2;
 		}
 	}
@@ -234,7 +234,7 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 	for(uint8_t i = 0; i < nr; i++){
 		// Wait if receive buffer is not not-empty = wait if receive buffer not full
 		while(!(I2C1->ISR & I2C_ISR_RXNE)){
-			if(startTime + 100 < HAL_GetTick()){
+			if(HAL_GetTick() - startTime > 100){
 				return EEPROM_TIMEOUT_3;
 			}
 		}
@@ -265,7 +265,7 @@ enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, ui
 		if(I2C1->ISR & I2C_ISR_STOPF_Msk){
 			break;
 		}
-		if(startTime + 100 < HAL_GetTick()) {
+		if(HAL_GetTick() - startTime > 100) {
 			return EEPROM_TIMEOUT_4;
 		}
 		blabla++;

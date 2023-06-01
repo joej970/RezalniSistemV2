@@ -38,7 +38,7 @@ void Model::tick() {
 	qPackage_statusReport_t packageStatusReport;
 	xStatus = xQueueReceive(qhStatusReport, &packageStatusReport, 0);
 	if (xStatus == pdTRUE) {
-		lastStatus = packageStatusReport.statusId;
+		lastStatus = packageStatusReport.statusId; // this value is used in Screen1MainCuttingView.cpp to show notification
 		statusPackageData = packageStatusReport.data;
 		strcpy(message, packageStatusReport.message);
 		switch (packageStatusReport.statusId) {

@@ -13,9 +13,8 @@
 
 
 /*
- * A task that waits to receive instructions about set length,
+ * This task waits to receive instructions about set length,
  * and whether the timer should be active and thus counting encoder pulses.
- * It generates update event when immediate cut instruction is received.
  *
  * This task should be higher priority than GUI task, so it pre-empts the GUI task when data is available.
  *
@@ -52,7 +51,7 @@ void encoderControlTask(void *pvParameters){
 			packageStatusReport.statusId = SET_LENGTH_VALID;
 		}
 
-		// Issue a Update Event if new ARR is smaller than CNT
+		// Issue an Update Event if new ARR is smaller than CNT
 		if(TIM3 -> ARR < TIM3 -> CNT){
 			TIM3->EGR = 0b1 << TIM_EGR_UG_Pos;
 		}
