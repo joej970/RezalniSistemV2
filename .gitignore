@@ -39,3 +39,5 @@ STM32CubeIDE/Debug/Application/
 TouchGFX/generated/
 TouchGFX/simulator/
 *.su
+STM32CubeIDE/.settings/com.st.stm32cube.ide.mcu.sfrview.prefs
+STM32CubeIDE/.settings/language.settings.xml

@@ -1,7 +1,7 @@
 
 {
   "Application": {
-    "Name": "CuttingSystemV2",
+    "Name": "RezalniSistemV2",
     "TouchGfxPath": "../Middlewares/ST/touchgfx",
     "AvailableColorDepths": [ 16 ],
     "AvailableLCDs":
@@ -14,7 +14,7 @@
         "Height": 272
       }
     ],
-    "PostGenerateTargetCommand" : "touchgfx update_project --project-file=../CuttingSystemV2.ioc --platform=m7",
+    "PostGenerateTargetCommand" : "touchgfx update_project --project-file=../RezalniSistemV2.ioc --platform=m7",
     "Family" : "STM32F7"
   },
   "Version": "4.16.0"

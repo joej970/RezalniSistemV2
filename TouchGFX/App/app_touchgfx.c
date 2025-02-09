@@ -4,7 +4,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under Ultimate Liberty license
@@ -16,7 +16,6 @@
   */
 
 #include "app_touchgfx.h"
-#include "FreeRTOS.h"
 
 void touchgfx_init(void);
 void touchgfx_taskEntry(void);
@@ -36,7 +35,6 @@ void MX_TouchGFX_Init(void)
 void MX_TouchGFX_Process(void)
 {
   // Calling farward to touchgfx_init in C++ domain
-	UBaseType_t basePriority = uxTaskPriorityGet( NULL );
   touchgfx_taskEntry();
 }
 
