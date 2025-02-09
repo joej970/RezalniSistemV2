@@ -76,6 +76,8 @@ LTDC_HandleTypeDef hltdc;
 
 QSPI_HandleTypeDef hqspi;
 
+UART_HandleTypeDef huart7;
+
 SDRAM_HandleTypeDef hsdram1;
 
 osThreadId TouchGFXTaskHandle;
@@ -88,6 +90,8 @@ QueueHandle_t qhTouchGFXToRelaySetup;
 QueueHandle_t qhStatusReport;
 QueueHandle_t qhGUItoWriteSettings;
 QueueHandle_t qhSettingsToGUI;
+QueueHandle_t qhUARTcallbackToGRBL;
+QueueHandle_t qhTouchGFXToGRBLControl;
 
 EventGroupHandle_t ehEvents;
 
@@ -96,6 +100,10 @@ TaskHandle_t thReport;
 TaskHandle_t thRelaySetup;
 TaskHandle_t thSingleEvent;
 TaskHandle_t thWriteSettings;
+
+
+char UARTRxGlobalBuffer[UART_RX_GLOBAL_BUFFER_SIZE];
+char* pUARTRxGlobalBuffer;
 
 //const char* eepromStatus_strings[]  = {
 //				"EEPROM_SUCCESS",
@@ -120,6 +128,7 @@ static void MX_I2C3_Init(void);
 static void MX_LTDC_Init(void);
 static void MX_QUADSPI_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_UART7_Init(void);
 void StartTouchGFXTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
@@ -128,7 +137,8 @@ void TIM4_Init(void);	// forwarder to other timers
 void TIM1_Init(void);	// RLY1
 void TIM12_Init(void);	// RLY2
 void TIM8_Init(void);	// RLY3
-void TIM5_Init(void);	// Ammount counter
+void TIM5_Init(void);	// Amount counter
+// TIM6 is used for HAL_GetTick();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -143,6 +153,10 @@ void TIM5_Init(void);	// Ammount counter
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	uint32_t i = 0;
+	while(i < 100000){ // apparently this pause fixes the problem when UI freezes (does not update)
+		i++;
+	}
 
   /* USER CODE END 1 */
 
@@ -180,6 +194,7 @@ int main(void)
   MX_LTDC_Init();
   MX_QUADSPI_Init();
   MX_I2C1_Init();
+  MX_UART7_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
   TIM3_Init();	// encoder
@@ -187,7 +202,7 @@ int main(void)
   TIM1_Init();	// RLY1
   TIM12_Init();	// RLY2
   TIM8_Init();	// RLY3
-  TIM5_Init();  // Ammount counter
+  TIM5_Init();  // Amount counter
   // Stop timers in debug
   DBGMCU->APB1FZ |= 0x1FF;
   DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM1_STOP | DBGMCU_APB2_FZ_DBG_TIM8_STOP | DBGMCU_APB2_FZ_DBG_TIM9_STOP | DBGMCU_APB2_FZ_DBG_TIM10_STOP | DBGMCU_APB2_FZ_DBG_TIM11_STOP);
@@ -217,6 +232,8 @@ int main(void)
   qhStatusReport = xQueueCreate(5, sizeof(qPackage_statusReport_t)); // can be called from 5 higher priority tasks
   qhGUItoWriteSettings = xQueueCreate(1, sizeof(qPackage_settings_t));
   qhSettingsToGUI = xQueueCreate(1,sizeof(qPackage_settings_t));
+  qhUARTcallbackToGRBL = xQueueCreate(5, sizeof(qPackage_encoderControl_t));
+  qhTouchGFXToGRBLControl = xQueueCreate(1, sizeof(qPackage_laserParams_t));
 
   ehEvents = xEventGroupCreate();
   /* USER CODE END RTOS_QUEUES */
@@ -234,6 +251,11 @@ int main(void)
   xTaskCreate(singleEventTask, "singleEventTask", 256, NULL, 3+2, &thSingleEvent);
   xTaskCreate(writeSettingsTask, "writeSettingsTask", 256, NULL,3+2 , &thWriteSettings);
 
+  HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_RESET);
+
+  pUARTRxGlobalBuffer = UARTRxGlobalBuffer;
+//  HAL_UARTEx_ReceiveToIdle_IT(&huart7, pUARTRxGlobalBuffer, UART_RX_GLOBAL_BUFFER_SIZE); // move this to appropriate place in code
 
   /* USER CODE END RTOS_THREADS */
 
@@ -300,14 +322,15 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_I2C3;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC|RCC_PERIPHCLK_UART7
+                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C3;
   PeriphClkInitStruct.PLLSAI.PLLSAIN = 384;
   PeriphClkInitStruct.PLLSAI.PLLSAIR = 5;
   PeriphClkInitStruct.PLLSAI.PLLSAIQ = 2;
   PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV2;
   PeriphClkInitStruct.PLLSAIDivQ = 1;
   PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_8;
+  PeriphClkInitStruct.Uart7ClockSelection = RCC_UART7CLKSOURCE_PCLK1;
   PeriphClkInitStruct.I2c1ClockSelection = RCC_I2C1CLKSOURCE_SYSCLK;
   PeriphClkInitStruct.I2c3ClockSelection = RCC_I2C3CLKSOURCE_PCLK1;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -578,6 +601,41 @@ static void MX_QUADSPI_Init(void)
 
 }
 
+/**
+  * @brief UART7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART7_Init(void)
+{
+
+  /* USER CODE BEGIN UART7_Init 0 */
+
+  /* USER CODE END UART7_Init 0 */
+
+  /* USER CODE BEGIN UART7_Init 1 */
+
+  /* USER CODE END UART7_Init 1 */
+  huart7.Instance = UART7;
+  huart7.Init.BaudRate = 115200;
+  huart7.Init.WordLength = UART_WORDLENGTH_8B;
+  huart7.Init.StopBits = UART_STOPBITS_1;
+  huart7.Init.Parity = UART_PARITY_NONE;
+  huart7.Init.Mode = UART_MODE_TX_RX;
+  huart7.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart7.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart7.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart7.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART7_Init 2 */
+
+  /* USER CODE END UART7_Init 2 */
+
+}
+
 /* FMC initialization function */
 static void MX_FMC_Init(void)
 {
@@ -704,10 +762,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LCD_DISP_GPIO_Port, LCD_DISP_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TRIGGER_OUT_GPIO_Port, TRIGGER_OUT_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LCD_DISP_GPIO_Port, LCD_DISP_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : LCD_BL_CTRL_Pin */
   GPIO_InitStruct.Pin = LCD_BL_CTRL_Pin;
@@ -716,12 +774,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LCD_BL_CTRL_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LCD_DISP_Pin */
-  GPIO_InitStruct.Pin = LCD_DISP_Pin;
+  /*Configure GPIO pins : ERROR_LED_Pin LCD_DISP_Pin */
+  GPIO_InitStruct.Pin = ERROR_LED_Pin|LCD_DISP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LCD_DISP_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);
 
   /*Configure GPIO pin : RLY1_Pin */
   GPIO_InitStruct.Pin = RLY1_Pin;
@@ -738,13 +796,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : TRIGGER_OUT_Pin */
-  GPIO_InitStruct.Pin = TRIGGER_OUT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  HAL_GPIO_Init(TRIGGER_OUT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : RLY2_Pin */
   GPIO_InitStruct.Pin = RLY2_Pin;
@@ -829,6 +880,9 @@ void TIM1_Init(void){
 	TIM1->EGR = 1UL << TIM_EGR_UG_Pos;
 	// Output Compare 1 output enable
 	TIM1->CCER = 1UL << TIM_CCER_CC1E_Pos;
+
+    // 1. Enable update interrupt and capture compare interrupt. Used to initiate laser cutting.
+    TIM1->DIER |= TIM_DIER_CC1IE;  // Enable capture/compare interrupt on channel 1
 
 }
 

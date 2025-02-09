@@ -1,15 +1,19 @@
 /*
  * eeprom.c
  *
+ * Chip: 24FC01T-E/OT
+ *
  *  Created on: Apr 3, 2021
  *      Author: Asus
  */
 
 #include "eeprom.h"
 
+
 //#include "main.h"
 
 #define EEPROM_ADDR		(uint8_t)0b10100000
+
 
 
 
@@ -21,7 +25,9 @@ const char* eepromStatus_strings[]  = {
 				"EEPROM_TIMEOUT_4",
 				"EEPROM_BUSY",
 				"EEPROM_TXFULL",
-				"EEPROM_ERR"
+				"EEPROM_ERR",
+				"EEPROM_MAX_8_BYTES",
+				"EEPROM_ERR_NOT_ALIGNED"
 };
 
 enum eepromMemoryMap_t{
@@ -37,7 +43,15 @@ enum eepromMemoryMap_t{
 	LANG_IDX_1		= 32,
 	RLY_ACTIVE_1	= 33,
 	BRIGHTNESS_2	= 34,
-	MEM_SIZE		= 36
+	LASER_PARAMS_LAST_8 = 40,
+	LASER_PARAMS_SLOT_1_8 = 48,
+	LASER_PARAMS_SLOT_2_8 = 56,
+	LASER_PARAMS_SLOT_3_8 = 68,
+	LASER_ORIGIN_LAST_4 = 76,
+	LASER_ORIGIN_SLOT_1_4 = 80,
+	LASER_ORIGIN_SLOT_2_4 = 84,
+	LASER_ORIGIN_SLOT_3_4 = 88,
+	MEM_SIZE		= 92
 };
 
 //enum eepromMemoryMap_t{
@@ -87,10 +101,21 @@ enum eepromMemoryMap_t{
 //};
 
 
+
 /*
  * Send <nr> of bytes to EEPROM over I2C1. Blocking function
  * */
 enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uint8_t nr){
+
+	if(dataAddr % nr != 0){
+		// address is not nr-byte aligned: internal address counter increments last 3 bits
+		return EEPROM_ERR_NOT_ALIGNED;
+	}
+
+	if(nr > 8){
+		return EEPROM_MAX_8_BYTES;
+	}
+
 	static uint32_t lastWriteTimestamp = 0;
 	//	Wait for 5ms after last write
 	while(lastWriteTimestamp + 5 >= HAL_GetTick()){
@@ -108,10 +133,12 @@ enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uin
 		}
 	}
 	uint32_t icr = I2C1->ICR;
+	(void) icr;
 	uint32_t tries = 0;
 	I2C1->ICR = I2C_ICR_NACKCF_Msk;
 	// 	AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
 	//I2C1->CR2 = I2C_CR2_AUTOEND | (uint8_t) (nr+1) << I2C_CR2_NBYTES_Pos | EEPROM_ADDR << I2C_CR2_SADD_Pos;
+
 	while(1){
 		tries++;
 		//	Send START, AUTOEND: STOP is sent after NBYTES are transferred; NBYTES: data address + data; SADD: slave address; WRITE = 0
@@ -296,9 +323,11 @@ enum eepromStatus_t getResolutionRadiusFromEEPROM(uint16_t* resolution, uint16_t
 	return status;
 }
 
+
+
 enum eepromStatus_t getSettingsFromEEPROM(
 				uint16_t* resolution, uint16_t* radius_01mm, uint32_t* setLength_01mm, uint32_t *relayData[6],
-				uint8_t* languageIdx, uint8_t* relaysActive, uint16_t* brightness){
+				uint8_t* languageIdx, uint8_t* relaysActive, uint16_t* brightness, qPackage_laserParams_t* laserParams_last){
 	enum eepromStatus_t status = EEPROM_SUCCESS;
 	uint8_t dstBuffer[MEM_SIZE];
 	uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
@@ -316,6 +345,15 @@ enum eepromStatus_t getSettingsFromEEPROM(
 		*languageIdx	= (uint8_t)(dstBuffer[LANG_IDX_1]);
 		*relaysActive	= (uint8_t)(dstBuffer[RLY_ACTIVE_1]);
 		*brightness		= (uint16_t)(dstBuffer[BRIGHTNESS_2+0] << 8 | dstBuffer[BRIGHTNESS_2+1]);
+		laserParams_last->angle_alpha_01deg = (uint16_t)(dstBuffer[LASER_PARAMS_LAST_8+0] << 8 | dstBuffer[LASER_PARAMS_LAST_8+1]);
+		laserParams_last->angle_beta_01deg  = (uint16_t)(dstBuffer[LASER_PARAMS_LAST_8+2] << 8 | dstBuffer[LASER_PARAMS_LAST_8+3]);
+		laserParams_last->feedrate          = (uint16_t)(dstBuffer[LASER_PARAMS_LAST_8+4] << 8 | dstBuffer[LASER_PARAMS_LAST_8+5]);
+		laserParams_last->width_01mm        = (uint16_t)(dstBuffer[LASER_PARAMS_LAST_8+6] << 8 | dstBuffer[LASER_PARAMS_LAST_8+7]);
+
+		laserParams_last->origin_y0_01mm = (uint16_t)(dstBuffer[LASER_ORIGIN_LAST_4+0] << 8 | dstBuffer[LASER_ORIGIN_LAST_4+1]);
+		laserParams_last->origin_x0_01mm = (uint16_t)(dstBuffer[LASER_ORIGIN_LAST_4+2] << 8 | dstBuffer[LASER_ORIGIN_LAST_4+3]);
+
+		laserParams_last->slot = 0;
 
 	}
 	return status;
@@ -394,6 +432,106 @@ enum eepromStatus_t saveRelaysActiveToEEPROM(uint8_t relaysActive){
 	srcBuffer[0] = (uint8_t) (relaysActive);
 
 	status = bytesWriteToEEPROM((uint8_t)RLY_ACTIVE_1, srcBuffer, nr);
+
+	return status;
+}
+
+enum eepromStatus_t getLaserParamsFromSlot(qPackage_laserParams_t* laserParams, uint8_t slot){
+	enum eepromStatus_t status = EEPROM_SUCCESS;
+
+	if(slot > 3){
+		return EEPROM_ERR;
+	}
+
+	{
+		const uint8_t bytes = 8;
+
+		uint8_t dstBuffer[bytes];
+		uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
+
+		uint8_t address = (uint8_t)LASER_PARAMS_LAST_8 + slot*bytes;
+
+		status = bytesReadFromEEPROM(address, dstBuffer, nr);
+		if(status == EEPROM_SUCCESS){
+			//	Save resolution, radius data and entryIdx
+			laserParams->angle_alpha_01deg = (uint16_t)(dstBuffer[0] << 8 | dstBuffer[1]);
+			laserParams->angle_beta_01deg  = (uint16_t)(dstBuffer[2] << 8 | dstBuffer[3]);
+			laserParams->feedrate          = (uint16_t)(dstBuffer[4] << 8 | dstBuffer[5]);
+			laserParams->width_01mm        = (uint16_t)(dstBuffer[6] << 8 | dstBuffer[7]);
+
+			laserParams->slot = slot;
+		}
+	}
+
+	if(status != EEPROM_SUCCESS){
+		return status;
+	}
+
+	{
+		const uint8_t bytes = 4;
+
+		uint8_t dstBuffer[bytes];
+		uint8_t nr = sizeof(dstBuffer)/sizeof(dstBuffer[0]);
+
+		uint8_t address = (uint8_t)LASER_ORIGIN_LAST_4 + slot*bytes;
+
+		status = bytesReadFromEEPROM(address, dstBuffer, nr);
+		if(status == EEPROM_SUCCESS){
+			//	Save resolution, radius data and entryIdx
+
+			laserParams->origin_y0_01mm = (uint16_t)(dstBuffer[0] << 8 | dstBuffer[1]);
+			laserParams->origin_x0_01mm = (uint16_t)(dstBuffer[2] << 8 | dstBuffer[3]);
+
+		}
+	}
+	return status;
+}
+
+enum eepromStatus_t saveLaserParamsToEEPROM(qPackage_laserParams_t laserParams){
+	enum eepromStatus_t status = EEPROM_SUCCESS;
+
+	if(laserParams.slot > 3){
+		return EEPROM_ERR;
+	}
+
+	{
+		// 4 members, each 2 bytes = 8 bytes
+		const uint8_t bytes = 8;
+		uint8_t srcBuffer[bytes];
+		uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
+
+		srcBuffer[0] = (uint8_t) (laserParams.angle_alpha_01deg >> 8);
+		srcBuffer[1] = (uint8_t) (laserParams.angle_alpha_01deg >> 0);
+		srcBuffer[2] = (uint8_t) (laserParams.angle_beta_01deg >> 8);
+		srcBuffer[3] = (uint8_t) (laserParams.angle_beta_01deg >> 0);
+		srcBuffer[4] = (uint8_t) (laserParams.feedrate >> 8);
+		srcBuffer[5] = (uint8_t) (laserParams.feedrate >> 0);
+		srcBuffer[6] = (uint8_t) (laserParams.width_01mm >> 8);
+		srcBuffer[7] = (uint8_t) (laserParams.width_01mm >> 0);
+
+		uint8_t address = (uint8_t)LASER_PARAMS_LAST_8 + laserParams.slot*bytes;
+		status = bytesWriteToEEPROM(address, srcBuffer, nr);
+	}
+
+	if(status != EEPROM_SUCCESS){
+		return status;
+	}
+
+	{
+		// 2 members, each 2 bytes = 4 bytes
+		const uint8_t bytes = 4;
+		uint8_t srcBuffer[bytes];
+		uint8_t nr = sizeof(srcBuffer)/sizeof(srcBuffer[0]);
+
+		srcBuffer[0] = (uint8_t) (laserParams.origin_y0_01mm >> 8);
+		srcBuffer[1] = (uint8_t) (laserParams.origin_y0_01mm >> 0);
+		srcBuffer[2] = (uint8_t) (laserParams.origin_x0_01mm >> 8);
+		srcBuffer[3] = (uint8_t) (laserParams.origin_x0_01mm >> 0);
+
+		uint8_t address = (uint8_t)LASER_ORIGIN_LAST_4 + laserParams.slot*bytes;
+		status = bytesWriteToEEPROM(address, srcBuffer, nr);
+	}
+
 
 	return status;
 }

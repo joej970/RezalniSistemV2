@@ -103,10 +103,10 @@ enum statusId_t{
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-void disableRelayTimers(void);
-void enableRelayTimers(void);
 
 /* USER CODE BEGIN EFP */
+void disableRelayTimers(void);
+void enableRelayTimers(void);
 //enum eepromStatus_t byteWriteToEEPROM(uint8_t dataAddr, uint8_t data);
 //enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uint8_t nr);
 //enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, uint8_t nr);
@@ -120,6 +120,8 @@ void enableRelayTimers(void);
 /* Private defines -----------------------------------------------------------*/
 #define LCD_BL_CTRL_Pin GPIO_PIN_3
 #define LCD_BL_CTRL_GPIO_Port GPIOK
+#define ERROR_LED_Pin GPIO_PIN_1
+#define ERROR_LED_GPIO_Port GPIOI
 #define LCD_DISP_Pin GPIO_PIN_12
 #define LCD_DISP_GPIO_Port GPIOI
 #define RLY1_Pin GPIO_PIN_8
@@ -128,12 +130,17 @@ void enableRelayTimers(void);
 #define ENC2_GPIO_Port GPIOC
 #define ENC1_Pin GPIO_PIN_6
 #define ENC1_GPIO_Port GPIOC
-#define TRIGGER_OUT_Pin GPIO_PIN_7
-#define TRIGGER_OUT_GPIO_Port GPIOF
+#define UART7_TX_Pin GPIO_PIN_7
+#define UART7_TX_GPIO_Port GPIOF
+#define UART7_RX_Pin GPIO_PIN_6
+#define UART7_RX_GPIO_Port GPIOF
 #define RLY2_Pin GPIO_PIN_14
 #define RLY2_GPIO_Port GPIOB
 #define RLY3_Pin GPIO_PIN_15
 #define RLY3_GPIO_Port GPIOB
+
+#define UART_RX_GLOBAL_BUFFER_SIZE (uint16_t)256
+
 /* USER CODE BEGIN Private defines */
 //  Event masking bits
 #define EVENT_BIT_IMM_CUT 			(1UL << 0UL)
@@ -142,8 +149,12 @@ void enableRelayTimers(void);
 #define EVENT_BIT_RELAYS_ACTIVATE	(1UL << 3UL)
 #define EVENT_BIT_RELAYS_DEACTIVATE	(1UL << 4UL)
 #define EVENT_BIT_RST_CURR_LEN		(1UL << 5UL)
+#define EVENT_BIT_LOAD_LASER_PARAMS_SLOT_1 (1UL << 6UL)
+#define EVENT_BIT_LOAD_LASER_PARAMS_SLOT_2 (1UL << 7UL)
+#define EVENT_BIT_LOAD_LASER_PARAMS_SLOT_3 (1UL << 8UL)
+#define EVENT_BIT_INITIATE_GRBL_CONTROLLER (1UL << 9UL)
 
-#define EVENT_BITS_ALL			(EVENT_BIT_IMM_CUT | EVENT_BIT_RST_AMOUNT | EVENT_BIT_LOAD_SETTINGS | EVENT_BIT_RELAYS_ACTIVATE | EVENT_BIT_RELAYS_DEACTIVATE | EVENT_BIT_RST_CURR_LEN)
+#define EVENT_BITS_ALL			(EVENT_BIT_INITIATE_GRBL_CONTROLLER | EVENT_BIT_LOAD_LASER_PARAMS_SLOT_3 | EVENT_BIT_LOAD_LASER_PARAMS_SLOT_2 | EVENT_BIT_LOAD_LASER_PARAMS_SLOT_1 | EVENT_BIT_IMM_CUT | EVENT_BIT_RST_AMOUNT | EVENT_BIT_LOAD_SETTINGS | EVENT_BIT_RELAYS_ACTIVATE | EVENT_BIT_RELAYS_DEACTIVATE | EVENT_BIT_RST_CURR_LEN)
 ////  Memory organisation
 //#define RESOLUTION_Pos	0U
 //#define ENTRY_IDX_Pos 	14U
@@ -167,6 +178,10 @@ void enableRelayTimers(void);
 #define SETTINGS_LANG_IDX_Bit	(1UL << 7U)
 #define SETTINGS_RELAY_ACT_Bit	(1UL << 8U)
 #define SETTINGS_BRIGHTNESS_Bit	(1UL << 9U)
+#define SETTINGS_LASER_PARAMS_Bit	(1UL << 10U)
+//#define SETTINGS_BRIGHTNESS_Bit	(1UL << 11U)
+//#define SETTINGS_BRIGHTNESS_Bit	(1UL << 12U)
+//#define SETTINGS_BRIGHTNESS_Bit	(1UL << 13U)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

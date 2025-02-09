@@ -42,6 +42,8 @@ void Screen1MainCuttingView::tearDownScreen() {
 void Screen1MainCuttingView::swipeCallbackHandler(int16_t velocity) {
 	if (velocity < 0) {
 		application().gotoScreen2CurrLenScreenSlideTransitionEast();
+	}else if(velocity > 0){
+		application().gotoScreen8GRBLcontrolScreenSlideTransitionWest();
 	}
 }
 

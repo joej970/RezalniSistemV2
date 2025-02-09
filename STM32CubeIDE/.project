@@ -34,11 +34,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>CuttingSystemV2.ioc</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/CuttingSystemV2.ioc</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/stm32746g_discovery_qspi.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/BSP/stm32746g_discovery_qspi.c</locationURI>
@@ -172,6 +167,16 @@
 			<name>Drivers/STM32F7xx_HAL_Driver/stm32f7xx_hal_tim_ex.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F7xx_HAL_Driver/stm32f7xx_hal_uart.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F7xx_HAL_Driver/stm32f7xx_hal_uart_ex.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F7xx_HAL_Driver/stm32f7xx_ll_fmc.c</name>
@@ -314,6 +319,21 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/DigitSelector.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/gui/DigitSelector_3bits.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/DigitSelector_3bits.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/DigitSelector_4bits.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/DigitSelector_4bits.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/popUpUartConsoleContainer.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/popUpUartConsoleContainer.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/gui/popUpWindow.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/popUpWindow.cpp</locationURI>
@@ -324,6 +344,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/RelayWidget.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/gui/SetCuttingParametersContainer.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/SetCuttingParametersContainer.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/gui/SwipeDetectContainer.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/SwipeDetectContainer.cpp</locationURI>
@@ -332,6 +357,16 @@
 			<name>Application/User/gui/Model.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/model/Model.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen10SetOriginPresenter.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen10setorigin_screen/Screen10SetOriginPresenter.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen10SetOriginView.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen10setorigin_screen/Screen10SetOriginView.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/gui/Screen1MainCuttingPresenter.cpp</name>
@@ -402,6 +437,26 @@
 			<name>Application/User/gui/Screen7ConfigView.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen7config_screen/Screen7ConfigView.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen8GRBLcontrolPresenter.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen8grblcontrol_screen/Screen8GRBLcontrolPresenter.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen8GRBLcontrolView.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen8grblcontrol_screen/Screen8GRBLcontrolView.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen9CuttingParametersSettingsPresenter.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen9cuttingparameterssettings_screen/Screen9CuttingParametersSettingsPresenter.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/Screen9CuttingParametersSettingsView.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/screen9cuttingparameterssettings_screen/Screen9CuttingParametersSettingsView.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/ApplicationFontProvider.cpp</name>
@@ -519,6 +574,21 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/DigitSelectorBase.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/DigitSelector_3bitsBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/DigitSelector_3bitsBase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/DigitSelector_4bitsBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/DigitSelector_4bitsBase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/popUpUartConsoleContainerBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/popUpUartConsoleContainerBase.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/popUpWindowBase.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/popUpWindowBase.cpp</locationURI>
@@ -529,9 +599,19 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/RelayWidgetBase.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/SetCuttingParametersContainerBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/SetCuttingParametersContainerBase.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/SwipeDetectContainerBase.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/SwipeDetectContainerBase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Screen10SetOriginViewBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen10setorigin_screen/Screen10SetOriginViewBase.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Screen1MainCuttingViewBase.cpp</name>
@@ -567,6 +647,16 @@
 			<name>Application/User/generated/Screen7ConfigViewBase.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen7config_screen/Screen7ConfigViewBase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Screen8GRBLcontrolViewBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen8grblcontrol_screen/Screen8GRBLcontrolViewBase.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/Screen9CuttingParametersSettingsViewBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/screen9cuttingparameterssettings_screen/Screen9CuttingParametersSettingsViewBase.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/BitmapDatabase.cpp</name>
@@ -649,6 +739,16 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Down_arrow_pressed.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_Laser_profile_cutting_schematic_66.drawio.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Laser_profile_cutting_schematic_66.drawio.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Laser_profile_cutting_zero_point.drawio.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Laser_profile_cutting_zero_point.drawio.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_Left_arrow.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Left_arrow.cpp</locationURI>
@@ -727,6 +827,11 @@
 			<name>Application/User/generated/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Dark_Icons_News_32.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Icons_News_32.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/LanguageEng.cpp</name>

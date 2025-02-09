@@ -10,6 +10,8 @@
 #include "qPackages.h"
 #include "eeprom.h"
 #include "string.h"
+#include "queue.h"
+#include "GRBL_control.h"
 
 
 /*
@@ -33,7 +35,9 @@ void encoderControlTask(void *pvParameters){
 		xStatus = xQueueReceive(qhGUItoEncoderControl, &receivedSettings, portMAX_DELAY); // will stay in block mode indefinetely
 		if(xStatus == errQUEUE_EMPTY){
 			//TODO: report a problem
-			while(1);
+			while(1){
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+			};
 		}
 		if(receivedSettings.isActive){
 			TIM3 -> CR1 |= TIM_CR1_CEN_Msk;
@@ -61,14 +65,18 @@ void encoderControlTask(void *pvParameters){
 		xStatus = xQueueSend(qhStatusReport, &packageStatusReport, pdMS_TO_TICKS(10)); // report actual set length
 		if(xStatus == errQUEUE_FULL){
 			//TODO: report a problem
-			while(1);
+			while(1){
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+			};
 		}
 
 		// Forward new settings to reporting task
 		xStatus = xQueueSend(qhEncoderControlToReport, &receivedSettings, pdMS_TO_TICKS(10)); // forward settings to reportTask
 		if(xStatus == errQUEUE_FULL){
 			//TODO: report a problem
-			while(1);
+			while(1){
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+			};
 		}
 
 	}
@@ -108,7 +116,9 @@ void reportTask(void *pvParameters){
 		xStatus = xQueueOverwrite(qhReportToTouchGFX, &packageToSend);
 		if(xStatus == errQUEUE_FULL){
 			//TODO: report a problem, this always return true anyway
-			while(1);
+			while(1){
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+			};
 		}
 
 		vTaskDelay(pdMS_TO_TICKS(1000/60));
@@ -130,7 +140,9 @@ void relaySetupTask(void *pvParameters){
 		xStatus = xQueueReceive(qhTouchGFXToRelaySetup, &receivedSettings, portMAX_DELAY); // will stay in block mode indefinetely
 		if(xStatus == errQUEUE_EMPTY){
 			//TODO: report a problem
-			while(1);
+			while(1){
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+			};
 		}
 		statusId = OP_OK;
 		uint32_t newArr = (uint32_t)(((uint64_t)receivedSettings.delay_ms+(uint64_t)receivedSettings.duration_ms)*100e3/(0xFFFF+1)); //100 MHz / 1000 s
@@ -189,7 +201,9 @@ void relaySetupTask(void *pvParameters){
 		xStatus = xQueueSend(qhStatusReport, &packageToSend, pdMS_TO_TICKS(10));
 		if(xStatus == errQUEUE_FULL){
 			//TODO: report a problem
-			while(1);
+			while(1){
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+			};
 		}
 
 	}
@@ -205,6 +219,12 @@ void singleEventTask(void *pvParameters){
 	for(;;){
 		//	Wait until at least one event bit is set
 		eventBits = xEventGroupWaitBits(ehEvents, EVENT_BITS_ALL, pdTRUE, pdFALSE, portMAX_DELAY);
+
+
+		/*	RESET AMOUNT  */
+		if(eventBits & EVENT_BIT_INITIATE_GRBL_CONTROLLER){
+			initiateGrblController();
+		}
 
 		/*	RESET AMOUNT  */
 		if(eventBits & EVENT_BIT_RST_AMOUNT){
@@ -253,7 +273,8 @@ void singleEventTask(void *pvParameters){
 							relayData,
 							&settingsToSend.languageIdx,
 							&settingsToSend.relaysActive,
-							&settingsToSend.brightness);
+							&settingsToSend.brightness,
+							&settingsToSend.laserParams);
 			if(status == EEPROM_SUCCESS){
 				settingsToSend.settingsMask = SETTINGS_ALL_Bit;
 			}else{
@@ -264,7 +285,45 @@ void singleEventTask(void *pvParameters){
 
 			if(xStatus == errQUEUE_FULL){
 				//TODO: report a problem
-				while(1);
+				while(1){
+					HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+				};
+			}
+
+		}
+
+		if((eventBits & EVENT_BIT_LOAD_LASER_PARAMS_SLOT_1) | (eventBits & EVENT_BIT_LOAD_LASER_PARAMS_SLOT_2) | (eventBits & EVENT_BIT_LOAD_LASER_PARAMS_SLOT_3)){
+			extern QueueHandle_t qhSettingsToGUI;
+			qPackage_settings_t settingsToSend;
+			BaseType_t xStatus;
+			enum eepromStatus_t status;
+
+
+			uint8_t slot;
+			if (eventBits & EVENT_BIT_LOAD_LASER_PARAMS_SLOT_1) {
+				slot = 1;
+			} else if (eventBits & EVENT_BIT_LOAD_LASER_PARAMS_SLOT_2) {
+				slot = 2;
+			} else {
+				slot = 3;
+			};
+			//	Get settings
+			status = getLaserParamsFromSlot(&settingsToSend.laserParams, slot);
+
+			if(status == EEPROM_SUCCESS){
+				settingsToSend.settingsMask = SETTINGS_LASER_PARAMS_Bit;
+			}else{
+				settingsToSend.settingsMask = SETTINGS_FAIL_Bit;
+			}
+
+			// Only the following line can send to this queue, so it should never be full as it will be emptied before this function can be called again.
+			xStatus = xQueueSend(qhSettingsToGUI, &settingsToSend, pdMS_TO_TICKS(0));
+
+			if(xStatus == errQUEUE_FULL){
+				//TODO: report a problem
+				while(1){
+					HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+				};
 			}
 
 		}
@@ -321,6 +380,9 @@ void writeSettingsTask(void *pvParamaters){
 		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_RELAY_ACT_Bit){
 			status = saveRelaysActiveToEEPROM(receivedSettings.relaysActive);
 		}
+		if(status == EEPROM_SUCCESS && receivedSettings.settingsMask & SETTINGS_LASER_PARAMS_Bit){
+			status = saveLaserParamsToEEPROM(receivedSettings.laserParams);
+		}
 
 		if(status != EEPROM_SUCCESS ){
 			qPackage_statusReport_t packageToSend;
@@ -334,7 +396,9 @@ void writeSettingsTask(void *pvParamaters){
 			xStatus = xQueueSend(qhStatusReport, &packageToSend, pdMS_TO_TICKS(0));
 			if(xStatus != pdTRUE){
 				//TODO: report a problem
-				while(1);
+				while(1){
+					HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+				};
 			}
 
 		}

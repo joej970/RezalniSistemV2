@@ -16,3 +16,4 @@ void Screen1MainCuttingPresenter::deactivate()
 {
 
 }
+

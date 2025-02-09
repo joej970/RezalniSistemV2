@@ -9,8 +9,6 @@
 #define APPLICATION_USER_CORE_MYTASKS_H_
 
 
-#include "queue.h"
-
 void encoderControlTask(void *pvParameters);
 void reportTask(void *pvParameters);
 void relaySetupTask(void *pvParameters);
