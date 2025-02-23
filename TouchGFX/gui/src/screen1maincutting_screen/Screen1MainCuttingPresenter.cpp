@@ -17,3 +17,6 @@ void Screen1MainCuttingPresenter::deactivate()
 
 }
 
+void Screen1MainCuttingPresenter::onConsoleDataUpdated(){
+	view.showOnConsole();
+};

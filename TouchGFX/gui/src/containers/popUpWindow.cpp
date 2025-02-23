@@ -31,6 +31,8 @@ void popUpWindow::setTextWithMessage(TEXTS textId, const char* message){
 	statusText.setTypedText(touchgfx::TypedText(textId));
 	statusText.resizeHeightToCurrentText();
 	statusIdText.setVisible(true);
-	Unicode::strncpy(statusIdTextBuffer, message, Unicode::strlen(message));
+	uint16_t charsCopied = Unicode::strncpy(statusIdTextBuffer, message, STATUSIDTEXT_SIZE);
+	printf("popUpWindow: message: %s (%u/%u)\n", message, charsCopied, Unicode::strlen(message) );
+//	uint16_t fromUTF8(message, statusIdTextBuffer, Unicode::strlen(message));
 	statusIdText.invalidate();
 }

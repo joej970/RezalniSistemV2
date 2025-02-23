@@ -10,6 +10,9 @@ Screen1MainCuttingView::Screen1MainCuttingView() :
 }
 
 void Screen1MainCuttingView::setupScreen() {
+
+	popUpUartConsoleGRBL.setModel(presenter->getModel());
+
 	relayWidget1.setId(1);
 	relayWidget1.setDelay(presenter->fetchRelay1delay());
 	relayWidget1.setDuration(presenter->fetchRelay1duration());
@@ -160,6 +163,12 @@ void Screen1MainCuttingView::handleTickEvent(){
 			popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_SAVE_ERR, presenter->fetchMessage());
 			popUpWindowMain.invalidate();
 			break;
+		case UART_TX_ERR:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_UART_TX_ERR, presenter->fetchMessage());
+			popUpWindowMain.invalidate();
+			break;
 		default:
 			presenter->resetLastStatus();
 			popUpWindowMain.setVisible(true);
@@ -169,6 +178,7 @@ void Screen1MainCuttingView::handleTickEvent(){
 
 	}
 
+//	popUpUartConsoleGRBL.setLinesText(presenter->fetchUartLineBuffers());
 
 
 }

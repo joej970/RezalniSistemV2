@@ -4,6 +4,7 @@
 #include <gui/model/ModelListener.hpp>
 #include <mvp/Presenter.hpp>
 #include <vector>
+#include "main.h"
 
 using namespace touchgfx;
 
@@ -34,9 +35,40 @@ public:
     uint16_t getFeedrate(){return model->getFeedrate();}
     uint16_t getWidth(){return model->getWidth();}
 
+    grblConn_t getGRBLconnStatus(){
+    	return model->getGRBLconnStatus();
+    }
 
-//    bool shouldUartConsoleBeVisible();
-    std::vector<const char*> fetchUartLineBuffers();
+    statusId_t fetchLastStatus(){
+    	return model->getLastStatus();
+    }
+
+    char* fetchMessage(){
+    	return model->getMessage();
+    }
+
+    void resetLastStatus(){
+    	model->resetLastStatus();
+    }
+
+    std::vector<const char*> fetchUartLineBuffers(){
+    	return model->fetchUartLineBuffers();
+    }
+
+    void tryToConnectGRBL()
+   	{
+   		model->tryToConnectGRBL();
+   	}
+
+    Model* getModel(){
+    	return model;
+    }
+
+    bool uartConsoleVisible = false;
+
+    void onConsoleDataUpdated();
+
+
 
 private:
     Screen8GRBLcontrolPresenter();

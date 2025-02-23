@@ -474,9 +474,9 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/FontCache.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Font_isocpeur_10_4bpp_0.cpp</name>
+			<name>Application/User/generated/Font_isocpeur_15_4bpp_0.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_isocpeur_10_4bpp_0.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Font_isocpeur_15_4bpp_0.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Font_isocpeur_20_4bpp_0.cpp</name>
@@ -504,9 +504,9 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/GeneratedFont.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Kerning_isocpeur_10_4bpp.cpp</name>
+			<name>Application/User/generated/Kerning_isocpeur_15_4bpp.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_10_4bpp.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_15_4bpp.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Kerning_isocpeur_20_4bpp.cpp</name>
@@ -529,9 +529,9 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Kerning_isocpeur_60_4bpp.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Table_isocpeur_10_4bpp.cpp</name>
+			<name>Application/User/generated/Table_isocpeur_15_4bpp.cpp</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_isocpeur_10_4bpp.cpp</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/fonts/src/Table_isocpeur_15_4bpp.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/Table_isocpeur_20_4bpp.cpp</name>
@@ -759,6 +759,21 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Left_arrow_pressed.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_Radio_Round_button_active_green.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Radio_Round_button_active_green.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Radio_Round_button_active_orange.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Radio_Round_button_active_orange.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Radio_Round_button_active_red.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Radio_Round_button_active_red.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_Right_arrow.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/image_Right_arrow.cpp</locationURI>
@@ -829,9 +844,24 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_Dark_Icons_Home_48.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Icons_Home_48.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Dark_Icons_Map_48.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Icons_Map_48.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_Dark_Icons_News_32.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Icons_News_32.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Dark_Icons_trash_48.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Icons_trash_48.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/LanguageEng.cpp</name>

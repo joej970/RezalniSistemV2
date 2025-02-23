@@ -15,13 +15,26 @@ public:
     virtual void tearDownScreen();
     virtual void handleTickEvent();
 
+    void showOnConsole(){
+    	popUpUartConsoleGRBL.setLinesText(presenter->fetchUartLineBuffers());
+    	showUartConsole();
+    }
+
     void flexButtonTouchedHandler(const ImageButtonStyle< touchgfx::TouchButtonTrigger >& button, const ClickEvent& evt);
 protected:
+
+    void hideUartConsole() {
+    	popUpUartConsoleGRBL.hideUart();
+    }
+
+    void showUartConsole() {
+    	popUpUartConsoleGRBL.setVisible(true);
+    	popUpUartConsoleGRBL.invalidate();
+    }
 
 private:
     touchgfx::Callback<Screen1MainCuttingView, int16_t> swipeCallback;
     Callback<Screen1MainCuttingView, const ImageButtonStyle< touchgfx::TouchButtonTrigger >&, const ClickEvent& > flexButtonTouchedCallback;
-
 
     void swipeCallbackHandler(int16_t);
 

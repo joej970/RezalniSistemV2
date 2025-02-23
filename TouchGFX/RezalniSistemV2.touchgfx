@@ -20,6 +20,30 @@
             "Moveable": false
           },
           {
+            "Type": "TextArea",
+            "TextId": "SingleUseId101",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 194,
+              "Green": 191,
+              "Blue": 191
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textArea1",
+            "X": 70,
+            "Y": 3,
+            "Width": 93,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
             "CustomContainerDefinitionName": "SwipeDetectContainer",
             "Type": "CustomContainerInstance",
             "Name": "swipeDetectContainerMainScreen",
@@ -441,9 +465,26 @@
             "Moveable": false
           },
           {
-            "CustomContainerDefinitionName": "popUpWindow",
+            "Type": "Button",
+            "Pressed": "Left_arrow_pressed.png",
+            "Released": "Left_arrow.png",
+            "Alpha": 255,
+            "Name": "buttonGoToGRBLcontrol",
+            "X": 15,
+            "Y": 120,
+            "Width": 19,
+            "Height": 32,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "popUpUartConsoleContainer",
             "Type": "CustomContainerInstance",
-            "Name": "popUpWindowMain",
+            "Name": "popUpUartConsoleGRBL",
             "X": 22,
             "Y": 17,
             "Width": 437,
@@ -456,16 +497,14 @@
             "Moveable": false
           },
           {
-            "Type": "Button",
-            "Pressed": "Left_arrow_pressed.png",
-            "Released": "Left_arrow.png",
-            "Alpha": 255,
-            "Name": "buttonGoToGRBLcontrol",
-            "X": 15,
-            "Y": 120,
-            "Width": 19,
-            "Height": 32,
-            "Visible": true,
+            "CustomContainerDefinitionName": "popUpWindow",
+            "Type": "CustomContainerInstance",
+            "Name": "popUpWindowMain",
+            "X": 22,
+            "Y": 17,
+            "Width": 437,
+            "Height": 238,
+            "Visible": false,
             "LockPosition": false,
             "Draggable": false,
             "Clickable": false,
@@ -2101,9 +2140,41 @@
             "Moveable": false
           },
           {
+            "Type": "Button",
+            "Pressed": "Radio_Round_button_active_green.png",
+            "Released": "Radio_Round_button_active_green.png",
+            "Alpha": 255,
+            "Name": "grblConnectionStatusButton",
+            "X": 413,
+            "Y": 22,
+            "Width": 44,
+            "Height": 44,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
             "CustomContainerDefinitionName": "popUpUartConsoleContainer",
             "Type": "CustomContainerInstance",
             "Name": "popUpUartConsoleGRBL",
+            "X": 22,
+            "Y": 17,
+            "Width": 437,
+            "Height": 238,
+            "Visible": false,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "popUpWindow",
+            "Type": "CustomContainerInstance",
+            "Name": "popUpWindowMain",
             "X": 22,
             "Y": 17,
             "Width": 437,
@@ -2133,7 +2204,7 @@
           },
           {
             "InteractionName": "InteractionShowConsole",
-            "HasCompletedTrigger": false,
+            "HasCompletedTrigger": true,
             "Trigger": {
               "Type": "TriggerClicked",
               "TriggerComponent": "buttonShowConsole"
@@ -2169,6 +2240,30 @@
               "ScreenTransitionType": "ScreenTransitionSlide",
               "ScreenTransitionDirection": "South",
               "ActionComponent": "Screen10SetOrigin"
+            }
+          },
+          {
+            "InteractionName": "InteractionsSetConsoleManualMode",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerInteractionCompleted",
+              "InteractionToTriggerOn": "InteractionShowConsole"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "setConsoleManualMode"
+            }
+          },
+          {
+            "InteractionName": "InteractionTryToConnectGRBL",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "grblConnectionStatusButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "tryToConnectGRBL"
             }
           }
         ],
@@ -2951,7 +3046,7 @@
             "Alpha": 255,
             "Name": "image1",
             "X": 0,
-            "Y": 1,
+            "Y": 0,
             "Width": 480,
             "Height": 272,
             "Visible": true,
@@ -3119,6 +3214,40 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "__designer\\Dark_Icons_Home_48.png",
+            "Released": "__designer\\Dark_Icons_Home_48.png",
+            "Alpha": 255,
+            "Name": "buttonGoHome",
+            "X": 394,
+            "Y": 63,
+            "Width": 48,
+            "Height": 47,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "__designer\\Dark_Icons_Map_48.png",
+            "Released": "__designer\\Dark_Icons_Map_48.png",
+            "Alpha": 255,
+            "Name": "buttonGoToOrigin",
+            "X": 394,
+            "Y": 153,
+            "Width": 48,
+            "Height": 46,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -3137,13 +3266,27 @@
             }
           },
           {
-            "InteractionName": "Interaction1",
+            "InteractionName": "InteractionSendGRBLtoOrigin",
             "HasCompletedTrigger": false,
             "Trigger": {
-              "Type": "TriggerNone"
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonGoToOrigin"
             },
             "Action": {
-              "Type": "ActionNone"
+              "Type": "ActionCustom",
+              "FunctionName": "sendGRBLtoOrigin"
+            }
+          },
+          {
+            "InteractionName": "InteractionSendGRBLtoHome",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonGoHome"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "sendGRBLtoHome"
             }
           }
         ],
@@ -3709,8 +3852,8 @@
             "Released": "arrow-return_60x60.png",
             "Alpha": 255,
             "Name": "goBackButton",
-            "X": 188,
-            "Y": 168,
+            "X": 362,
+            "Y": 167,
             "Width": 60,
             "Height": 60,
             "Visible": true,
@@ -3738,8 +3881,8 @@
             },
             "Name": "uartConsole_line_0",
             "X": 14,
-            "Y": 15,
-            "Width": 408,
+            "Y": 8,
+            "Width": 334,
             "Height": 22,
             "Visible": true,
             "LockPosition": false,
@@ -3766,8 +3909,8 @@
             },
             "Name": "uartConsole_line_1",
             "X": 14,
-            "Y": 37,
-            "Width": 408,
+            "Y": 30,
+            "Width": 334,
             "Height": 22,
             "Visible": true,
             "LockPosition": false,
@@ -3794,8 +3937,8 @@
             },
             "Name": "uartConsole_line_2",
             "X": 14,
-            "Y": 59,
-            "Width": 408,
+            "Y": 52,
+            "Width": 334,
             "Height": 22,
             "Visible": true,
             "LockPosition": false,
@@ -3822,8 +3965,8 @@
             },
             "Name": "uartConsole_line_3",
             "X": 14,
-            "Y": 81,
-            "Width": 408,
+            "Y": 74,
+            "Width": 334,
             "Height": 22,
             "Visible": true,
             "LockPosition": false,
@@ -3850,8 +3993,8 @@
             },
             "Name": "uartConsole_line_4",
             "X": 14,
-            "Y": 103,
-            "Width": 408,
+            "Y": 96,
+            "Width": 334,
             "Height": 22,
             "Visible": true,
             "LockPosition": false,
@@ -3878,9 +4021,138 @@
             },
             "Name": "uartConsole_line_5",
             "X": 14,
-            "Y": 125,
-            "Width": 408,
+            "Y": 118,
+            "Width": 334,
             "Height": 22,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId102",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 224,
+              "Green": 224,
+              "Blue": 224
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "UseBuffer": true,
+              "BufferSize": 100
+            },
+            "Name": "uartConsole_line_6",
+            "X": 14,
+            "Y": 140,
+            "Width": 334,
+            "Height": 22,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId103",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 224,
+              "Green": 224,
+              "Blue": 224
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "UseBuffer": true,
+              "BufferSize": 100
+            },
+            "Name": "uartConsole_line_7",
+            "X": 14,
+            "Y": 162,
+            "Width": 334,
+            "Height": 22,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId104",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 224,
+              "Green": 224,
+              "Blue": 224
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "UseBuffer": true,
+              "BufferSize": 100
+            },
+            "Name": "uartConsole_line_8",
+            "X": 14,
+            "Y": 184,
+            "Width": 334,
+            "Height": 22,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId105",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 224,
+              "Green": 224,
+              "Blue": 224
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "UseBuffer": true,
+              "BufferSize": 100
+            },
+            "Name": "uartConsole_line_9",
+            "X": 14,
+            "Y": 206,
+            "Width": 334,
+            "Height": 21,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "__designer\\Dark_Icons_trash_48.png",
+            "Released": "__designer\\Dark_Icons_trash_48.png",
+            "Alpha": 255,
+            "Name": "buttonClearBuffers",
+            "X": 373,
+            "Y": 95,
+            "Width": 39,
+            "Height": 48,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -3900,6 +4172,18 @@
             "Action": {
               "Type": "ActionCustom",
               "FunctionName": "hideUart"
+            }
+          },
+          {
+            "InteractionName": "InteractionClearConsoleBuffers",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonClearBuffers"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "clearConsoleBuffers"
             }
           }
         ],
@@ -4792,6 +5076,34 @@
       },
       {
         "TextEntryId": "SingleUseId100",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "STATUSMSG_SETTINGS_UART_TX_ERR",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "STATUSMSG_SETTINGS_UART_TX_NOT_OKED",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "SingleUseId101",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId102",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId103",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId104",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId105",
         "IsResource": false
       }
     ],

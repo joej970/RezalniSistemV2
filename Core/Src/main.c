@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stm32746g_discovery_qspi.h>
+#include <stdio.h>
 #include "queue.h"
 #include "event_groups.h"
 #include "myTasks.h"
@@ -90,20 +91,25 @@ QueueHandle_t qhTouchGFXToRelaySetup;
 QueueHandle_t qhStatusReport;
 QueueHandle_t qhGUItoWriteSettings;
 QueueHandle_t qhSettingsToGUI;
-QueueHandle_t qhUARTcallbackToGRBL;
+QueueHandle_t qhUARTtoConsole;
+QueueHandle_t qhUARTtoGRBL;
 QueueHandle_t qhTouchGFXToGRBLControl;
 
 EventGroupHandle_t ehEvents;
+//EventGroupHandle_t ehEventsGRBL;
 
 TaskHandle_t thEncoderControl;
 TaskHandle_t thReport;
 TaskHandle_t thRelaySetup;
 TaskHandle_t thSingleEvent;
 TaskHandle_t thWriteSettings;
+TaskHandle_t thGrblCommunicationTask;
 
 
 char UARTRxGlobalBuffer[UART_RX_GLOBAL_BUFFER_SIZE];
 char* pUARTRxGlobalBuffer;
+
+enum grblConn_t grblConnectionStatus;
 
 //const char* eepromStatus_strings[]  = {
 //				"EEPROM_SUCCESS",
@@ -143,7 +149,14 @@ void TIM5_Init(void);	// Amount counter
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+//#include "stdio.h"
 
+int _write(int file, char *ptr, int len) {
+    for (int i = 0; i < len; i++) {
+        ITM_SendChar(ptr[i]); // Send character to SWO
+    }
+    return len;
+}
 /* USER CODE END 0 */
 
 /**
@@ -207,8 +220,6 @@ int main(void)
   DBGMCU->APB1FZ |= 0x1FF;
   DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM1_STOP | DBGMCU_APB2_FZ_DBG_TIM8_STOP | DBGMCU_APB2_FZ_DBG_TIM9_STOP | DBGMCU_APB2_FZ_DBG_TIM10_STOP | DBGMCU_APB2_FZ_DBG_TIM11_STOP);
 
-
-
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -229,12 +240,14 @@ int main(void)
   qhEncoderControlToReport = xQueueCreate(1, sizeof(qPackage_encoderControl_t));
   qhReportToTouchGFX = xQueueCreate(1 , sizeof(qPackage_report_t)); 	// reports current length and amount
   qhTouchGFXToRelaySetup = xQueueCreate(1, sizeof(qPackage_relaySetup_t));
-  qhStatusReport = xQueueCreate(5, sizeof(qPackage_statusReport_t)); // can be called from 5 higher priority tasks
+  qhStatusReport = xQueueCreate(20, sizeof(qPackage_statusReport_t)); // can be called from 5 higher priority tasks
   qhGUItoWriteSettings = xQueueCreate(1, sizeof(qPackage_settings_t));
   qhSettingsToGUI = xQueueCreate(1,sizeof(qPackage_settings_t));
-  qhUARTcallbackToGRBL = xQueueCreate(5, sizeof(qPackage_encoderControl_t));
-  qhTouchGFXToGRBLControl = xQueueCreate(1, sizeof(qPackage_laserParams_t));
+  qhUARTtoConsole = xQueueCreate(20, sizeof(qPackage_UART));
+  qhUARTtoGRBL = xQueueCreate(20, sizeof(qPackage_UART));
+  qhTouchGFXToGRBLControl = xQueueCreate(5, sizeof(qPackage_laserParams_t));
 
+//  ehEventsGRBL = xEventGroupCreate();
   ehEvents = xEventGroupCreate();
   /* USER CODE END RTOS_QUEUES */
 
@@ -250,11 +263,16 @@ int main(void)
   xTaskCreate(relaySetupTask, "relaySetupTask", 256, NULL,3+2, &thRelaySetup);
   xTaskCreate(singleEventTask, "singleEventTask", 256, NULL, 3+2, &thSingleEvent);
   xTaskCreate(writeSettingsTask, "writeSettingsTask", 256, NULL,3+2 , &thWriteSettings);
+  xTaskCreate(grblCommunicationTask, "grblCommunicationTask", 256, NULL,3+3 , &thGrblCommunicationTask);
 
   HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_RESET);
 
   pUARTRxGlobalBuffer = UARTRxGlobalBuffer;
+
+
+
+
 //  HAL_UARTEx_ReceiveToIdle_IT(&huart7, pUARTRxGlobalBuffer, UART_RX_GLOBAL_BUFFER_SIZE); // move this to appropriate place in code
 
   /* USER CODE END RTOS_THREADS */
@@ -817,6 +835,20 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void reportErrorToPopUp(enum statusId_t statusId, char* description, uint32_t data){
+	qPackage_statusReport_t packageToSend;
+	packageToSend.statusId = statusId;
+	packageToSend.data = data;
+	sprintf(packageToSend.message, description);
+	BaseType_t xStatus = xQueueSend(qhStatusReport, &packageToSend, pdMS_TO_TICKS(10));
+	if(xStatus == errQUEUE_FULL){
+		//TODO: report a problem
+		while(1){
+			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+		};
+	}
+}
+
 /*
  * Init TIM3 timer to be used as encoder
  */
@@ -863,7 +895,7 @@ void TIM1_Init(void){
 	// Lower its frequency from 100 MHz to 1.525879 kHz
 	TIM1->PSC = 0xFFFF;
 	// One pulse mode, ARR pre-load active: UG event needs to be issued after updating.
-	//	This ensures timer does not run past ARR should ARR be decreased just being reached
+	//	This ensures timer does not run past ARR should ARR be decreased just before being reached
 	TIM1->CR1 = 1UL << TIM_CR1_OPM_Pos | 1UL << TIM_CR1_ARPE_Pos;
 	// Slave mode selection: Trigger mode - counter starts counting on rising edge of TRGI, TS is TIM4
 	TIM1->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b011 << TIM_SMCR_TS_Pos;
@@ -876,13 +908,17 @@ void TIM1_Init(void){
 	// Set ARR and CC1 to max
 	TIM1->ARR = 0xFFFF;
 	TIM1->CCR1 = 0xFFFF;
+	TIM1->CCR3 = 0xFFFF;
 	// Update event generation as ARR and CCR1 are preloaded
 	TIM1->EGR = 1UL << TIM_EGR_UG_Pos;
 	// Output Compare 1 output enable
 	TIM1->CCER = 1UL << TIM_CCER_CC1E_Pos;
 
     // 1. Enable update interrupt and capture compare interrupt. Used to initiate laser cutting.
-    TIM1->DIER |= TIM_DIER_CC1IE;  // Enable capture/compare interrupt on channel 1
+    // Enable capture/compare interrupt on channel 1 for laser initiation.
+    // Enable capture/compare interrupt on channel 3 for message assembly and transfer trigger.
+
+    TIM1->DIER |= TIM_DIER_CC1IE | TIM_DIER_CC3IE;
 
 }
 

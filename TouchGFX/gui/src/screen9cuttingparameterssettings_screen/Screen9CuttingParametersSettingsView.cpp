@@ -24,6 +24,8 @@ void Screen9CuttingParametersSettingsView::tearDownScreen()
 
     presenter->writeToEEPROM(0); // slot 0 for LAST settings
 
+    presenter->reportToGRBLControlTask();
+
     Screen9CuttingParametersSettingsViewBase::tearDownScreen();
 }
 

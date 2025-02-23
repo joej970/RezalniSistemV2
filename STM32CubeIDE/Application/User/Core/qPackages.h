@@ -19,6 +19,7 @@ extern "C" {
 
 
 typedef struct{
+	uint32_t eventMask;
 	uint16_t angle_alpha_01deg;
 	uint16_t angle_beta_01deg;
 	uint16_t feedrate;
@@ -30,10 +31,18 @@ typedef struct{
 } qPackage_laserParams_t;
 
 
+enum uart_msg_type_e{
+	RX,
+	TX,
+	RX_ERR,
+	TX_ERR
+};
+
 typedef struct{
 	char data[UART_RX_GLOBAL_BUFFER_SIZE];
 	uint16_t length;
-} qPackage_UART_RX;
+	enum uart_msg_type_e type;
+} qPackage_UART;
 
 typedef struct{
 	uint8_t isActive;

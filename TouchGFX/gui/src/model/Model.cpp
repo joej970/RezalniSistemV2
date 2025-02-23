@@ -1,10 +1,14 @@
 #include <gui/model/Model.hpp>
 #include <gui/model/ModelListener.hpp>
 
+#include <iostream>
+
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "event_groups.h"
 #include "string.h"
+
+extern QueueHandle_t qhTouchGFXToGRBLControl;
 
 void heartbeat(void)
 {
@@ -73,79 +77,172 @@ Model::Model() :
 				modelListener(0), relay1duration(0), relay1delay(0), relay2duration(
 								0), relay2delay(0), relay3duration(0), relay3delay(
 								0), amount(0), setLengthActual(0), currLength(0), lastStatus(OP_OK),
-								fetchSettings(true), message(""), p_message(message), relaysActive(0), uartShouldBeVisible(false)
+								fetchSettings(true), message(""), p_message(message), relaysActive(0)
 
 {
-	clearConsoleBuffer();
+	clearConsoleBuffers();
 }
 
-void Model::clearConsoleBuffer(){
-	for(auto lineBuffer : consoleBuffers.lineBuffers){
-		lineBuffer[0] = '\0'; // null character will cause Unicode::cpy not to do the copy.
-	}
-	consoleBuffers.nextBuffer = 0;
-	consoleBuffers.allLinesFull = false;
+void Model::clearConsoleBuffers(){
+
+//	printf("Before clearconBufs:\n");
+//	uint16_t i = 0;
+//	for(auto lineBuffer : conBufs.lineBuffers){
+//		printf("	line buffer[%d]: %s\n", i, lineBuffer.data());
+//		i++;
+//	}
+
+	conBufs.resetConBuffers();
+
+//	for(auto& lineBuffer : conBufs.lineBuffers){
+//		lineBuffer.clear();
+//	}
+//
+//	conBufs.currBuffer = conBufs.lineBuffers.size() - 1; // will be overflown to 0
+//	conBufs.allLinesFull = false;
+//	type_last = RX;
+
+//	printf("After clearconBufs:\n");
+//	i = 0;
+//	for(auto lineBuffer : conBufs.lineBuffers){
+//		printf("	line buffer[%d]: %s\n", i, lineBuffer.data());
+//		i++;
+//	}
+
 }
 
-void Model::processUARTRxData(qPackage_UART_RX uartPayload){
-	consoleBuffers.lineBuffers[consoleBuffers.nextBuffer] = std::string(uartPayload.data, uartPayload.length);
+void Model::processUARTData(qPackage_UART uartPayload){
 
-	consoleBuffers.nextBuffer++;
-	if(consoleBuffers.nextBuffer >= consoleBuffers.lineBuffers.size()){
-		consoleBuffers.nextBuffer = 0;
-		consoleBuffers.allLinesFull = true;
+	bool shouldBeOnTheSameLine = false;
+	if((conBufs.type_last == TX) && (uartPayload.type == RX)){
+		shouldBeOnTheSameLine = true;
 	}
 
+	conBufs.type_last = uartPayload.type;
+
+	auto new_string = std::string(uartPayload.data, uartPayload.length);
+	if(shouldBeOnTheSameLine){
+		conBufs.decCurrBuffer();
+		conBufs.lineBuffers[conBufs.getCurrBuffer()] += new_string;
+	}
+	else{
+		conBufs.lineBuffers[conBufs.getCurrBuffer()] = new_string;
+	}
+//	conBufs.lineBuffers[conBufs.currBuffer] = std::string(uartPayload.data, uartPayload.length);
+
+	conBufs.incCurrBuffer();
+
+	//	conBufs.currBuffer++;
+//	if(conBufs.currBuffer >= conBufs.lineBuffers.size()){
+//		conBufs.currBuffer = 0;
+//		conBufs.allLinesFull = true;
+//	}
+
+//	for(uint8_t i = 0; i < conBufs.lineBuffers.size(); i++){
+//		if(i == conBufs.getCurrBuffer()){
+//			printf("lineBuffer[%d]: %s <-- currentBuffer\n",i,conBufs.lineBuffers[i].data());
+//		}else{
+//			printf("lineBuffer[%d]: %s\n",i,conBufs.lineBuffers[i].data());
+//		}
+//	}
+
+//	printf("idx: %d: strg message: %20s (%u)\n",
+//			conBufs.currBuffer,
+//			conBufs.lineBuffers[conBufs.currBuffer].data(),
+//			conBufs.lineBuffers[conBufs.currBuffer].size());
+//	printf("raw message: %20s (%u)\n",uartPayload.data, uartPayload.length);
+
+	tellConsoleVisible();
 //	uartShouldBeVisible = true;
 
 }
 
 
+void Model::tellConsoleVisible(){
+	modelListener->onConsoleDataUpdated();
+}
+
+
+void Model::tryToConnectGRBL(){
+	qPackage_laserParams_t packageToSend;
+	packageToSend.eventMask = EVENT_GRBL_BIT_INITIATE_GRBL_CONTROLLER;
+
+	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+}
+
+void Model::sendGRBLtoHome(){
+	qPackage_laserParams_t packageToSend;
+	packageToSend.eventMask = EVENT_GRBL_BIT_SEND_HOME;
+
+	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+}
+
+void Model::sendGRBLtoOrigin(){
+	qPackage_laserParams_t packageToSend;
+	packageToSend.eventMask = EVENT_GRBL_BIT_SEND_TO_ORIGIN;
+
+	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+}
+
+
 std::vector<const char *> Model::fetchUartLineBuffers(){
 
-	std::vector<const char *> pointers{6, NULL};
+	std::vector<const char *> pointers{conBufs.lineBuffers.size(), NULL};
 
-	if(!consoleBuffers.allLinesFull){
-		for(uint16_t idx = 0; idx < consoleBuffers.lineBuffers.size(); idx++){
-			pointers.push_back(consoleBuffers.lineBuffers[idx].data());
+	if(!conBufs.allLinesFull){
+		for(uint16_t idx = 0; idx < conBufs.lineBuffers.size(); idx++){
+			pointers[idx] = conBufs.lineBuffers[idx].data();
 		}
-//		pointers.push_back(&lineBuffers[0]);
-//		pointers.push_back(&lineBuffers[1]);
-//		pointers.push_back(&lineBuffers[2]);
-//		pointers.push_back(&lineBuffers[3]);
-//		pointers.push_back(&lineBuffers[4]);
-//		pointers.push_back(&lineBuffers[5]);
+
 	}else{
-		uint16_t lines = consoleBuffers.lineBuffers.size();
-		for(uint16_t l = 0; l < lines; l++){
-			uint16_t idx = (consoleBuffers.nextBuffer + l) % lines;
-			pointers.push_back(consoleBuffers.lineBuffers[idx].data());
+		uint16_t lines = conBufs.lineBuffers.size();
+		for(uint16_t l = 0; l < lines; l++){ // for lines 0-9
+			uint16_t idx = (conBufs.getCurrBuffer() + l) % lines;
+
+//			printf("to pointer[%d] put data[%d] \n", l, idx);
+			pointers[l] = conBufs.lineBuffers[idx].data();
+
+			/*
+			 * pIdx | buffer
+			 * if currBuffer == 0
+			 * 0    0
+			 * 1    1
+			 *
+			 * 9	9
+			 *
+			 * if currBuffer == 1
+			 * 0	1
+			 * 1	2
+			 * 2	3
+			 * 3	4
+			 * ..
+			 * 7	8
+			 * 8	9
+			 * 9	0
+			 *
+			 * if currBuffer == 2
+			 * 0	2
+			 * 1	3
+			 * 2	4
+			 * ..
+			 * 6	8
+			 * 7	9
+			 * 8	0
+			 * 9	1
+			 *
+			 *
+			 * */
+
 		}
 	}
-//		if(nextBuffer == 0){
-//			pointers.push_back(&lineBuffers[0]);
-//			pointers.push_back(&lineBuffers[1]);
-//			pointers.push_back(&lineBuffers[2]);
-//			pointers.push_back(&lineBuffers[3]);
-//			pointers.push_back(&lineBuffers[4]);
-//			pointers.push_back(&lineBuffers[5]);
-//		}else if(nextBuffer == 1){
-//			pointers.push_back(&lineBuffers[1]);
-//			pointers.push_back(&lineBuffers[2]);
-//			pointers.push_back(&lineBuffers[3]);
-//			pointers.push_back(&lineBuffers[4]);
-//			pointers.push_back(&lineBuffers[5]);
-//			pointers.push_back(&lineBuffers[0]);
-//		}else if(nextBuffer == 2){
-//			pointers.push_back(&lineBuffers[2]);
-//			pointers.push_back(&lineBuffers[3]);
-//			pointers.push_back(&lineBuffers[4]);
-//			pointers.push_back(&lineBuffers[5]);
-//			pointers.push_back(&lineBuffers[0]);
-//			pointers.push_back(&lineBuffers[1]);
-//		}
-//	}
 
+//	printf("pointers length = %d \n", pointers.size());
+////	std::vector<uint16_t> lengths(6);
+//	for(uint16_t i = 0; i < conBufs.lineBuffers.size(); i++){
+////		lengths[i] = strlen(pointers[i]);
+////		printf("fetchBuffers[%u]: message lineBuffer: %20s (%u)\n", i, conBufs.lineBuffers[i].data(), strlen(conBufs.lineBuffers[i].data()));
+//		printf("pointer[%u]: message: %s (%u)\n", i, pointers[i], strlen(pointers[i]));
+//	}
 
 	return pointers;
 }
@@ -158,12 +255,12 @@ void Model::tick() {
 	//toggleErrorLed();
 	heartbeat();
 
-	/* Check RX UART queue */
-	extern QueueHandle_t qhUARTcallbackToGRBL;
-	qPackage_UART_RX uartPayload;
-	xStatus = xQueueReceive(qhUARTcallbackToGRBL, &uartPayload, pdMS_TO_TICKS(0));
+	/* Check UART Console queue */
+	extern QueueHandle_t qhUARTtoConsole;
+	qPackage_UART uartPayload;
+	xStatus = xQueueReceive(qhUARTtoConsole, &uartPayload, pdMS_TO_TICKS(0));
 	if (xStatus == pdTRUE) {
-		processUARTRxData(uartPayload);
+		processUARTData(uartPayload);
 	}
 
  	/* Receive status update */
@@ -182,6 +279,7 @@ void Model::tick() {
 		lastStatus = packageStatusReport.statusId; // this value is used in Screen1MainCuttingView.cpp to show notification
 		statusPackageData = packageStatusReport.data;
 		strcpy(message, packageStatusReport.message);
+		printf("Received message: %s \n", message);
 		switch (packageStatusReport.statusId) {
 			case SET_LENGTH_TRIMMED:
 				setLengthActual = packageStatusReport.data;
@@ -199,9 +297,13 @@ void Model::tick() {
 
 				break;
 			case SETTINGS_LOAD_ERR:
-
+				printf("Received SETTINGS_LOAD_ERR \n");
+				break;
+			case UART_TX_NOT_OKED:
+				printf("Received UART_TX_NOT_OKED \n");
 				break;
 			default:
+				printf("Received some other report message ID.\n");
 				break;
 		}
 	}
@@ -247,6 +349,7 @@ void Model::tick() {
 			reportToRelaySetupTask(2);
 			reportToRelaySetupTask(3);
 			reportToEncoderControlTask();
+			reportToGRBLControlTask();
 			if(relaysActive == 0){
 				xEventGroupSetBits(ehEvents,EVENT_BIT_RELAYS_DEACTIVATE);
 			}
@@ -280,8 +383,6 @@ void Model::tick() {
 
 void Model::setAlpha(uint16_t angle) {
 	angle_alpha_01deg = angle;
-	//reportToGRBLControlTask();
-	//writeLaserParamsToEEPROM(1);
 }
 
 void Model::setBeta(uint16_t beta) {
@@ -486,7 +587,11 @@ void Model::reportToGRBLControlTask() {
 	packageToSend.angle_beta_01deg = angle_beta_01deg;
 	packageToSend.feedrate = feedrate;
 	packageToSend.width_01mm = width_01mm;
+	packageToSend.origin_y0_01mm = origin_y0_01mm;
+	packageToSend.origin_x0_01mm = origin_x0_01mm;
+	packageToSend.eventMask = EVENT_GRBL_BIT_UPDATE_GRBL_PARAMS;
 
+//	BaseType_t xStatus = xQueueOverwrite(qhTouchGFXToGRBLControl, &packageToSend); // should be able to put in the queue as it will be emptied immediately
 	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0); // should be able to put in the queue as it will be emptied immediately
 	if (xStatus != pdTRUE) {
 		//TODO: report a problem
@@ -507,6 +612,8 @@ void Model::reportToEncoderControlTask() {
 					resolution, // resolution
 					radius_01mm // radius unit: 0.1 mm, 500*0.0001m = 0.05m
 					};
+
+
 
 
 	xStatus = xQueueSend(qhGUItoEncoderControl, &encoderPackage, 0); // should be able to put in the queue as it will be emptied immediately

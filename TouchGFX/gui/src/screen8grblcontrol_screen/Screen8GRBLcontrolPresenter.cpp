@@ -17,10 +17,14 @@ void Screen8GRBLcontrolPresenter::deactivate()
 
 }
 
+void Screen8GRBLcontrolPresenter::onConsoleDataUpdated(){
+	view.showOnConsole();
+};
 
-std::vector<const char*> Screen8GRBLcontrolPresenter::fetchUartLineBuffers(){
-	return model->fetchUartLineBuffers();
-}
+//void Screen8GRBLcontrolPresenter::onConsoleDataUpdated(){
+//	view.popUpUartConsoleGRBL.setVisible();
+//};
+
 
 //bool Screen8GRBLcontrolPresenter::shouldUartConsoleBeVisible(){
 ////	return model->shouldUartConsoleBeVisible();

@@ -11,6 +11,8 @@
 #include "main.h"
 #include "qPackages.h"
 
+extern grblConn_t grblConnectionStatus;
+
 class ModelListener;
 
 class Model {
@@ -23,13 +25,11 @@ public:
 
 	void tick();
 
-
+	// SETTERS. Writing to EEPROM.
 	void setAlpha(uint16_t angle);
 	void setBeta(uint16_t beta);
 	void setFeedrate(uint16_t fr);
 	void setWidth(uint16_t width);
-
-
 
 	void setRelay1duration(uint32_t duration);
 	void setRelay1delay(uint32_t delay);
@@ -37,16 +37,19 @@ public:
 	void setRelay2delay(uint32_t delay);
 	void setRelay3duration(uint32_t duration);
 	void setRelay3delay(uint32_t delay);
+
 	void setRadius(uint16_t radius);
 	void resetAmount(void);
 	void resetCurrLength(void);
 	void enableCutting(bool enable);
 	void immCut();
 	void updateSetLength(uint32_t newLength);
+
 	void saveRelaySettings(uint32_t id);
 	void saveEncoderSettings();
 	void writeLaserParamsToEEPROM(uint8_t slot);
-	void loadSettings(void);
+
+	// REPORT
 	void reportToEncoderControlTask();
 	void reportToRelaySetupTask(uint32_t id);
 	void reportToGRBLControlTask();
@@ -54,6 +57,8 @@ public:
 	void toggleRelaysActive();
 	void saveLanguage(LANGUAGES language);
 
+	// GETTERS. Reading from EEPROM.
+	void loadSettings(void);
 
 	uint16_t getAlpha();
 	uint16_t getBeta();
@@ -78,9 +83,16 @@ public:
 	uint8_t getRelaysActive();
 	void updateLaserParamsFromEEPROM(uint8_t slot);
 
+	// Console functions
 	std::vector<const char*> fetchUartLineBuffers();
-	void clearConsoleBuffer();
-	void processUARTRxData(qPackage_UART_RX uartPayload);
+	void clearConsoleBuffers();
+	void processUARTData(qPackage_UART uartPayload);
+	void tellConsoleVisible();
+
+	// GRBL functions
+	void tryToConnectGRBL();
+	void sendGRBLtoHome();
+	void sendGRBLtoOrigin();
 
 	/* tell the caller whether it should re-fetch data from model*/
 	bool shouldUpdateLaserParams(){
@@ -96,6 +108,9 @@ public:
 	void setOrigin_X0(uint16_t value){origin_x0_01mm = value;}
 	void setOrigin_Y0(uint16_t value){origin_y0_01mm = value;}
 
+    grblConn_t getGRBLconnStatus(){
+    	return grblConnectionStatus;
+    }
 
 
 protected:
@@ -132,18 +147,51 @@ protected:
 	uint16_t origin_x0_01mm;
 	bool laserParamsUpdatedFromEEPROM;
 
+
+
+
 #define LINE_BUFFERS_SIZE (uint16_t) 100
-#define NR_LINES (uint16_t) 6
+#define NR_LINES (uint16_t) 10
 
 	struct consoleBuffers_s {
 		std::vector<std::string> lineBuffers { NR_LINES };
-		std::vector<uint32_t> cursorHeads { NR_LINES };
-		const uint16_t capacity = LINE_BUFFERS_SIZE;
-		uint16_t nextBuffer = 0;
 		bool allLinesFull = false;
-	} consoleBuffers;
+		enum uart_msg_type_e type_last = RX;
 
-	bool uartShouldBeVisible;
+		void resetConBuffers(){
+			for(auto& lineBuffer : lineBuffers){
+				lineBuffer.clear();
+			}
+			currBuffer = 0;
+			allLinesFull = false;
+			type_last = RX;
+		}
+
+		void incCurrBuffer(){
+			currBuffer++;
+			if(currBuffer >= NR_LINES){
+				allLinesFull = true;
+				currBuffer = 0;
+			}
+
+		}
+
+		void decCurrBuffer(){
+			currBuffer--;
+			if(currBuffer < 0){
+				currBuffer = NR_LINES - 1;
+			}
+		}
+
+		int16_t getCurrBuffer(){
+			return currBuffer;
+		}
+	private:
+		int16_t currBuffer = 0; // will be overflown to 0 when called for the first time
+
+	} conBufs;
+
+//	bool uartShouldBeVisible;
 };
 
 //    	char line[100];// = '\0';

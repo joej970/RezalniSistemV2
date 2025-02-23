@@ -28,6 +28,7 @@ public:
 
     virtual ~Screen1MainCuttingPresenter() {};
 
+    void onConsoleDataUpdated();
 
     uint32_t fetchRelay1duration(){
     	return model->getRelay1duration();
@@ -96,6 +97,14 @@ public:
 
     void resetLastStatus(){
     	model->resetLastStatus();
+    }
+
+    std::vector<const char*> fetchUartLineBuffers(){
+    	return model->fetchUartLineBuffers();
+    }
+
+    Model* getModel(){
+    	return model;
     }
 
 

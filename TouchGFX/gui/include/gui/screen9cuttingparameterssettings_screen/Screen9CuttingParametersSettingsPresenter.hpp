@@ -36,6 +36,8 @@ public:
     void updateLaserParamsFromEEPROM(uint8_t slot){model->updateLaserParamsFromEEPROM(slot);}
     bool shouldUpdateLaserParams(){return model->shouldUpdateLaserParams();}
 
+    void reportToGRBLControlTask(){model->reportToGRBLControlTask();}
+
     uint16_t getAlpha(){return model->getAlpha();}
     uint16_t getBeta(){return model->getBeta();}
     uint16_t getFeedrate(){return model->getFeedrate();}
