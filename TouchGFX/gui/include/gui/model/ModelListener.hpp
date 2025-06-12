@@ -15,6 +15,8 @@ public:
         model = m;
     }
     virtual void onConsoleDataUpdated(){};
+    virtual void updateProductionRate(double velocity){};
+    virtual void openHomingPrompt(){};
 
 protected:
     Model* model;

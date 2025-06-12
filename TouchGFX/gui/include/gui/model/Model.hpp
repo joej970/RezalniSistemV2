@@ -30,6 +30,7 @@ public:
 	void setBeta(uint16_t beta);
 	void setFeedrate(uint16_t fr);
 	void setWidth(uint16_t width);
+	void setAlphaCutEnable(uint8_t a_laserAlphaCutEnable);
 
 	void setRelay1duration(uint32_t duration);
 	void setRelay1delay(uint32_t delay);
@@ -38,7 +39,9 @@ public:
 	void setRelay3duration(uint32_t duration);
 	void setRelay3delay(uint32_t delay);
 
-	void setRadius(uint16_t radius);
+//	void setRadius(uint16_t radius);
+//	void setCircumference(uint16_t circumference);
+	void setRadiusCircumferenceResolution(uint16_t radius, uint16_t circumference, uint16_t resolution);
 	void resetAmount(void);
 	void resetCurrLength(void);
 	void enableCutting(bool enable);
@@ -48,6 +51,7 @@ public:
 	void saveRelaySettings(uint32_t id);
 	void saveEncoderSettings();
 	void writeLaserParamsToEEPROM(uint8_t slot);
+	void saveLaserConsoleSettings();
 
 	// REPORT
 	void reportToEncoderControlTask();
@@ -56,6 +60,7 @@ public:
 	void resetLastStatus();
 	void toggleRelaysActive();
 	void saveLanguage(LANGUAGES language);
+	void tellProductionRate(double velocity);
 
 	// GETTERS. Reading from EEPROM.
 	void loadSettings(void);
@@ -64,6 +69,7 @@ public:
 	uint16_t getBeta();
 	uint16_t getFeedrate();
 	uint16_t getWidth();
+	uint8_t getAlphaCutEnable();
 
 	uint32_t getRelay1duration();
 	uint32_t getRelay1delay();
@@ -72,6 +78,8 @@ public:
 	uint32_t getRelay3duration();
 	uint32_t getRelay3delay();
 	uint16_t getRadius();
+	uint16_t getCircumference();
+	uint16_t getResolution();
 	uint32_t getAmount();
 	bool getCutting();
 	uint32_t getSetLength();
@@ -81,6 +89,7 @@ public:
 	uint32_t getStatusPackageData();
 	char* getMessage();
 	uint8_t getRelaysActive();
+	uint8_t getLaserConsoleActive();
 	void updateLaserParamsFromEEPROM(uint8_t slot);
 
 	// Console functions
@@ -89,10 +98,14 @@ public:
 	void processUARTData(qPackage_UART uartPayload);
 	void tellConsoleVisible();
 
+
 	// GRBL functions
 	void tryToConnectGRBL();
-	void sendGRBLtoHome();
-	void sendGRBLtoOrigin();
+	void moveGRBLtoHome();
+	void moveGRBL(uint16_t x_01mm, uint16_t y_01mm);
+	void updateOrigin(uint16_t x_01mm, uint16_t y_01mm);
+	void homingConfirmed(bool confirmed);
+	void setLaserConsoleActive(uint8_t laserConsoleActive);
 
 	/* tell the caller whether it should re-fetch data from model*/
 	bool shouldUpdateLaserParams(){
@@ -127,6 +140,7 @@ protected:
 	uint32_t setLengthActual;
 	uint32_t currLength;
 	uint16_t radius_01mm;
+	uint16_t circumference_01mm;
 	uint16_t resolution;
 	bool cuttingActive;
 	//bool immediateCut;
@@ -147,6 +161,8 @@ protected:
 	uint16_t origin_x0_01mm;
 	bool laserParamsUpdatedFromEEPROM;
 
+	uint8_t laserAlphaCutEnable;
+	uint8_t laserConsoleActive;
 
 
 

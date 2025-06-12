@@ -20,6 +20,10 @@ public:
     	showUartConsole();
     }
 
+    void showHomingConfirmPrompt(){
+ 	   grblHomingRequest.openHomingPrompt();
+    }
+
     void flexButtonTouchedHandler(const ImageButtonStyle< touchgfx::TouchButtonTrigger >& button, const ClickEvent& evt);
 protected:
 

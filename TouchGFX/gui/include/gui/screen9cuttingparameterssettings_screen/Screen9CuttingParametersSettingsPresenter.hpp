@@ -31,6 +31,7 @@ public:
     void   setBeta(uint16_t beta){model->setBeta(beta);}
     void setFeedrate(uint16_t fr){model->setFeedrate(fr);}
     void setWidth(uint16_t width){model->setWidth(width);}
+    void setAlphaCutEnable(uint8_t en){model->setAlphaCutEnable(en);}
 
     void writeToEEPROM(uint8_t slot){model->writeLaserParamsToEEPROM(slot);}
     void updateLaserParamsFromEEPROM(uint8_t slot){model->updateLaserParamsFromEEPROM(slot);}
@@ -42,6 +43,7 @@ public:
     uint16_t getBeta(){return model->getBeta();}
     uint16_t getFeedrate(){return model->getFeedrate();}
     uint16_t getWidth(){return model->getWidth();}
+    uint8_t getAlphaCutEnable(){return model->getAlphaCutEnable();}
 
 private:
     Screen9CuttingParametersSettingsPresenter();

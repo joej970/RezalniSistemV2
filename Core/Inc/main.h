@@ -54,6 +54,12 @@ enum statusId_t{
 	UART_TX_ERR,
 	UART_RX_SUCCESS,
 	UART_TX_SUCCESS,
+	GRBL_ALARM,
+	GRBL_ERROR,
+	DX_CALC_ERROR,
+	DY_CALC_ERROR,
+	ORIGIN_UPDATED,
+	WAITING_FOR_HOMING_CONFIRM,
 	OTHER_ERR
 };
 
@@ -117,9 +123,11 @@ enum grblConn_t{
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void disableRelayTimers(void);
-void enableRelayTimers(void);
 void reportErrorToPopUp(enum statusId_t statusId, char* description, uint32_t data);
+void reportErrorToPopUpFromISR(enum statusId_t statusId, char* description, uint32_t data);
+void enableVelocityTracking(void);
+void disableVelocityTracking(void);
+
 //enum eepromStatus_t byteWriteToEEPROM(uint8_t dataAddr, uint8_t data);
 //enum eepromStatus_t bytesWriteToEEPROM(uint8_t dataAddr, uint8_t *srcBuffer, uint8_t nr);
 //enum eepromStatus_t bytesReadFromEEPROM(uint8_t dataAddr, uint8_t *dstBuffer, uint8_t nr);
@@ -143,6 +151,9 @@ void reportErrorToPopUp(enum statusId_t statusId, char* description, uint32_t da
 #define ENC2_GPIO_Port GPIOC
 #define ENC1_Pin GPIO_PIN_6
 #define ENC1_GPIO_Port GPIOC
+#define IMM_CUT_PIN_Pin GPIO_PIN_7
+#define IMM_CUT_PIN_GPIO_Port GPIOG
+#define IMM_CUT_PIN_EXTI_IRQn EXTI9_5_IRQn
 #define UART7_TX_Pin GPIO_PIN_7
 #define UART7_TX_GPIO_Port GPIOF
 #define UART7_RX_Pin GPIO_PIN_6
@@ -167,14 +178,21 @@ void reportErrorToPopUp(enum statusId_t statusId, char* description, uint32_t da
 
 #define EVENT_BITS_ALL			(EVENT_BIT_DISABLE_LASER_CUTTING | EVENT_BIT_ENABLE_LASER_CUTTING | EVENT_BIT_LOAD_LASER_PARAMS_SLOT_3 | EVENT_BIT_LOAD_LASER_PARAMS_SLOT_2 | EVENT_BIT_LOAD_LASER_PARAMS_SLOT_1 | EVENT_BIT_IMM_CUT | EVENT_BIT_RST_AMOUNT | EVENT_BIT_LOAD_SETTINGS | EVENT_BIT_RELAYS_ACTIVATE | EVENT_BIT_RELAYS_DEACTIVATE | EVENT_BIT_RST_CURR_LEN)
 
-// ehEventsGRBL
+#define EVENT_SW_TIMER_BIT_LAUNCH (1UL << 0UL)
+// GRBL control to GUI
+#define EVENT_GRBL_TO_GUI_BIT_WAIT_FOR_HOMING_CONFIRM (1UL << 0)
+#define EVENT_GRBL_TO_BITS_ALL (EVENT_GRBL_BIT_UPDATE_ORIGIN)
+
+// GUI to GRBL control
 #define EVENT_GRBL_BIT_UPLOAD_GCODE_TO_GRBL_AND_START (1UL << 20UL)
 #define EVENT_GRBL_BIT_UPLOAD_GCODE_TO_GRBL (1UL << 21UL)
 #define EVENT_GRBL_BIT_SEND_HOME (1UL << 22UL)
-#define EVENT_GRBL_BIT_SEND_TO_ORIGIN (1UL << 23UL)
+#define EVENT_GRBL_BIT_MOVE_TO_XY (1UL << 23UL)
 #define EVENT_GRBL_BIT_INITIATE_GRBL_CONTROLLER (1UL << 24UL)
 #define EVENT_GRBL_BIT_UPDATE_ORIGIN (1UL << 25UL)
 #define EVENT_GRBL_BIT_UPDATE_GRBL_PARAMS (1UL << 26UL)
+#define EVENT_GRBL_BIT_HOMING_IS_CONFIRMED (1UL << 27UL)
+#define EVENT_GRBL_BIT_HOMING_IS_DENIED (1UL << 28UL)
 
 #define EVENT_GRBL_BITS_ALL (EVENT_GRBL_BIT_UPDATE_ORIGIN | EVENT_GRBL_BIT_SEND_TO_ORIGIN | EVENT_GRBL_BIT_SEND_HOME | EVENT_GRBL_BIT_UPDATE_GRBL_CONTROLLER | EVENT_GRBL_BIT_UPDATE_AND_START_GRBL_CONTROLLER | EVENT_GRBL_BIT_INITIATE_GRBL_CONTROLLER)
 
@@ -202,6 +220,7 @@ void reportErrorToPopUp(enum statusId_t statusId, char* description, uint32_t da
 #define SETTINGS_RELAY_ACT_Bit	(1UL << 8U)
 #define SETTINGS_BRIGHTNESS_Bit	(1UL << 9U)
 #define SETTINGS_LASER_PARAMS_Bit	(1UL << 10U)
+#define SETTINGS_CONSOLE_EN_Bit	(1UL << 11U)
 //#define SETTINGS_BRIGHTNESS_Bit	(1UL << 11U)
 //#define SETTINGS_BRIGHTNESS_Bit	(1UL << 12U)
 //#define SETTINGS_BRIGHTNESS_Bit	(1UL << 13U)

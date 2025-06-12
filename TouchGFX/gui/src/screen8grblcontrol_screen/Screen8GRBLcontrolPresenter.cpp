@@ -21,6 +21,17 @@ void Screen8GRBLcontrolPresenter::onConsoleDataUpdated(){
 	view.showOnConsole();
 };
 
+void Screen8GRBLcontrolPresenter::openHomingPrompt(){
+	view.showHomingConfirmPrompt();
+};
+
+void Screen8GRBLcontrolPresenter::updateProductionRate(double velocity){
+	view.updateProductionRate(velocity);
+//	Unicode::snprintf(view.textAreaProductionVelocityBuffer, TEXTAREAPRODUCTIONVELOCITY_SIZE, "%u", velocity);
+//	textAreaBeta.invalidate();
+//	view.textAreaProductionVelocityBuffer.invalidate();
+}
+
 //void Screen8GRBLcontrolPresenter::onConsoleDataUpdated(){
 //	view.popUpUartConsoleGRBL.setVisible();
 //};

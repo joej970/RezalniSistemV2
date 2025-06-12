@@ -11,6 +11,11 @@ void Screen9CuttingParametersSettingsView::setupScreen()
     digitSelector_4bits_beta.setCurrentValue(presenter->getBeta());
     digitSelector_4bits_width.setCurrentValue(presenter->getWidth());
     digitSelector_4bits_feedrate.setCurrentValue(presenter->getFeedrate());
+    if(presenter->getAlphaCutEnable() > 0){
+    	radioAlphaCut.forceState(true);
+    }else{
+    	radioAlphaCut.forceState(false);
+    }
     Screen9CuttingParametersSettingsViewBase::setupScreen();
 }
 
@@ -21,6 +26,12 @@ void Screen9CuttingParametersSettingsView::tearDownScreen()
 	presenter->setBeta(digitSelector_4bits_beta.getCurrentValue());
 	presenter->setWidth(digitSelector_4bits_width.getCurrentValue());
     presenter->setFeedrate(digitSelector_4bits_feedrate.getCurrentValue());
+
+    if(radioAlphaCut.getState()){
+    	presenter->setAlphaCutEnable(1);
+    }else{
+    	presenter->setAlphaCutEnable(0);
+    }
 
     presenter->writeToEEPROM(0); // slot 0 for LAST settings
 
@@ -83,31 +94,12 @@ void Screen9CuttingParametersSettingsView::load2()
 void Screen9CuttingParametersSettingsView::load1()
 {
 
-//
-//	uint16_t prev_alpha = presenter->getAlpha()  ;
-//	uint16_t prev_beta = presenter->getBeta()   ;
-//	uint16_t prev_width = presenter->getWidth()  ;
-//	uint16_t prev_feedrate = presenter->getFeedrate();
-
 	presenter->updateLaserParamsFromEEPROM(1);
-//       digitSelector_4bits_alpha.setCurrentValue(presenter->getAlpha()   );
-//        digitSelector_4bits_beta.setCurrentValue(presenter->getBeta()    );
-//       digitSelector_4bits_width.setCurrentValue(presenter->getWidth()   );
-//    digitSelector_4bits_feedrate.setCurrentValue(presenter->getFeedrate());
+	digitSelector_4bits_alpha.setCurrentValue(presenter->getAlpha());
+	digitSelector_4bits_beta.setCurrentValue(presenter->getBeta());
+	digitSelector_4bits_width.setCurrentValue(presenter->getWidth());
+	digitSelector_4bits_feedrate.setCurrentValue(presenter->getFeedrate());
 
-
-//	uint16_t after_alpha   = presenter->getAlpha()  ;
-//	uint16_t after_beta    = presenter->getBeta()   ;
-//	uint16_t after_width   = presenter->getWidth()  ;
-//	uint16_t after_feedrate = presenter->getFeedrate();
-//
-//	if(prev_alpha == after_alpha){
-//		prev_alpha = 0;
-//	}
-//	(void)after_alpha;   (void)prev_alpha;
-//	(void)after_beta  ;  (void)prev_beta  ;
-//	(void)after_width  ; (void)prev_width  ;
-//	(void)after_feedrate;(void)prev_feedrate;
 }
 
 void Screen9CuttingParametersSettingsView::updateAndGoBack()

@@ -329,6 +329,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/DigitSelector_4bits.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/gui/GRBLhomingRequestContainer.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/GRBLhomingRequestContainer.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/gui/popUpUartConsoleContainer.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/gui/src/containers/popUpUartConsoleContainer.cpp</locationURI>
@@ -584,6 +589,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/DigitSelector_4bitsBase.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/GRBLhomingRequestContainerBase.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/GRBLhomingRequestContainerBase.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/popUpUartConsoleContainerBase.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/gui_generated/src/containers/popUpUartConsoleContainerBase.cpp</locationURI>
@@ -824,6 +834,26 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Buttons_Round_Edge_small_pressed.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_Blue_Check_buttons_Check_RE_mark_active.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Check_buttons_Check_RE_mark_active.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Check_buttons_Check_RE_mark_inactive.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Check_buttons_Check_RE_mark_inactive.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Icons_Done_32.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Icons_Done_32.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Blue_Icons_Remove_32.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Icons_Remove_32.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_Blue_ProgressIndicators_bg_medium_circle_indicator_bg_full.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_ProgressIndicators_bg_medium_circle_indicator_bg_full.cpp</locationURI>
@@ -842,6 +872,21 @@
 			<name>Application/User/generated/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Blue_Slider_Vertical_Small_Slider3_Vertical_Round_fill.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Dark_Buttons_Round_Edge_small.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Buttons_Round_Edge_small.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Dark_Buttons_Round_Edge_small_pressed.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Buttons_Round_Edge_small_pressed.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_Dark_Icons_Done_48.cpp</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/TouchGFX/generated/images/src/__designer/image_Dark_Icons_Done_48.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/image_Dark_Icons_Home_48.cpp</name>

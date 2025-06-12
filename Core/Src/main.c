@@ -30,6 +30,7 @@
 #include "event_groups.h"
 #include "myTasks.h"
 #include "qPackages.h"
+#include "FreeRTOS.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,6 +78,8 @@ LTDC_HandleTypeDef hltdc;
 
 QSPI_HandleTypeDef hqspi;
 
+TIM_HandleTypeDef htim7;
+
 UART_HandleTypeDef huart7;
 
 SDRAM_HandleTypeDef hsdram1;
@@ -94,8 +97,11 @@ QueueHandle_t qhSettingsToGUI;
 QueueHandle_t qhUARTtoConsole;
 QueueHandle_t qhUARTtoGRBL;
 QueueHandle_t qhTouchGFXToGRBLControl;
+QueueHandle_t qhGRBLControlToTouchGFX;
+QueueHandle_t qhTIM3_ISRtoTasks;
 
 EventGroupHandle_t ehEvents;
+EventGroupHandle_t ehEventsSoftwareTimer;
 //EventGroupHandle_t ehEventsGRBL;
 
 TaskHandle_t thEncoderControl;
@@ -104,7 +110,6 @@ TaskHandle_t thRelaySetup;
 TaskHandle_t thSingleEvent;
 TaskHandle_t thWriteSettings;
 TaskHandle_t thGrblCommunicationTask;
-
 
 char UARTRxGlobalBuffer[UART_RX_GLOBAL_BUFFER_SIZE];
 char* pUARTRxGlobalBuffer;
@@ -135,6 +140,7 @@ static void MX_LTDC_Init(void);
 static void MX_QUADSPI_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_UART7_Init(void);
+static void MX_TIM7_Init(void);
 void StartTouchGFXTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
@@ -144,6 +150,8 @@ void TIM1_Init(void);	// RLY1
 void TIM12_Init(void);	// RLY2
 void TIM8_Init(void);	// RLY3
 void TIM5_Init(void);	// Amount counter
+void TIM7_Init(void);	// Velocity tracking
+
 // TIM6 is used for HAL_GetTick();
 /* USER CODE END PFP */
 
@@ -208,6 +216,7 @@ int main(void)
   MX_QUADSPI_Init();
   MX_I2C1_Init();
   MX_UART7_Init();
+  MX_TIM7_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
   TIM3_Init();	// encoder
@@ -216,6 +225,7 @@ int main(void)
   TIM12_Init();	// RLY2
   TIM8_Init();	// RLY3
   TIM5_Init();  // Amount counter
+  TIM7_Init(); // Velocity tracking
   // Stop timers in debug
   DBGMCU->APB1FZ |= 0x1FF;
   DBGMCU->APB2FZ |= (DBGMCU_APB2_FZ_DBG_TIM1_STOP | DBGMCU_APB2_FZ_DBG_TIM8_STOP | DBGMCU_APB2_FZ_DBG_TIM9_STOP | DBGMCU_APB2_FZ_DBG_TIM10_STOP | DBGMCU_APB2_FZ_DBG_TIM11_STOP);
@@ -241,14 +251,17 @@ int main(void)
   qhReportToTouchGFX = xQueueCreate(1 , sizeof(qPackage_report_t)); 	// reports current length and amount
   qhTouchGFXToRelaySetup = xQueueCreate(1, sizeof(qPackage_relaySetup_t));
   qhStatusReport = xQueueCreate(20, sizeof(qPackage_statusReport_t)); // can be called from 5 higher priority tasks
-  qhGUItoWriteSettings = xQueueCreate(1, sizeof(qPackage_settings_t));
+  qhGUItoWriteSettings = xQueueCreate(3, sizeof(qPackage_settings_t));
   qhSettingsToGUI = xQueueCreate(1,sizeof(qPackage_settings_t));
   qhUARTtoConsole = xQueueCreate(20, sizeof(qPackage_UART));
   qhUARTtoGRBL = xQueueCreate(20, sizeof(qPackage_UART));
   qhTouchGFXToGRBLControl = xQueueCreate(5, sizeof(qPackage_laserParams_t));
+  qhGRBLControlToTouchGFX = xQueueCreate(2, sizeof(qPackage_laserParams_t));
+  qhTIM3_ISRtoTasks = xQueueCreate(1, sizeof(double));
 
 //  ehEventsGRBL = xEventGroupCreate();
   ehEvents = xEventGroupCreate();
+  ehEventsSoftwareTimer = xEventGroupCreate();
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -261,17 +274,14 @@ int main(void)
   xTaskCreate(encoderControlTask,"encoderControlTask",256,NULL,3+2 ,&thEncoderControl);
   xTaskCreate(reportTask, "reportTask",256,NULL,3+1,&thReport);
   xTaskCreate(relaySetupTask, "relaySetupTask", 256, NULL,3+2, &thRelaySetup);
-  xTaskCreate(singleEventTask, "singleEventTask", 256, NULL, 3+2, &thSingleEvent);
-  xTaskCreate(writeSettingsTask, "writeSettingsTask", 256, NULL,3+2 , &thWriteSettings);
-  xTaskCreate(grblCommunicationTask, "grblCommunicationTask", 256, NULL,3+3 , &thGrblCommunicationTask);
+  xTaskCreate(singleEventTask, "singleEventTask", 512, NULL, 3+2, &thSingleEvent);
+  xTaskCreate(writeSettingsTask, "writeSettingsTask", 512, NULL,3+2 , &thWriteSettings);
+  xTaskCreate(grblCommunicationTask, "grblCommunicationTask", 512, NULL,3+3 , &thGrblCommunicationTask);
 
   HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_RESET);
 
   pUARTRxGlobalBuffer = UARTRxGlobalBuffer;
-
-
-
 
 //  HAL_UARTEx_ReceiveToIdle_IT(&huart7, pUARTRxGlobalBuffer, UART_RX_GLOBAL_BUFFER_SIZE); // move this to appropriate place in code
 
@@ -620,6 +630,44 @@ static void MX_QUADSPI_Init(void)
 }
 
 /**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 0;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 65535;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
+
+}
+
+/**
   * @brief UART7 Initialization Function
   * @param None
   * @retval None
@@ -815,6 +863,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : IMM_CUT_PIN_Pin */
+  GPIO_InitStruct.Pin = IMM_CUT_PIN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(IMM_CUT_PIN_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : RLY2_Pin */
   GPIO_InitStruct.Pin = RLY2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -830,6 +884,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
   HAL_GPIO_Init(RLY3_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
@@ -849,24 +907,21 @@ void reportErrorToPopUp(enum statusId_t statusId, char* description, uint32_t da
 	}
 }
 
-/*
- * Init TIM3 timer to be used as encoder
- */
-void TIM3_Init(void){
-	// activate clock for peripheral TIM3
-	RCC->APB1ENR |= 1UL << RCC_APB1ENR_TIM3EN_Pos;
-	// Master mode selection: Update Event as trigger output (TRGO)
-	TIM3->CR2 = 0b010 << TIM_CR2_MMS_Pos;
-	// Slave mode selection: Encoder mode 2 - Counter counts up/down on TI2FP2 (PC7) edge depending on TI1FP1 (PC6) level.
-	TIM3->SMCR = 0b010 << TIM_SMCR_SMS_Pos;
-	// Capture/Compare 2 & 1 Selection: CC2 & CC1 channels are configured as input, IC2/IC1 is mapped on TI2/TI1
-	TIM3->CCMR1 = (0b01 << TIM_CCMR1_CC2S_Pos) | (0b01 << TIM_CCMR1_CC1S_Pos);
-	// Capture/Compare 2 output polarity: inverted/falling edge.
-	TIM3->CCER = 1UL << TIM_CCER_CC2P_Pos;
-
-	// TODO: Add possibility to invert encoder direction
+void reportErrorToPopUpFromISR(enum statusId_t statusId, char* description, uint32_t data){
+	qPackage_statusReport_t packageToSend;
+	packageToSend.statusId = statusId;
+	packageToSend.data = data;
+	sprintf(packageToSend.message, description);
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	BaseType_t xStatus = xQueueSendFromISR(qhStatusReport, &packageToSend, &xHigherPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	if(xStatus == errQUEUE_FULL){
+		//TODO: report a problem
+		while(1){
+			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+		};
+	}
 }
-
 
 
 /*
@@ -883,6 +938,8 @@ void TIM4_Init(void){
 	TIM4->SMCR = 0b110 << TIM_SMCR_SMS_Pos | 0b010 << TIM_SMCR_TS_Pos;
 	// Let it stop immediately.
 	TIM4->ARR = 1;
+	// Enable interrupt to be used in case of SW timers
+	TIM4->DIER |= TIM_DIER_UIE;  // Enable update interrupt
 
 }
 
@@ -973,27 +1030,11 @@ void TIM8_Init(void){
 
 }
 
-/*
- * 	Disable relay timers by disabling slave mode
- * */
-void disableRelayTimers(void){
-	TIM1->SMCR &= ~(0b111 << TIM_SMCR_SMS_Pos); // Slave mode disabled (0b000)
-	TIM12->SMCR &= ~(0b111 << TIM_SMCR_SMS_Pos);// Slave mode disabled (0b000)
-	TIM8->SMCR &= ~(0b111 << TIM_SMCR_SMS_Pos);	// Slave mode disabled (0b000)
-}
 
-/*
- * 	Enable relay timers by enabling trigger mode
- * */
-void enableRelayTimers(void){
-	TIM1->SMCR |= 0b110 << TIM_SMCR_SMS_Pos;	// Trigger mode
-	TIM12->SMCR |= 0b110 << TIM_SMCR_SMS_Pos;	// Trigger mode
-	TIM8->SMCR |= 0b110 << TIM_SMCR_SMS_Pos;	// Trigger mode
-}
 
 
 /*
- * Init TIM5 timer to count ammount
+ * Init TIM5 timer to count amount
  */
 void TIM5_Init(void){
 	// activate clock for peripheral TIM5
@@ -1010,9 +1051,185 @@ void TIM5_Init(void){
 
 }
 
+/*
+ * Init TIM3 timer to be used as encoder
+ * Encoder will count two pulses when a single pulse happens because it counts on both rising and falling edge!
+ */
+void TIM3_Init(void){
+	// activate clock for peripheral TIM3
+	RCC->APB1ENR |= 1UL << RCC_APB1ENR_TIM3EN_Pos;
+	// Master mode selection: Update Event as trigger output (TRGO)
+	TIM3->CR2 = 0b010 << TIM_CR2_MMS_Pos;
+	// Slave mode selection: Encoder mode 2 - Counter counts up/down on TI2FP2 (PC7) edge depending on TI1FP1 (PC6) level.
+	TIM3->SMCR = 0b010 << TIM_SMCR_SMS_Pos;
+	// Capture/Compare 2 & 1 Selection: CC2 & CC1 channels are configured as input, IC2/IC1 is mapped on TI2/TI1
+	TIM3->CCMR1 = (0b01 << TIM_CCMR1_CC2S_Pos) | (0b01 << TIM_CCMR1_CC1S_Pos);
+	// Capture/Compare 2 output polarity: inverted/falling edge.
+	TIM3->CCER = 1UL << TIM_CCER_CC2P_Pos;
+
+	// Set input sampling clock f_DTS and filtering:
+//	f_CK_INT = 100MHz, DTS = 01 for f_DTS = 50Mhz, 10 for f_DTS = 25MHz
+ 	TIM3->CR1 |= (0b10 << TIM_CR1_CKD_Pos);
+	// 0b1111 for sampling N=8 @ f_DTS/32. signal needs to be stable at least 0.01ms (period is 0.5ms)
+//	TIM3->CCMR1 = (0b1111 << TIM_IC1F_Pos);
+	// 0b1100 for sampling N=8 @ f_DTS/16. signal needs to be stable at least 0.005ms (period is 0.5ms)
+	TIM3->CCMR1 |= (0b1100 << TIM_CCMR1_IC2F_Pos) | (0b1100 << TIM_CCMR1_IC1F_Pos);
+
+	// TODO: Add possibility to invert encoder direction
+}
+
+//#define TIM7_TIMEBASE_MS (double)100.0
 
 
+/*
+ * Init TIM7 timer to calculate velocity. Input clock 100 MHz.
+ */
+void TIM7_Init(void) {
+    // Enable clock for TIM7
+    RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;
 
+    // Configure TIM7
+    TIM7->PSC = 9999;  // Prescaler (10,000 - 1)
+//    TIM7->ARR = 999;   // Auto-reload (1,000 - 1)// 100ms
+    TIM7->ARR = 9999;   // Auto-reload (1,000 - 1) // 1000ms
+//    uint16_t arr = (((uint32_t)TIM7_TIMEBASE_MS*100*1e6)/(1000*((uint32_t)TIM7->PSC+1))-1);
+//    TIM7->ARR = arr;
+
+    // Enable update interrupt
+    TIM7->DIER |= TIM_DIER_UIE;
+
+    // Enable TIM7 counter
+    TIM7->CR1 |= TIM_CR1_CEN;
+
+}
+
+void enableVelocityTracking(void) {
+    HAL_NVIC_SetPriority(TIM7_IRQn, 6, 0);  // Priority level (1, 0)
+//    HAL_NVIC_SetPriority(TIM7_IRQn, 2, 0);  // Priority level (1, 0)
+    NVIC_EnableIRQ(TIM7_IRQn);
+}
+
+void disableVelocityTracking(void) {
+    NVIC_DisableIRQ(TIM7_IRQn);
+}
+
+
+/*
+ * For velocity calculation. Every 1000 ms.
+ * */
+void TIM7_IRQHandler(void) {
+    if (TIM7->SR & TIM_SR_UIF) {  // Check if update interrupt flag is set
+        TIM7->SR &= ~TIM_SR_UIF;   // Clear the interrupt flag
+//        uint32_t TIM3_CNT = TIM3->CNT;
+//        uint16_t currentTicks = (TIM3_CNT & 0x0000FFFF);
+        uint16_t currentTicks = TIM3->CNT;
+//        uint32_t overflow = TIM3_CNT >> TIM_CNT_UIFCPY_Pos;
+//        uint16_t currentTicks_time = TIM7->CNT; // should reset at ARR = 999
+        uint32_t currentTicks_time = HAL_GetTick(); // should reset at ARR = 999
+
+        static uint16_t prevTicks = 0;
+        static uint32_t prevTicks_time = 0;
+		static uint16_t lastTime = 0;
+
+        uint32_t difference_time = currentTicks_time - prevTicks_time;
+
+        double velocity_ticks_per_100ms = 0;
+
+//        int64_t difference = (int64_t)currentTicks - (int64_t)prevTicks;
+
+//		uint16_t difference = prevTicks - currentTicks;
+//		uint16_t difference = currentTicks - prevTicks;
+
+
+        if (TIM3->CR1 & TIM_CR1_DIR) {
+            // Counter is counting down (Reverse direction)
+			uint32_t overflowCorrection = TIM3->ARR;
+			uint16_t prevTicks_beforeCorrection = prevTicks;
+			if(prevTicks < currentTicks){ // overflow has occurred (UIFREMAP) this can be indicated by UIFREMAP
+//			if(overflow){ // overflow has occurred (UIFREMAP) this can be indicated by UIFREMAP
+//				currentTicks -= TIM3->ARR;
+				prevTicks += overflowCorrection;
+//				prevTicks += TIM3->ARR;
+				printf("Correction DOWN!\n");
+			}
+			uint16_t difference = currentTicks - prevTicks;
+			int16_t difference_int = (int16_t)difference;
+			velocity_ticks_per_100ms = (double)difference_int;
+
+
+//			if(lastTime + 0 < HAL_GetTick()){
+////				printf("Velocity: Direction down: %f ticks/100ms\n", velocity_ticks_per_100ms);
+////				printf("Velocity: Dir down: %.0f/%u ticks (sig: %d)\n", velocity_ticks_per_100ms, currentTicks_time,difference_int);
+//				printf("V dir DOWN: curr-prev: %u - %u (%u) = %.0f (T:%lu) \n", currentTicks, prevTicks, prevTicks_beforeCorrection, velocity_ticks_per_100ms, difference_time);
+//
+//				lastTime = HAL_GetTick();
+//			}
+//			if(difference_int < -3000){
+////			if(difference_int < -300){
+//				printf("Difference < -300! \n");
+//			}
+
+        } else {
+            // Counter is counting up (Forward direction)
+			uint32_t overflowCorrection = TIM3->ARR;
+			uint16_t prevTicks_beforeCorrection = prevTicks;
+//        	uint32_t overflowCorrection;
+        	if(prevTicks > currentTicks){ // overflow has occured
+//        	if(overflow){ // overflow has occured
+//				currentTicks += TIM3->ARR;
+				prevTicks -= overflowCorrection;
+				printf("Correction UP!\n");
+//				prevTicks -= TIM3->ARR;
+			}
+			uint16_t difference = currentTicks - prevTicks;
+			velocity_ticks_per_100ms = (double)difference;
+
+
+//			if(lastTime + 0 < HAL_GetTick()){
+////				printf("Velocity: Direction up: %f ticks/100ms\n", velocity_ticks_per_100ms);
+////				printf("Velocity: Dir up: %.0f/%u ticks (usig:%u)\n", velocity_ticks_per_100ms, currentTicks_time, difference);
+//				printf("V dir UP: curr-prev: %u - %u (%u) = %.0f (T:%lu)\n", currentTicks, prevTicks, prevTicks_beforeCorrection, velocity_ticks_per_100ms, difference_time);
+//				lastTime = HAL_GetTick();
+//			}
+//
+//			if(difference > 3000){
+////			if(difference > 300){
+//				printf("Difference > 300! \n");
+//			}
+
+        }
+
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		xQueueOverwriteFromISR(qhTIM3_ISRtoTasks, &velocity_ticks_per_100ms, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+		prevTicks = currentTicks;
+		prevTicks_time = currentTicks_time;
+    }
+}
+
+
+void TIM4_IRQHandler(void) {
+    if (TIM4->SR & TIM_SR_UIF) {     // Check update interrupt flag
+        TIM4->SR &= ~TIM_SR_UIF;     // Clear the flag by writing 0
+
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		xEventGroupSetBitsFromISR(ehEventsSoftwareTimer, EVENT_SW_TIMER_BIT_LAUNCH, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        // Your interrupt handling code here
+    }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+#ifdef IMM_CUT
+	if(GPIO_Pin == IMM_CUT_PIN_Pin){
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		xEventGroupSetBitsFromISR(ehEvents, EVENT_BIT_IMM_CUT, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+	}
+#endif
+}
 
 /* USER CODE END 4 */
 

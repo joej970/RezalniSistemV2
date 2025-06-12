@@ -497,6 +497,21 @@
             "Moveable": false
           },
           {
+            "CustomContainerDefinitionName": "GRBLhomingRequestContainer",
+            "Type": "CustomContainerInstance",
+            "Name": "grblHomingRequest",
+            "X": 20,
+            "Y": 18,
+            "Width": 444,
+            "Height": 237,
+            "Visible": false,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
             "CustomContainerDefinitionName": "popUpWindow",
             "Type": "CustomContainerInstance",
             "Name": "popUpWindowMain",
@@ -1709,8 +1724,8 @@
             "TextRotation": "0",
             "Style": "Style1",
             "Name": "buttonSetSI",
-            "X": 180,
-            "Y": 198,
+            "X": 0,
+            "Y": 148,
             "Width": 60,
             "Height": 60,
             "Visible": true,
@@ -1739,8 +1754,8 @@
             "TextRotation": "0",
             "Style": "Style1",
             "Name": "buttonSetENG",
-            "X": 240,
-            "Y": 198,
+            "X": 1,
+            "Y": 211,
             "Width": 60,
             "Height": 60,
             "Visible": true,
@@ -1754,8 +1769,8 @@
             "CustomContainerDefinitionName": "DigitSelector",
             "Type": "CustomContainerInstance",
             "Name": "digitSelectorRadius",
-            "X": 147,
-            "Y": 69,
+            "X": 164,
+            "Y": 23,
             "Width": 186,
             "Height": 67,
             "Visible": true,
@@ -1778,8 +1793,8 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textLengthMM",
-            "X": 333,
-            "Y": 84,
+            "X": 350,
+            "Y": 35,
             "Width": 35,
             "Height": 37,
             "Visible": true,
@@ -1802,8 +1817,8 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textDecDot",
-            "X": 297,
-            "Y": 84,
+            "X": 311,
+            "Y": 41,
             "Width": 6,
             "Height": 37,
             "Visible": true,
@@ -1846,11 +1861,11 @@
             "InitValue": 0,
             "Style": "Style1",
             "Name": "sliderBrightness",
-            "X": 421,
-            "Y": 43,
+            "X": 503,
+            "Y": -30,
             "Width": 34,
             "Height": 179,
-            "Visible": true,
+            "Visible": false,
             "LockPosition": false,
             "Draggable": false,
             "Clickable": false,
@@ -1870,10 +1885,220 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textSetUpRadius",
-            "X": 215,
-            "Y": 23,
+            "X": 103,
+            "Y": 41,
             "Width": 50,
             "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorCircumference",
+            "X": 164,
+            "Y": 103,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId106",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 207,
+              "Green": 207,
+              "Blue": 207
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textLengthMM_1",
+            "X": 350,
+            "Y": 114,
+            "Width": 35,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId107",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textSetUpCircumference",
+            "X": 49,
+            "Y": 120,
+            "Width": 108,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId108",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textDecDot_1",
+            "X": 311,
+            "Y": 114,
+            "Width": 6,
+            "Height": 37,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "DigitSelector",
+            "Type": "CustomContainerInstance",
+            "Name": "digitSelectorResolution",
+            "X": 164,
+            "Y": 184,
+            "Width": 186,
+            "Height": 67,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId109",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "Resolution",
+            "X": 92,
+            "Y": 192,
+            "Width": 61,
+            "Height": 50,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId110",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 138,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textUseRadius",
+            "X": 420,
+            "Y": 9,
+            "Width": 48,
+            "Height": 50,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId115",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 138,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textLaserConsole",
+            "X": 415,
+            "Y": 142,
+            "Width": 59,
+            "Height": 50,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ToggleButton",
+            "InitialStatePressed": false,
+            "Pressed": "__designer\\Blue_Check_buttons_Check_RE_mark_active.png",
+            "Released": "__designer\\Blue_Check_buttons_Check_RE_mark_inactive.png",
+            "Alpha": 255,
+            "Name": "laserConsoleActive",
+            "X": 420,
+            "Y": 193,
+            "Width": 44,
+            "Height": 44,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ToggleButton",
+            "InitialStatePressed": false,
+            "Pressed": "__designer\\Blue_Check_buttons_Check_RE_mark_active.png",
+            "Released": "__designer\\Blue_Check_buttons_Check_RE_mark_inactive.png",
+            "Alpha": 255,
+            "Name": "useRadiusSwitch",
+            "X": 420,
+            "Y": 66,
+            "Width": 44,
+            "Height": 44,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -2027,8 +2252,8 @@
               "BufferSize": 10
             },
             "Name": "textAreaAlpha",
-            "X": 207,
-            "Y": 122,
+            "X": 194,
+            "Y": 152,
             "Width": 195,
             "Height": 38,
             "Visible": true,
@@ -2055,8 +2280,8 @@
               "BufferSize": 10
             },
             "Name": "textAreaWidth",
-            "X": 207,
-            "Y": 48,
+            "X": 194,
+            "Y": 80,
             "Width": 195,
             "Height": 37,
             "Visible": true,
@@ -2083,8 +2308,8 @@
               "BufferSize": 10
             },
             "Name": "textAreaFeedRate",
-            "X": 190,
-            "Y": 11,
+            "X": 176,
+            "Y": 43,
             "Width": 226,
             "Height": 37,
             "Visible": true,
@@ -2111,8 +2336,8 @@
               "BufferSize": 10
             },
             "Name": "textAreaBeta",
-            "X": 217,
-            "Y": 85,
+            "X": 204,
+            "Y": 117,
             "Width": 185,
             "Height": 35,
             "Visible": true,
@@ -2140,15 +2365,52 @@
             "Moveable": false
           },
           {
-            "Type": "Button",
-            "Pressed": "Radio_Round_button_active_green.png",
-            "Released": "Radio_Round_button_active_green.png",
+            "Type": "Line",
+            "Color": {
+              "Red": 102,
+              "Green": 192,
+              "Blue": 242
+            },
             "Alpha": 255,
-            "Name": "grblConnectionStatusButton",
-            "X": 413,
-            "Y": 22,
-            "Width": 44,
-            "Height": 44,
+            "StartX": 0,
+            "StartY": 5,
+            "EndX": 190,
+            "EndY": 5,
+            "LineWidth": 2,
+            "LineEndingStyle": "Round",
+            "Name": "line1",
+            "X": 194,
+            "Y": 36,
+            "Width": 217,
+            "Height": 42,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId111",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 102,
+              "Green": 192,
+              "Blue": 242
+            },
+            "Alpha": 255,
+            "AutoSize": false,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "UseBuffer": true,
+              "BufferSize": 10
+            },
+            "Name": "textAreaProductionVelocity",
+            "X": 186,
+            "Y": 1,
+            "Width": 226,
+            "Height": 37,
             "Visible": true,
             "LockPosition": false,
             "Draggable": false,
@@ -2172,6 +2434,21 @@
             "Moveable": false
           },
           {
+            "CustomContainerDefinitionName": "GRBLhomingRequestContainer",
+            "Type": "CustomContainerInstance",
+            "Name": "grblHomingRequest",
+            "X": 20,
+            "Y": 18,
+            "Width": 444,
+            "Height": 237,
+            "Visible": false,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
             "CustomContainerDefinitionName": "popUpWindow",
             "Type": "CustomContainerInstance",
             "Name": "popUpWindowMain",
@@ -2180,6 +2457,23 @@
             "Width": 437,
             "Height": 238,
             "Visible": false,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "Radio_Round_button_active_green.png",
+            "Released": "Radio_Round_button_active_green.png",
+            "Alpha": 255,
+            "Name": "grblConnectionStatusButton",
+            "X": 413,
+            "Y": 22,
+            "Width": 44,
+            "Height": 44,
+            "Visible": true,
             "LockPosition": false,
             "Draggable": false,
             "Clickable": false,
@@ -2269,7 +2563,7 @@
         ],
         "Name": "Screen8GRBLcontrol",
         "OverrideDefaultBufferSize": false,
-        "CanvasBufferSize": 0
+        "CanvasBufferSize": 7200
       },
       {
         "Components": [
@@ -2422,9 +2716,9 @@
             "AutoSize": true,
             "LineSpacing": 0,
             "Name": "textAreaFeedRate",
-            "X": 246,
+            "X": 231,
             "Y": 25,
-            "Width": 116,
+            "Width": 131,
             "Height": 25,
             "Visible": true,
             "LockPosition": false,
@@ -2946,6 +3240,48 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId114",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textAreaAlphaCut",
+            "X": 214,
+            "Y": 65,
+            "Width": 43,
+            "Height": 25,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ToggleButton",
+            "InitialStatePressed": false,
+            "Pressed": "__designer\\Blue_Check_buttons_Check_RE_mark_active.png",
+            "Released": "__designer\\Blue_Check_buttons_Check_RE_mark_inactive.png",
+            "Alpha": 255,
+            "Name": "radioAlphaCut",
+            "X": 215,
+            "Y": 92,
+            "Width": 44,
+            "Height": 44,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
           }
         ],
         "Interactions": [
@@ -3222,7 +3558,7 @@
             "Alpha": 255,
             "Name": "buttonGoHome",
             "X": 394,
-            "Y": 63,
+            "Y": 36,
             "Width": 48,
             "Height": 47,
             "Visible": true,
@@ -3239,10 +3575,57 @@
             "Alpha": 255,
             "Name": "buttonGoToOrigin",
             "X": 394,
-            "Y": 153,
+            "Y": 113,
             "Width": 48,
             "Height": 46,
             "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "Button",
+            "Pressed": "__designer\\Dark_Icons_Done_48.png",
+            "Released": "__designer\\Dark_Icons_Done_48.png",
+            "Alpha": 255,
+            "Name": "buttonUpdateOrigin",
+            "X": 394,
+            "Y": 187,
+            "Width": 48,
+            "Height": 48,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "popUpUartConsoleContainer",
+            "Type": "CustomContainerInstance",
+            "Name": "popUpUartConsoleGRBL",
+            "X": 22,
+            "Y": 17,
+            "Width": 437,
+            "Height": 238,
+            "Visible": false,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "CustomContainerDefinitionName": "popUpWindow",
+            "Type": "CustomContainerInstance",
+            "Name": "popUpWindowMain",
+            "X": 22,
+            "Y": 17,
+            "Width": 437,
+            "Height": 238,
+            "Visible": false,
             "LockPosition": false,
             "Draggable": false,
             "Clickable": false,
@@ -3266,7 +3649,7 @@
             }
           },
           {
-            "InteractionName": "InteractionSendGRBLtoOrigin",
+            "InteractionName": "InteractionMoveGRBLtoOrigin",
             "HasCompletedTrigger": false,
             "Trigger": {
               "Type": "TriggerClicked",
@@ -3274,11 +3657,11 @@
             },
             "Action": {
               "Type": "ActionCustom",
-              "FunctionName": "sendGRBLtoOrigin"
+              "FunctionName": "moveGRBLtoOrigin"
             }
           },
           {
-            "InteractionName": "InteractionSendGRBLtoHome",
+            "InteractionName": "InteractionMoveGRBLtoHome",
             "HasCompletedTrigger": false,
             "Trigger": {
               "Type": "TriggerClicked",
@@ -3286,7 +3669,19 @@
             },
             "Action": {
               "Type": "ActionCustom",
-              "FunctionName": "sendGRBLtoHome"
+              "FunctionName": "moveGRBLtoHome"
+            }
+          },
+          {
+            "InteractionName": "InteractionRequestUpdateOrigin",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonUpdateOrigin"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "requestUpdateOrigin"
             }
           }
         ],
@@ -3729,7 +4124,7 @@
           },
           {
             "Type": "TextArea",
-            "TextId": "STATUSMSG_DELAY_OF",
+            "TextId": "STATUSMSG_ORIGIN_UPDATED",
             "TextRotation": "0",
             "Color": {
               "Red": 224,
@@ -4727,6 +5122,137 @@
         "Y": 66,
         "Width": 124,
         "Height": 55
+      },
+      {
+        "Components": [
+          {
+            "Type": "BoxWithBorder",
+            "Color": {
+              "Red": 114,
+              "Green": 169,
+              "Blue": 178
+            },
+            "BorderColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "BorderSize": 5,
+            "Alpha": 255,
+            "Name": "backgroundBox",
+            "X": 0,
+            "Y": 0,
+            "Width": 444,
+            "Height": 237,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "TextArea",
+            "TextId": "SingleUseId112",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Name": "textArea1",
+            "X": 111,
+            "Y": 23,
+            "Width": 222,
+            "Height": 50,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ButtonWithIcon",
+            "Pressed": "__designer\\Dark_Buttons_Round_Edge_small_pressed.png",
+            "Released": "__designer\\Dark_Buttons_Round_Edge_small.png",
+            "Alpha": 255,
+            "IconPressed": "__designer\\Blue_Icons_Remove_32.png",
+            "IconReleased": "__designer\\Blue_Icons_Remove_32.png",
+            "IconX": 71,
+            "IconY": 16,
+            "IconHeight": 29,
+            "IconWidth": 29,
+            "Name": "buttonHomingDenied",
+            "X": 248,
+            "Y": 129,
+            "Width": 170,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Type": "ButtonWithIcon",
+            "Pressed": "__designer\\Dark_Buttons_Round_Edge_small_pressed.png",
+            "Released": "__designer\\Dark_Buttons_Round_Edge_small.png",
+            "Alpha": 255,
+            "IconPressed": "__designer\\Blue_Icons_Done_32.png",
+            "IconReleased": "__designer\\Blue_Icons_Done_32.png",
+            "IconX": 70,
+            "IconY": 15,
+            "IconHeight": 30,
+            "IconWidth": 30,
+            "Name": "buttonHomingConfirmed",
+            "X": 26,
+            "Y": 129,
+            "Width": 170,
+            "Height": 60,
+            "Visible": true,
+            "LockPosition": false,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "InteractionTellHomingConfirmed",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonHomingConfirmed"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "tellHomingConfirmed"
+            }
+          },
+          {
+            "InteractionName": "InteractionTellHomingDenied",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "buttonHomingDenied"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "tellHomingDenied"
+            }
+          }
+        ],
+        "Name": "GRBLhomingRequestContainer",
+        "X": 20,
+        "Y": 18,
+        "Width": 444,
+        "Height": 237
       }
     ],
     "TextEntries": [
@@ -5104,6 +5630,46 @@
       },
       {
         "TextEntryId": "SingleUseId105",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId106",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId107",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId108",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId109",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId110",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "STATUSMSG_ORIGIN_UPDATED",
+        "IsResource": true
+      },
+      {
+        "TextEntryId": "SingleUseId111",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId112",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId114",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId115",
         "IsResource": false
       }
     ],

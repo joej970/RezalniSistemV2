@@ -13,10 +13,18 @@ public:
     virtual void setupScreen();
     virtual void tearDownScreen();
 
+    void showHomingConfirmPrompt(){
+ 	   grblHomingRequest.openHomingPrompt();
+    }
 
     void showOnConsole(){
     	popUpUartConsoleGRBL.setLinesText(presenter->fetchUartLineBuffers());
     	showUartConsole();
+    }
+
+    void updateProductionRate(double velocity){
+    	Unicode::snprintfFloat(textAreaProductionVelocityBuffer, TEXTAREAPRODUCTIONVELOCITY_SIZE, "%0.1f", velocity);
+    	textAreaProductionVelocity.invalidate();
     }
 
 protected:
@@ -40,6 +48,10 @@ protected:
 	{
 		presenter->tryToConnectGRBL();
 	}
+
+
+
+
 
 //    Model& getModelFromPresenter(){
 //    	return presenter->getModel();

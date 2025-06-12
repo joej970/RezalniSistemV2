@@ -16,3 +16,7 @@ void Screen10SetOriginPresenter::deactivate()
 {
 
 }
+
+void Screen10SetOriginPresenter::onConsoleDataUpdated(){
+	view.showOnConsole();
+};

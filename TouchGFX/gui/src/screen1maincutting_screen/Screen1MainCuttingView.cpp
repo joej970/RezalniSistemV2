@@ -12,6 +12,7 @@ Screen1MainCuttingView::Screen1MainCuttingView() :
 void Screen1MainCuttingView::setupScreen() {
 
 	popUpUartConsoleGRBL.setModel(presenter->getModel());
+	grblHomingRequest.setModel(presenter->getModel());
 
 	relayWidget1.setId(1);
 	relayWidget1.setDelay(presenter->fetchRelay1delay());
@@ -30,6 +31,12 @@ void Screen1MainCuttingView::setupScreen() {
 
 	flexButtonAmount.setClickAction(flexButtonTouchedCallback);
 	flexButtonStartStop.setClickAction(flexButtonTouchedCallback);
+
+	if(presenter->isCutting()){
+		flexButtonStartStop.setBitmaps(Bitmap(BITMAP_BUTTON_RED_RELEASED_ID), Bitmap(BITMAP_BUTTON_RED_PRESSED_ID));
+	}else {
+		flexButtonStartStop.setBitmaps(Bitmap(BITMAP_BUTTON_GREEN_RELEASED_ID), Bitmap(BITMAP_BUTTON_GREEN_PRESSED_ID));
+	}
 
 	amountButtonPressedTime = HAL_GetTick();
 	startStopButtonPressedTime  = HAL_GetTick();
@@ -120,7 +127,7 @@ void Screen1MainCuttingView::handleTickEvent(){
 		case SET_LENGTH_TRIMMED:
 			presenter->resetLastStatus();
 			popUpWindowMain.setVisible(true);
-			popUpWindowMain.setText(T_STATUSMSG_SET_LENGTH_TRIMMED);
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_SET_LENGTH_TRIMMED, presenter->fetchMessage());
 			popUpWindowMain.invalidate();
 //			popUpWindowMain.setText(SET_LENGTH_TRIMMED);
 			break;
@@ -138,9 +145,9 @@ void Screen1MainCuttingView::handleTickEvent(){
 			break;
 		case RELAY_DEACTIVATED:
 			presenter->resetLastStatus();
-			popUpWindowMain.setVisible(true);
-			popUpWindowMain.setText(T_STATUSMSG_RELAY_DEACTIVATED);
-			popUpWindowMain.invalidate();
+//			popUpWindowMain.setVisible(true);
+//			popUpWindowMain.setText(T_STATUSMSG_RELAY_DEACTIVATED);
+//			popUpWindowMain.invalidate();
 			break;
 		case SETTINGS_LOAD_SUCCESS:
 			presenter->resetLastStatus();
@@ -167,6 +174,12 @@ void Screen1MainCuttingView::handleTickEvent(){
 			presenter->resetLastStatus();
 			popUpWindowMain.setVisible(true);
 			popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_UART_TX_ERR, presenter->fetchMessage());
+			popUpWindowMain.invalidate();
+			break;
+		case ORIGIN_UPDATED:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_ORIGIN_UPDATED);
 			popUpWindowMain.invalidate();
 			break;
 		default:

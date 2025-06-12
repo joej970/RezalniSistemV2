@@ -20,6 +20,7 @@ extern "C" {
 
 typedef struct{
 	uint32_t eventMask;
+	double mm_per_tick;
 	uint16_t angle_alpha_01deg;
 	uint16_t angle_beta_01deg;
 	uint16_t feedrate;
@@ -27,7 +28,12 @@ typedef struct{
 	uint16_t origin_y0_01mm;
 	uint16_t origin_x0_01mm;
 	uint8_t slot; //0 for LAST, 1 for Save1, 2 for Save2, 3 for Save3
-
+	uint16_t resolution;
+	uint16_t radius_01mm;
+	uint16_t circumference_01mm;
+	uint8_t console_on;
+	uint8_t alpha_cut_en;
+	uint8_t laser_console_en;
 } qPackage_laserParams_t;
 
 
@@ -49,11 +55,13 @@ typedef struct{
 	uint32_t length_01mm; // unit: 0.1 mm
 	uint16_t resolution;
 	uint16_t radius_01mm;
+	uint16_t circumference_01mm;
 } qPackage_encoderControl_t;
 
 typedef struct{
 	uint32_t currLength_01mm;
 	uint32_t amount;
+	double velocity;
 
 } qPackage_report_t;
 

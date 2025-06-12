@@ -85,29 +85,7 @@ Model::Model() :
 
 void Model::clearConsoleBuffers(){
 
-//	printf("Before clearconBufs:\n");
-//	uint16_t i = 0;
-//	for(auto lineBuffer : conBufs.lineBuffers){
-//		printf("	line buffer[%d]: %s\n", i, lineBuffer.data());
-//		i++;
-//	}
-
 	conBufs.resetConBuffers();
-
-//	for(auto& lineBuffer : conBufs.lineBuffers){
-//		lineBuffer.clear();
-//	}
-//
-//	conBufs.currBuffer = conBufs.lineBuffers.size() - 1; // will be overflown to 0
-//	conBufs.allLinesFull = false;
-//	type_last = RX;
-
-//	printf("After clearconBufs:\n");
-//	i = 0;
-//	for(auto lineBuffer : conBufs.lineBuffers){
-//		printf("	line buffer[%d]: %s\n", i, lineBuffer.data());
-//		i++;
-//	}
 
 }
 
@@ -128,38 +106,22 @@ void Model::processUARTData(qPackage_UART uartPayload){
 	else{
 		conBufs.lineBuffers[conBufs.getCurrBuffer()] = new_string;
 	}
-//	conBufs.lineBuffers[conBufs.currBuffer] = std::string(uartPayload.data, uartPayload.length);
 
 	conBufs.incCurrBuffer();
 
-	//	conBufs.currBuffer++;
-//	if(conBufs.currBuffer >= conBufs.lineBuffers.size()){
-//		conBufs.currBuffer = 0;
-//		conBufs.allLinesFull = true;
-//	}
-
-//	for(uint8_t i = 0; i < conBufs.lineBuffers.size(); i++){
-//		if(i == conBufs.getCurrBuffer()){
-//			printf("lineBuffer[%d]: %s <-- currentBuffer\n",i,conBufs.lineBuffers[i].data());
-//		}else{
-//			printf("lineBuffer[%d]: %s\n",i,conBufs.lineBuffers[i].data());
-//		}
-//	}
-
-//	printf("idx: %d: strg message: %20s (%u)\n",
-//			conBufs.currBuffer,
-//			conBufs.lineBuffers[conBufs.currBuffer].data(),
-//			conBufs.lineBuffers[conBufs.currBuffer].size());
-//	printf("raw message: %20s (%u)\n",uartPayload.data, uartPayload.length);
-
 	tellConsoleVisible();
-//	uartShouldBeVisible = true;
 
 }
 
 
 void Model::tellConsoleVisible(){
-	modelListener->onConsoleDataUpdated();
+	if(laserConsoleActive){
+		modelListener->onConsoleDataUpdated();
+	}
+}
+
+void Model::tellProductionRate(double velocity){
+	modelListener->updateProductionRate(velocity);
 }
 
 
@@ -168,20 +130,48 @@ void Model::tryToConnectGRBL(){
 	packageToSend.eventMask = EVENT_GRBL_BIT_INITIATE_GRBL_CONTROLLER;
 
 	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+	(void)xStatus;
 }
 
-void Model::sendGRBLtoHome(){
+void Model::moveGRBLtoHome(){
 	qPackage_laserParams_t packageToSend;
 	packageToSend.eventMask = EVENT_GRBL_BIT_SEND_HOME;
 
 	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+	(void)xStatus;
 }
 
-void Model::sendGRBLtoOrigin(){
+void Model::moveGRBL(uint16_t x_01mm, uint16_t y_01mm){
 	qPackage_laserParams_t packageToSend;
-	packageToSend.eventMask = EVENT_GRBL_BIT_SEND_TO_ORIGIN;
+
+	packageToSend.origin_x0_01mm = x_01mm;
+	packageToSend.origin_y0_01mm = y_01mm;
+	packageToSend.eventMask = EVENT_GRBL_BIT_MOVE_TO_XY;
 
 	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+	(void)xStatus;
+}
+
+void Model::updateOrigin(uint16_t x_01mm, uint16_t y_01mm){
+	qPackage_laserParams_t packageToSend;
+	packageToSend.eventMask = EVENT_GRBL_BIT_UPDATE_ORIGIN;
+	packageToSend.origin_x0_01mm = x_01mm;
+	packageToSend.origin_y0_01mm = y_01mm;
+
+	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+	(void)xStatus;
+}
+
+void Model::homingConfirmed(bool confirmed){
+	qPackage_laserParams_t packageToSend;
+	if(confirmed){
+		packageToSend.eventMask = EVENT_GRBL_BIT_HOMING_IS_CONFIRMED;
+	}else{
+		packageToSend.eventMask = EVENT_GRBL_BIT_HOMING_IS_DENIED;
+	}
+
+	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0);
+	(void)xStatus;
 }
 
 
@@ -236,24 +226,26 @@ std::vector<const char *> Model::fetchUartLineBuffers(){
 		}
 	}
 
-//	printf("pointers length = %d \n", pointers.size());
-////	std::vector<uint16_t> lengths(6);
-//	for(uint16_t i = 0; i < conBufs.lineBuffers.size(); i++){
-////		lengths[i] = strlen(pointers[i]);
-////		printf("fetchBuffers[%u]: message lineBuffer: %20s (%u)\n", i, conBufs.lineBuffers[i].data(), strlen(conBufs.lineBuffers[i].data()));
-//		printf("pointer[%u]: message: %s (%u)\n", i, pointers[i], strlen(pointers[i]));
-//	}
-
 	return pointers;
 }
 
 
 void Model::tick() {
 	BaseType_t xStatus;
-	//enum statusId_t statusId;
 
-	//toggleErrorLed();
 	heartbeat();
+
+	/* Check whether GRBL is saying something. */
+	extern QueueHandle_t qhGRBLControlToTouchGFX;
+	qPackage_laserParams_t laserParams;
+	xStatus = xQueueReceive(qhGRBLControlToTouchGFX, &laserParams, pdMS_TO_TICKS(0));
+	if (xStatus == pdTRUE) {
+		uint32_t eventBits = laserParams.eventMask;
+		if(eventBits & EVENT_GRBL_TO_GUI_BIT_WAIT_FOR_HOMING_CONFIRM){
+			modelListener->openHomingPrompt();
+		}
+	}
+
 
 	/* Check UART Console queue */
 	extern QueueHandle_t qhUARTtoConsole;
@@ -270,6 +262,7 @@ void Model::tick() {
 	if (xStatus == pdTRUE) {
 		currLength = packageReport.currLength_01mm;
 		amount = packageReport.amount;
+		tellProductionRate(packageReport.velocity);
 	}
 	/*	Receive statusReport from eeprom write, encoder & relay set up	*/
 	extern QueueHandle_t qhStatusReport;
@@ -302,6 +295,12 @@ void Model::tick() {
 			case UART_TX_NOT_OKED:
 				printf("Received UART_TX_NOT_OKED \n");
 				break;
+			case DX_CALC_ERROR:
+				printf("Received DX_CALC_ERROR \n");
+				break;
+			case DY_CALC_ERROR:
+				printf("Received DY_CALC_ERROR \n");
+				break;
 			default:
 				printf("Received some other report message ID.\n");
 				break;
@@ -325,6 +324,7 @@ void Model::tick() {
 		if(receivedSettings.settingsMask & SETTINGS_ALL_Bit){
 			resolution 		= receivedSettings.encoderControl.resolution;
 			radius_01mm 	= receivedSettings.encoderControl.radius_01mm;
+			circumference_01mm = receivedSettings.encoderControl.circumference_01mm;
 			setLength 		= receivedSettings.encoderControl.length_01mm;
 			relay1duration  = receivedSettings.relay1.duration_ms;
 			relay1delay  	= receivedSettings.relay1.delay_ms;
@@ -336,6 +336,8 @@ void Model::tick() {
 			relaysActive	= receivedSettings.relaysActive;
 			brightness		= receivedSettings.brightness;
 
+			laserConsoleActive = receivedSettings.laserParams.console_on;
+			laserAlphaCutEnable = receivedSettings.laserParams.alpha_cut_en;
 			angle_alpha_01deg = receivedSettings.laserParams.angle_alpha_01deg;
 			angle_beta_01deg = receivedSettings.laserParams.angle_beta_01deg;
 			feedrate = receivedSettings.laserParams.feedrate;
@@ -367,13 +369,17 @@ void Model::tick() {
 			width_01mm = receivedSettings.laserParams.width_01mm;
 			origin_y0_01mm = receivedSettings.laserParams.origin_y0_01mm;
 			origin_x0_01mm = receivedSettings.laserParams.origin_x0_01mm;
+			laserConsoleActive = receivedSettings.laserParams.console_on;
+			laserAlphaCutEnable = receivedSettings.laserParams.alpha_cut_en;
 
 			laserParamsUpdatedFromEEPROM = true;
-		}
 
-		else{
+			settingsStatusReport.statusId = SETTINGS_LOAD_SUCCESS;
+			settingsStatusReport.data = 0;
+		}else{
 			//	Loading from memory did not return SUCCESS
 			settingsStatusReport.statusId = SETTINGS_LOAD_ERR;
+			sprintf(settingsStatusReport.message, "Settings load err.");
 			settingsStatusReport.data = 0;
 		}
 		xQueueSend(qhStatusReport, &settingsStatusReport, 0);
@@ -396,6 +402,11 @@ void Model::setFeedrate(uint16_t fr) {
 void Model::setWidth(uint16_t width){
 	width_01mm = width;
 }
+
+void Model::setAlphaCutEnable(uint8_t a_laserAlphaCutEnable){
+	laserAlphaCutEnable = a_laserAlphaCutEnable;
+}
+
 
 
 /* RELAY SETTERS */
@@ -428,12 +439,26 @@ void Model::setRelay3duration(uint32_t duration) {
 }
 
 /* OTHER SETTERS */
-void Model::setRadius(uint16_t radius){
+
+void Model::setRadiusCircumferenceResolution(uint16_t radius, uint16_t circumference, uint16_t resolution_arg){
 	radius_01mm = radius;
+	circumference_01mm = circumference;
+	resolution = resolution_arg;
 	reportToEncoderControlTask();
 	saveEncoderSettings();
 }
 
+void Model::setLaserConsoleActive(uint8_t a_laserConsoleActive){
+	laserConsoleActive = a_laserConsoleActive;
+//	reportToGRBLControlTask();
+	saveLaserConsoleSettings();
+}
+
+//void Model::setAlphaCutEnable(uint8_t alphaCutEnable){
+//	laserAlphaCutEnable = alphaCutEnable;
+//	reportToGRBLControlTask();
+//	saveAlphaCutEnableSettings();
+//}
 
 void Model::resetLastStatus(){
 	lastStatus = OP_OK;
@@ -492,9 +517,26 @@ void Model::saveEncoderSettings(){
 	extern QueueHandle_t qhGUItoWriteSettings;
 	qPackage_settings_t settingsPackage;
 
-	settingsPackage.encoderControl = qPackage_encoderControl_t {(uint8_t) cuttingActive, setLength, resolution, radius_01mm};
+	settingsPackage.encoderControl = qPackage_encoderControl_t {(uint8_t) cuttingActive, setLength, resolution, radius_01mm, circumference_01mm};
 	settingsPackage.settingsMask = SETTINGS_RES_RAD_Bit | SETTINGS_LENGTH_Bit;
 
+
+	BaseType_t xStatus = xQueueSend(qhGUItoWriteSettings, &settingsPackage, 0); // should be able to put in the queue as it will be emptied immediately
+	if (xStatus != pdTRUE) {
+		while(1){
+			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
+		};
+	}
+}
+
+
+void Model::saveLaserConsoleSettings(){
+	extern QueueHandle_t qhGUItoWriteSettings;
+	qPackage_settings_t settingsPackage;
+
+	settingsPackage.laserParams.console_on = laserConsoleActive;
+
+	settingsPackage.settingsMask = SETTINGS_CONSOLE_EN_Bit;
 
 	BaseType_t xStatus = xQueueSend(qhGUItoWriteSettings, &settingsPackage, 0); // should be able to put in the queue as it will be emptied immediately
 	if (xStatus != pdTRUE) {
@@ -518,6 +560,7 @@ void Model::writeLaserParamsToEEPROM(uint8_t slot){
 	settingsPackage.laserParams.angle_beta_01deg = angle_beta_01deg;
 	settingsPackage.laserParams.feedrate = feedrate;
 	settingsPackage.laserParams.width_01mm = width_01mm;
+	settingsPackage.laserParams.alpha_cut_en = laserAlphaCutEnable;
 	settingsPackage.laserParams.slot = slot;
 
 	settingsPackage.settingsMask = SETTINGS_LASER_PARAMS_Bit;
@@ -590,8 +633,8 @@ void Model::reportToGRBLControlTask() {
 	packageToSend.origin_y0_01mm = origin_y0_01mm;
 	packageToSend.origin_x0_01mm = origin_x0_01mm;
 	packageToSend.eventMask = EVENT_GRBL_BIT_UPDATE_GRBL_PARAMS;
+	packageToSend.alpha_cut_en = laserAlphaCutEnable;
 
-//	BaseType_t xStatus = xQueueOverwrite(qhTouchGFXToGRBLControl, &packageToSend); // should be able to put in the queue as it will be emptied immediately
 	BaseType_t xStatus = xQueueSend(qhTouchGFXToGRBLControl, &packageToSend, 0); // should be able to put in the queue as it will be emptied immediately
 	if (xStatus != pdTRUE) {
 		//TODO: report a problem
@@ -610,7 +653,8 @@ void Model::reportToEncoderControlTask() {
 					(uint8_t) cuttingActive,
 					setLength, // unit: 0.1 mm
 					resolution, // resolution
-					radius_01mm // radius unit: 0.1 mm, 500*0.0001m = 0.05m
+					radius_01mm, // radius unit: 0.1 mm, 500*0.0001m = 0.05m,
+					circumference_01mm
 					};
 
 
@@ -622,8 +666,6 @@ void Model::reportToEncoderControlTask() {
 			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, GPIO_PIN_SET);
 		};
 	}
-
-	//immediateCut = false;
 
 }
 
@@ -691,6 +733,7 @@ uint16_t Model::getAlpha(){return angle_alpha_01deg;}
 uint16_t Model::getBeta(){return angle_beta_01deg;}
 uint16_t Model::getFeedrate(){return feedrate;}
 uint16_t Model::getWidth(){return width_01mm;}
+uint8_t Model::getAlphaCutEnable(){return laserAlphaCutEnable;}
 
 
 uint32_t Model::getRelay1duration() {
@@ -714,6 +757,12 @@ uint32_t Model::getRelay3delay() {
 
 uint16_t Model::getRadius(){
 	return radius_01mm;
+}
+uint16_t Model::getCircumference(){
+	return circumference_01mm;
+}
+uint16_t Model::getResolution(){
+	return resolution;
 }
 uint32_t Model::getAmount() {
 	return amount;
@@ -742,3 +791,9 @@ char* Model::getMessage(){
 uint8_t Model::getRelaysActive(){
 	return relaysActive;
 }
+
+uint8_t Model::getLaserConsoleActive(){
+	return laserConsoleActive;
+}
+
+

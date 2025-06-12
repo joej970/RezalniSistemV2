@@ -32,8 +32,25 @@ public:
     uint16_t fetchRadius(){
     	return model->getRadius();
     }
-    void forwardRadius(uint16_t radius){
-    	model->setRadius(radius);
+
+    uint16_t fetchResolution(){
+    	return model->getResolution();
+    }
+
+    uint16_t fetchCircumference(){
+    	return model->getCircumference();
+    }
+
+    uint8_t fetchLaserConsoleActive(){
+    	return model->getLaserConsoleActive();
+    }
+
+    void forwardRadiusCircumferenceResolution(uint16_t radius, uint16_t circumference, uint16_t resolution){
+    	model->setRadiusCircumferenceResolution(radius, circumference, resolution);
+    }
+
+    void forwardLaserConsoleActive(uint8_t laserConsoleActive){
+    	model->setLaserConsoleActive(laserConsoleActive);
     }
 
     virtual ~Screen7ConfigPresenter() {};

@@ -35,6 +35,51 @@ public:
 
     void writeToEEPROM(uint8_t slot){model->writeLaserParamsToEEPROM(slot);}
 
+
+    void updateOrigin(uint16_t x_01mm, uint16_t y_01mm){
+    	model->updateOrigin(x_01mm, y_01mm);
+    }
+
+    void moveGRBL(uint16_t x_01mm, uint16_t y_01mm)
+    {
+        model->moveGRBL(x_01mm, y_01mm);
+    }
+
+    void moveGRBLtoHome()
+    {
+    	model->moveGRBLtoHome();
+    }
+
+    grblConn_t getGRBLconnStatus(){
+    	return model->getGRBLconnStatus();
+    }
+
+    statusId_t fetchLastStatus(){
+    	return model->getLastStatus();
+    }
+
+    char* fetchMessage(){
+    	return model->getMessage();
+    }
+
+    void resetLastStatus(){
+    	model->resetLastStatus();
+    }
+
+    std::vector<const char*> fetchUartLineBuffers(){
+    	return model->fetchUartLineBuffers();
+    }
+
+
+    Model* getModel(){
+    	return model;
+    }
+
+    bool uartConsoleVisible = false;
+
+    void onConsoleDataUpdated();
+
+
 private:
     Screen10SetOriginPresenter();
 

@@ -56,7 +56,7 @@ void popUpUartConsoleContainer::setLinesText(std::vector<const char*> lineSource
 	};
 
 	for(uint16_t i = 0; i < lineSources.size(); i++ ){
-		printf("console[%u]: message: %s (%u)\n", i, lineSources[i], Unicode::strlen(lineSources[i]));
+//		printf("console[%u]: message: %s (%u)\n", i, lineSources[i], Unicode::strlen(lineSources[i]));
 		Unicode::strncpy(pLineBuffers[i], lineSources[i], Unicode::strlen(lineSources[i]));
 		pLineBuffers[i][Unicode::strlen(lineSources[i])] = '\0';
 		pLines[i]->setWideTextAction(WIDE_TEXT_NONE);

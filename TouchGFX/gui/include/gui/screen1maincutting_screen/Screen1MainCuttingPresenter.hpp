@@ -29,6 +29,9 @@ public:
     virtual ~Screen1MainCuttingPresenter() {};
 
     void onConsoleDataUpdated();
+    void openHomingPrompt();
+
+    void showHomingConfirmPrompt();
 
     uint32_t fetchRelay1duration(){
     	return model->getRelay1duration();

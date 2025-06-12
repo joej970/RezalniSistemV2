@@ -20,3 +20,7 @@ void Screen1MainCuttingPresenter::deactivate()
 void Screen1MainCuttingPresenter::onConsoleDataUpdated(){
 	view.showOnConsole();
 };
+
+void Screen1MainCuttingPresenter::openHomingPrompt(){
+	view.showHomingConfirmPrompt();
+};

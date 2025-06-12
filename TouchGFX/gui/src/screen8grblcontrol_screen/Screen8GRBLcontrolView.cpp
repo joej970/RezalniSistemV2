@@ -15,6 +15,7 @@ void Screen8GRBLcontrolView::setupScreen()
 {
 
 	popUpUartConsoleGRBL.setModel(presenter->getModel());
+	grblHomingRequest.setModel(presenter->getModel());
 
 //    lastGRBLStatus_temp = (Screen8GRBLcontrolView::grblConn_t)presenter->getGRBLconnStatus();
 	switch(presenter->getGRBLconnStatus()){
@@ -62,26 +63,6 @@ void Screen8GRBLcontrolView::handleTickEvent(){
     }
 
 
-//	if(lastGRBLStatus_temp != (Screen8GRBLcontrolView::grblConn_t)presenter->getGRBLconnStatus()){
-//		lastGRBLStatus_temp = (Screen8GRBLcontrolView::grblConn_t)presenter->getGRBLconnStatus();
-//
-//		switch(presenter->getGRBLconnStatus()){
-//			case NOT_CONNECTED:
-//				grblConnectionStatusButton.setBitmaps(Bitmap(BITMAP_RADIO_ROUND_BUTTON_ACTIVE_RED_ID), Bitmap(BITMAP_RADIO_ROUND_BUTTON_ACTIVE_RED_ID));
-//				break;
-//			case PENDING:
-//				grblConnectionStatusButton.setBitmaps(Bitmap(BITMAP_RADIO_ROUND_BUTTON_ACTIVE_ORANGE_ID), Bitmap(BITMAP_RADIO_ROUND_BUTTON_ACTIVE_ORANGE_ID));
-//				break;
-//			case CONNECTED:
-//				grblConnectionStatusButton.setBitmaps(Bitmap(BITMAP_RADIO_ROUND_BUTTON_ACTIVE_GREEN_ID), Bitmap(BITMAP_RADIO_ROUND_BUTTON_ACTIVE_GREEN_ID));
-//				break;
-//		}
-//		grblConnectionStatusButton.invalidate();
-//
-//	}
-
-
-
 	Unicode::snprintf(textAreaFeedRateBuffer, TEXTAREAFEEDRATE_SIZE, "%d", presenter->getFeedrate());
 	textAreaFeedRate.invalidate();
 
@@ -99,44 +80,51 @@ void Screen8GRBLcontrolView::handleTickEvent(){
 
 
 	switch(presenter->fetchLastStatus()){
-			case OP_OK:
-				break;
-			case SET_LENGTH_VALID:
-				break;
-			case SET_LENGTH_TRIMMED:
-				break;
-			case RELAY_DELAY_OF:
-				break;
-			case RELAY_DURATION_OF:
-				break;
-			case RELAY_DEACTIVATED:
-				break;
-			case SETTINGS_LOAD_ERR:
-				break;
-			case SETTINGS_SAVE_ERR:
-				break;
-			case UART_TX_NOT_OKED:
-				presenter->resetLastStatus();
-				popUpWindowMain.setVisible(true);
-				popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_UART_TX_NOT_OKED, presenter->fetchMessage());
-				popUpWindowMain.invalidate();
-				break;
-			case UART_TX_ERR:
-				presenter->resetLastStatus();
-				popUpWindowMain.setVisible(true);
-				popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_UART_TX_ERR, presenter->fetchMessage());
-				popUpWindowMain.invalidate();
-				break;
-			default:
-				presenter->resetLastStatus();
-				popUpWindowMain.setVisible(true);
-				popUpWindowMain.setTextWithMessage(T_STATUSMSG_OTHER_ERR, presenter->fetchMessage());
-				popUpWindowMain.invalidate();
-				break;
+		case OP_OK:
+			break;
+		case SET_LENGTH_VALID:
+			break;
+		case SET_LENGTH_TRIMMED:
+			break;
+		case RELAY_DELAY_OF:
+			break;
+		case RELAY_DURATION_OF:
+			break;
+		case RELAY_DEACTIVATED:
+			break;
+		case SETTINGS_LOAD_ERR:
+			break;
+		case SETTINGS_SAVE_ERR:
+			break;
+		case UART_TX_NOT_OKED:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_UART_TX_NOT_OKED, presenter->fetchMessage());
+			popUpWindowMain.invalidate();
+			break;
+		case UART_TX_ERR:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_SETTINGS_UART_TX_ERR, presenter->fetchMessage());
+			popUpWindowMain.invalidate();
+			break;
+		case ORIGIN_UPDATED:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setText(T_STATUSMSG_ORIGIN_UPDATED);
+			popUpWindowMain.invalidate();
+			break;
+		default:
+			presenter->resetLastStatus();
+			popUpWindowMain.setVisible(true);
+			popUpWindowMain.setTextWithMessage(T_STATUSMSG_OTHER_ERR, presenter->fetchMessage());
+			popUpWindowMain.invalidate();
+			break;
 
-		}
+	}
 
 }
+
 
 
 void Screen8GRBLcontrolView::swipeCallbackHandler(int16_t velocity) {

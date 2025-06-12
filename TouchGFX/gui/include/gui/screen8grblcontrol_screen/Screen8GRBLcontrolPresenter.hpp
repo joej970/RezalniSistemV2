@@ -35,6 +35,11 @@ public:
     uint16_t getFeedrate(){return model->getFeedrate();}
     uint16_t getWidth(){return model->getWidth();}
 
+    void tryToConnectGRBL()
+   	{
+   		model->tryToConnectGRBL();
+   	}
+
     grblConn_t getGRBLconnStatus(){
     	return model->getGRBLconnStatus();
     }
@@ -55,10 +60,6 @@ public:
     	return model->fetchUartLineBuffers();
     }
 
-    void tryToConnectGRBL()
-   	{
-   		model->tryToConnectGRBL();
-   	}
 
     Model* getModel(){
     	return model;
@@ -67,6 +68,8 @@ public:
     bool uartConsoleVisible = false;
 
     void onConsoleDataUpdated();
+    void openHomingPrompt();
+    void updateProductionRate(double velocity);
 
 
 
